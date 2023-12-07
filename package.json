@@ -1,0 +1,19 @@
+{
+  "name": "verificadas-node-back",
+  "version": "1.0.0",
+  "description": "back end para verificadas.cl",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PavleTek/Verificadas-node-back.git"
+  },
+  "author": "Glamour Agency",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PavleTek/Verificadas-node-back/issues"
+  },
+  "homepage": "https://github.com/PavleTek/Verificadas-node-back#readme"
+}
