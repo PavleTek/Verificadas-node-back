@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/PavleTek/Verificadas-node-back/issues"
   },
-  "homepage": "https://github.com/PavleTek/Verificadas-node-back#readme"
+  "homepage": "https://github.com/PavleTek/Verificadas-node-back#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2"
+  }
 }
