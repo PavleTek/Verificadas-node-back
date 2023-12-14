@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/PavleTek/Verificadas-node-back#readme",
   "dependencies": {
+    "@prisma/client": "^5.2.0",
     "bcrypt": "^5.1.1",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^5.7.0"
   }
 }
