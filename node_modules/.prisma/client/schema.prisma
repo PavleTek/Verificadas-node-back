@@ -14,12 +14,12 @@ model City {
 }
 
 model Girl {
-  id               Int       @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   name             String
   age              Int
   active           Boolean
   cityId           Int
-  city             City      @relation(fields: [cityId], references: [id])
+  city             City          @relation(fields: [cityId], references: [id])
   specificLocation String
   phoneNumber      String
   description      String
@@ -31,7 +31,7 @@ model Girl {
   chestCm          Int
   waistCm          Int
   bottomCm         Int
-  services         Service[] @relation("GirlServices")
+  services         Service[]     @relation("GirlServices")
   parking          Boolean
   schedule         Json // Since Schedule is a complex object
   attributes       Json // Since Attributes is a complex object
@@ -41,7 +41,7 @@ model Girl {
   editLevel        Int
   countryOfOrigin  String?
   categories       Json // Change to Json type
-  User             User?
+  verification     Verification? // Relation to Verification
 }
 
 enum GirlCategory {
@@ -61,12 +61,35 @@ model Service {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  email    String   @unique
-  password String
-  role     UserRole
-  girlId   Int?     @unique
-  girl     Girl?    @relation(fields: [girlId], references: [id])
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  password     String
+  role         UserRole
+  girlId       Int?           @unique
+  Verification Verification[]
+}
+
+model Verification {
+  id               Int                @id @default(autoincrement())
+  carentFrontal    String
+  carnetAtras      String
+  status           VerificationStatus
+  name             String
+  lastname         String
+  bday             DateTime
+  rut              String?
+  verificationDate DateTime?
+  verifiedBy       Int? // User ID
+  verifiedByUser   User?              @relation(fields: [verifiedBy], references: [id])
+  girlId           Int                @unique
+  girl             Girl               @relation(fields: [girlId], references: [id])
+}
+
+enum VerificationStatus {
+  PENDING
+  SCHEDULED
+  PROCESING
+  VERIFIED
 }
 
 enum UserRole {
