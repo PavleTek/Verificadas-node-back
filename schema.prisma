@@ -66,7 +66,6 @@ model User {
   password     String
   role         UserRole
   girlId       Int?           @unique
-  Verification Verification[]
 }
 
 model Verification {
@@ -79,17 +78,16 @@ model Verification {
   bday             DateTime
   rut              String?
   verificationDate DateTime?
-  verifiedBy       Int? // User ID
-  verifiedByUser   User?              @relation(fields: [verifiedBy], references: [id])
+  verifiedBy       Int? @unique // User ID
   girlId           Int                @unique
   girl             Girl               @relation(fields: [girlId], references: [id])
 }
 
 enum VerificationStatus {
-  PENDING
-  SCHEDULED
-  PROCESING
-  VERIFIED
+  pending
+  scheduled
+  procesing
+  verified
 }
 
 enum UserRole {
