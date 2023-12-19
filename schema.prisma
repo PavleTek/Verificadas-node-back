@@ -16,7 +16,7 @@ model City {
 model Girl {
   id               Int           @id @default(autoincrement())
   name             String
-  age              Int
+  bday             DateTime
   active           Boolean
   cityId           Int
   city             City          @relation(fields: [cityId], references: [id])
@@ -41,7 +41,7 @@ model Girl {
   editLevel        Int
   countryOfOrigin  String?
   categories       Json // Change to Json type
-  verification     Verification? // Relation to Verification
+  verification     Verification?
 }
 
 enum GirlCategory {
@@ -80,7 +80,7 @@ model Verification {
   verificationDate DateTime?
   verifiedBy       Int? @unique // User ID
   girlId           Int                @unique
-  girl             Girl               @relation(fields: [girlId], references: [id])
+  girl             Girl?               @relation(fields: [girlId], references: [id])
 }
 
 enum VerificationStatus {
