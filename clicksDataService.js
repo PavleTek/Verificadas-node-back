@@ -121,3 +121,89 @@ const addOneGirlClick = async (girlId, type) => {
     console.error("Error updating girl clicks:", error);
   }
 };
+
+const getLastXDaysClickStats = async (X) => {
+  try {
+    const clickStats = await prisma.ClickStats.findMany({
+      take: X,
+      orderBy: {
+        date: "desc", // Order by date in descending order (newest to oldest)
+      },
+    });
+    return { status: 200, data: clickStats };
+  } catch (error) {
+    console.error("Error fetching last X days of ClickStats:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const getLastXDaysGirlClickStats = async (X, girlId) => {
+  try {
+    const girlClickStats = await prisma.GirlClickStats.findMany({
+      where: {
+        girlId: girlId,
+      },
+      take: X,
+      orderBy: {
+        date: "desc", // Order by date in descending order (newest to oldest)
+      },
+    });
+    return { status: 200, data: girlClickStats };
+  } catch (error) {
+    console.error("Error fetching last X days of GirlClickStats:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const createDailyStatsRecords = async () => {
+  try {
+    const today = new Date().toISOString().slice(0, 10); // Get today's date in "YYYY-MM-DD" format
+
+    // Create or update the ClickStats record for today
+    const clickStats = await prisma.ClickStats.upsert({
+      where: {
+        date: today,
+      },
+      create: {
+        date: today,
+        generalClicks: 0, // You can initialize this to any default value
+        clicksOnGirls: 0, // You can initialize this to any default value
+      },
+      update: {
+        date: today,
+      },
+    });
+
+    // Fetch all girls
+    const allGirls = await prisma.Girl.findMany({
+        select: {
+          id: true,
+        },
+      });
+
+    // Create or update GirlClickStats records for today for each active girl
+    for (const girl of allGirls) {
+      await prisma.GirlClickStats.upsert({
+        where: {
+          girlId_date: {
+            girlId: girl.id,
+            date: today,
+          },
+        },
+        create: {
+          girlId: girl.id,
+          date: today,
+          clicksToProfile: 0, // You can initialize this to any default value
+          clciksToWhatsapp: 0, // You can initialize this to any default value
+        },
+        update: {
+          date: today,
+        },
+      });
+    }
+
+    console.log(`Daily stats records created for ${today}`);
+  } catch (error) {
+    console.error("Error creating daily stats records:", error);
+  }
+};

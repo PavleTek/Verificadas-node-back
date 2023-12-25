@@ -77,11 +77,13 @@ model Service {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  email    String   @unique
-  password String
-  role     UserRole
-  girlId   Int?     @unique
+  id              Int      @id @default(autoincrement())
+  email           String   @unique
+  password        String
+  role            UserRole
+  girlId          Int?     @unique
+  emailVerified   Boolean  @default(false)
+  verificationCode String?  // Default is null
 }
 
 model Verification {
