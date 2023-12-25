@@ -33,6 +33,7 @@ model Girl {
   name             String
   bday             DateTime
   active           Boolean
+  bluredFace       Boolean
   cityId           Int
   city             City          @relation(fields: [cityId], references: [id])
   specificLocation String
