@@ -44,6 +44,7 @@ const createGirl = async (bday, cityId, verificationId) => {
         name: "",
         bday,
         active: false,
+        bluredFace: false,
         cityId: cityId,
         specificLocation: "",
         phoneNumber: "",
