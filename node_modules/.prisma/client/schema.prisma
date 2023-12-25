@@ -13,6 +13,21 @@ model City {
   girls Girl[]
 }
 
+model ClickStats {
+  id            Int      @id @default(autoincrement())
+  date          DateTime @default(now())
+  generalClicks Int      @default(0)
+  clicksOnGirls Int      @default(0)
+}
+
+model GirlClickStats {
+  id               Int      @id @default(autoincrement())
+  girlId           Int
+  date             DateTime @default(now())
+  clicksToProfile  Int      @default(0)
+  clciksToWhatsapp Int      @default(0)
+}
+
 model Girl {
   id               Int           @id @default(autoincrement())
   name             String
@@ -41,7 +56,8 @@ model Girl {
   editLevel        Int
   countryOfOrigin  String?
   categories       Json // Change to Json type
-  verification     Verification?
+  verificationId   Int?          @unique
+  verification     Verification? @relation(fields: [verificationId], references: [id])
 }
 
 enum GirlCategory {
@@ -61,16 +77,16 @@ model Service {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  email        String         @unique
-  password     String
-  role         UserRole
-  girlId       Int?           @unique
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  password String
+  role     UserRole
+  girlId   Int?     @unique
 }
 
 model Verification {
   id               Int                @id @default(autoincrement())
-  carentFrontal    String
+  carnetFrontal    String
   carnetAtras      String
   status           VerificationStatus
   name             String
@@ -78,9 +94,9 @@ model Verification {
   bday             DateTime
   rut              String?
   verificationDate DateTime?
-  verifiedBy       Int? @unique // User ID
-  girlId           Int                @unique
-  girl             Girl?               @relation(fields: [girlId], references: [id])
+  verifiedBy       Int?               @unique // User ID
+  girlId           Int?
+  Girl             Girl?
 }
 
 enum VerificationStatus {

@@ -2,19 +2,55 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const prisma = require("./prisma/prisma.js");
 
-const register = async (req) => {
-  const { name, is_admin, mandatory, username, password } = req.body;
+const registerAdminUser = async (req) => {
+  const { email, password } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.User.create({
       data: {
-        name,
-        is_admin,
-        mandatory,
-        username,
+        email,
         password: hashedPassword,
+        role: "admin",
       },
     });
+    return { status: 200, data: user };
+  } catch (error) {
+    return { status: 500, data: error };
+  }
+};
+
+const registerGirlUser = async (req) => {
+  const { email, password, bday, cityId } = req.body;
+
+  try {
+    // Step 1: Create a verification
+    const verificationResult = await createVerification(bday);
+    const verificationId = verificationResult.verificationId;
+
+    // Step 2: Create a girl with the verification ID
+    const girlResult = await createGirl(bday, cityId, verificationId);
+    const girlId = girlResult.data.id;
+
+    // update verification to add girl id
+    await prisma.Verification.update({
+      where: {
+        id: verificationId,
+      },
+      data: {
+        girlId: girlId,
+      },
+    });
+    // Step 4: Create a user with the girl ID
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await prisma.User.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role: "girl",
+        girlId: girlId,
+      },
+    });
+
     return { status: 200, data: user };
   } catch (error) {
     return { status: 500, data: error };
@@ -247,7 +283,8 @@ const getProfile = async (req, res) => {
 };
 
 module.exports = {
-  register,
+  registerAdminUser,
+  registerGirlUser,
   login,
   changePassword,
   authenticate,
