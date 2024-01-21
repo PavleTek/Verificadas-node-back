@@ -1,44 +1,8 @@
-const prisma = require("./prisma/prisma.js");
-
-// City logic part
-const createCity = async (req) => {
-  const { name } = req.body;
-  try {
-    const city = await prisma.City.create({
-      data: {
-        name,
-      },
-    });
-    console.log(`City "${city.name}" created with ID ${city.id}`);
-    return { status: 200, data: city };
-  } catch (error) {
-    console.error("Error creating city:", error);
-    return { status: 500, data: error };
-  }
-};
-
-const updateCityName = async (req) => {
-  const { id, newName } = req.body;
-
-  try {
-    const city = await prisma.City.update({
-      where: {
-        id: id,
-      },
-      data: {
-        name: newName,
-      },
-    });
-    console.log(`City with ID ${city.id} updated with new name: ${city.name}`);
-    return { status: 200, data: city };
-  } catch (error) {
-    console.error("Error updating city name:", error);
-    return { status: 500, data: error };
-  }
-};
+const prisma = require("../prisma.js");
 
 const createGirl = async (bday, cityId, verificationId) => {
   try {
+    const serviceIds = [];
     const girl = await prisma.Girl.create({
       data: {
         name: "",
@@ -57,7 +21,11 @@ const createGirl = async (bday, cityId, verificationId) => {
         chestCm: 0,
         waistCm: 0,
         bottomCm: 0,
-        services: [],
+        services: {
+          connect: serviceIds.map((serviceId) => ({
+            id: serviceId,
+          })),
+        },
         parking: false,
         schedule: {},
         attributes: {},
@@ -79,15 +47,24 @@ const createGirl = async (bday, cityId, verificationId) => {
 };
 
 const updateGirl = async (req) => {
-  const { id, ...updateData } = req.body;
+  const { id, services, ...updateData } = req.body; // Extract the 'services' field
 
   try {
     const girl = await prisma.Girl.update({
       where: {
         id,
       },
-      data: updateData,
+      data: {
+        ...updateData, // Include other update data
+        services: {
+          // Use 'connect' to update the associated services
+          set: services.map((serviceId) => ({
+            id: serviceId,
+          })),
+        },
+      },
     });
+
     console.log(`Girl with ID ${girl.id} updated`);
     return { status: 200, data: girl };
   } catch (error) {
@@ -116,24 +93,6 @@ const createVerification = async (bday) => {
     return { status: 200, data: verification, verificationId: verification.id };
   } catch (error) {
     console.error("Error creating verification:", error);
-    return { status: 500, data: error };
-  }
-};
-
-const updateVerification = async (req) => {
-  const { id, ...updateData } = req.body;
-
-  try {
-    const verification = await prisma.Verification.update({
-      where: {
-        id,
-      },
-      data: updateData,
-    });
-    console.log(`Verification with ID ${verification.id} updated`);
-    return { status: 200, data: verification };
-  } catch (error) {
-    console.error("Error updating verification:", error);
     return { status: 500, data: error };
   }
 };
@@ -174,12 +133,9 @@ const getGirlById = async (girlId) => {
 };
 
 module.exports = {
-  createCity,
-  updateCityName,
   createGirl,
   updateGirl,
   createVerification,
-  updateVerification,
   getGirlsByCityId,
   getGirlById,
 };

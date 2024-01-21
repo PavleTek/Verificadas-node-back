@@ -1,34 +1,18 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const prisma = require("./prisma/prisma.js");
-
-const registerAdminUser = async (req) => {
-  const { email, password } = req.body;
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await prisma.User.create({
-      data: {
-        email,
-        password: hashedPassword,
-        role: "admin",
-      },
-    });
-    return { status: 200, data: user };
-  } catch (error) {
-    return { status: 500, data: error };
-  }
-};
+const prisma = require("../prisma.js");
+const girlService = require("../girl/girlService.js");
 
 const registerGirlUser = async (req) => {
   const { email, password, bday, cityId } = req.body;
 
   try {
     // Step 1: Create a verification
-    const verificationResult = await createVerification(bday);
+    const verificationResult = await girlService.createVerification(bday);
     const verificationId = verificationResult.verificationId;
 
     // Step 2: Create a girl with the verification ID
-    const girlResult = await createGirl(bday, cityId, verificationId);
+    const girlResult = await girlService.createGirl(bday, cityId, verificationId);
     const girlId = girlResult.data.id;
 
     // update verification to add girl id
@@ -162,67 +146,13 @@ const authenticateAdmin = (req, res, next) => {
     req.user = decoded;
 
     // Check if the user is an admin
-    if (!req.user.is_admin) {
+    if (!req.user.role !== "admin") {
       return res.status(403).send("Access denied. Admin rights required.");
     }
 
     next();
   });
 };
-
-async function getAllUsers() {
-  try {
-    const users = await prisma.User.findMany();
-    return users;
-  } catch (error) {
-    throw new Error(`Error fetching users: ${error.message}`);
-  }
-}
-
-async function getUserById(userId) {
-  try {
-    const user = await prisma.User.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!user) {
-      throw new Error(`User with ID ${userId} not found`);
-    }
-
-    return user;
-  } catch (error) {
-    throw new Error(`Error fetching user by ID: ${error.message}`);
-  }
-}
-
-async function deleteUserById(userId) {
-  try {
-    // Check if the user exists before deleting
-    const user = await prisma.User.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!user) {
-      throw new Error(`User with ID ${userId} not found`);
-    }
-
-    // Delete the user
-    await prisma.User.delete({
-      where: {
-        id: userId,
-      },
-    });
-
-    return { success: true, message: `User with ID ${userId} has been deleted` };
-  } catch (error) {
-    console.error(error); // Log the error for debugging
-    return { success: false, message: "An error occurred while deleting the user" };
-  }
-}
 
 const updateUser = async (userId, updatedUserData) => {
   try {
@@ -283,7 +213,6 @@ const getProfile = async (req, res) => {
 };
 
 module.exports = {
-  registerAdminUser,
   registerGirlUser,
   login,
   changePassword,
@@ -291,8 +220,5 @@ module.exports = {
   authenticateAdmin,
   getProfile,
   getUserFromToken,
-  getAllUsers,
-  getUserById,
   updateUser,
-  deleteUserById,
 };
