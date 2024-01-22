@@ -1,26 +1,11 @@
 const express = require("express");
 const girlService = require("./girlService");
-const userService = require("../user/userService");
 
 const router = express.Router();
-
-// POST endpoint for creating a girl
-router.post("/girl", async (req, res) => {
-  const { bday, cityId, verificationId } = req.body;
-  const response = await girlService.createGirl(bday, cityId, verificationId);
-  res.status(response.status).send(response.data);
-});
 
 // PUT endpoint for updating a girl
 router.put("/girl", async (req, res) => {
   const response = await girlService.updateGirl(req);
-  res.status(response.status).send(response.data);
-});
-
-// POST endpoint for creating a verification
-router.post("/verification", async (req, res) => {
-  const { bday } = req.body;
-  const response = await girlService.createVerification(bday);
   res.status(response.status).send(response.data);
 });
 
@@ -36,6 +21,26 @@ router.get("/girl/:girlId", async (req, res) => {
   const { girlId } = req.params;
   const response = await girlService.getGirlById(girlId);
   res.status(response.status).send(response.data);
+});
+
+// GET endpoint for fetching all Services
+router.get("/services", async (req, res) => {
+  try {
+    const services = await girlService.getAllServices();
+    res.json(services);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET endpoint for fetching all Cities
+router.get("/cities", async (req, res) => {
+  try {
+    const cities = await girlService.getAllCities();
+    res.json(cities);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 module.exports = router;

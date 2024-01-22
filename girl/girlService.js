@@ -1,5 +1,7 @@
 const prisma = require("../prisma.js");
 
+// This function will only be called through function CreateGirlUser
+// Will never be called independently through api
 const createGirl = async (bday, cityId, verificationId) => {
   try {
     const serviceIds = [];
@@ -73,6 +75,8 @@ const updateGirl = async (req) => {
   }
 };
 
+// This function will only be called through function CreateGirlUser
+// Will never be called independently through api
 const createVerification = async (bday) => {
   try {
     const verification = await prisma.Verification.create({
@@ -132,10 +136,32 @@ const getGirlById = async (girlId) => {
   }
 };
 
+const getAllServices = async () => {
+  try {
+    const services = await prisma.service.findMany({});
+    return services;
+  } catch (error) {
+    console.error("Error fetching services:", error);
+    throw error; // Or handle error as needed
+  }
+};
+
+const getAllCities = async () => {
+  try {
+    const cities = await prisma.city.findMany({});
+    return cities;
+  } catch (error) {
+    console.error("Error fetching cities:", error);
+    throw error; // Or handle error as needed
+  }
+};
+
 module.exports = {
   createGirl,
   updateGirl,
   createVerification,
   getGirlsByCityId,
   getGirlById,
+  getAllServices,
+  getAllCities,
 };
