@@ -105,7 +105,7 @@ const getGirlsByCityId = async (cityId) => {
   try {
     const girls = await prisma.girl.findMany({
       where: {
-        cityId: cityId,
+        cityId: Number(cityId),
         active: true, // Only fetch active girls
       },
     });

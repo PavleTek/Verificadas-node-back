@@ -1,10 +1,17 @@
 const userService = require("./user/userService.js");
 const girlService = require("./girl/girlService.js");
 const adminService = require("./admin/adminService.js");
+const { all } = require("./user/userController.js");
 
 const adminUser = {
   email: "mpavle134@gmail.com",
   password: "admin",
+  role: "admin",
+};
+
+const adminUser2 = {
+  email: "asdf",
+  password: "asdf",
   role: "admin",
 };
 
@@ -22,9 +29,6 @@ const girlUser2 = {
   cityId: 1,
 };
 
-userService.registerGirlUser({ body: { email: girlUser1.email, password: girlUser1.password, bday: girlUser1.bday, cityId: girlUser1.cityId } });
-userService.registerGirlUser({ body: { email: girlUser2.email, password: girlUser2.password, bday: girlUser2.bday, cityId: girlUser2.cityId } });
-
 async function createMultipleServices() {
   const services = [
     { name: "Oral Natural", description: "Oral sin presevativo" },
@@ -41,4 +45,23 @@ async function createMultipleServices() {
     console.log(result);
   }
 }
-createMultipleServices();
+
+async function createAdmin(user) {
+  await adminService.registerAdminUser({ body: user });
+}
+
+async function logAllUsers() {
+  const allUsers = await adminService.getAllUsers();
+  console.log(allUsers);
+}
+
+async function activateGirlById(id) {
+  const girlObj1 = await girlService.getGirlById(id);
+  console.log(girlObj1);
+  const updatedGirl = { ...girlObj1, active: true };
+  const req = { body: updatedGirl };
+  girlService.updateGirl(req);
+}
+
+logAllUsers();
+// createAdmin(adminUser2);

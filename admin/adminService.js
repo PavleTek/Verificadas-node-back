@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const createCity = async (req) => {
   const { name } = req.body;
   try {
-    const city = await prisma.City.create({
+    const city = await prisma.city.create({
       data: {
         name,
       },
@@ -22,7 +22,7 @@ const updateCityName = async (req) => {
   const { id, newName } = req.body;
 
   try {
-    const city = await prisma.City.update({
+    const city = await prisma.city.update({
       where: {
         id: id,
       },
@@ -43,7 +43,7 @@ const updateVerification = async (req) => {
   const { id, ...updateData } = req.body;
 
   try {
-    const verification = await prisma.Verification.update({
+    const verification = await prisma.verification.update({
       where: {
         id,
       },
@@ -62,9 +62,10 @@ const registerAdminUser = async (req) => {
   const { email, password } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await prisma.User.create({
+    const lowerCaseEmail = email.toLowerCase();
+    const user = await prisma.user.create({
       data: {
-        email,
+        email: lowerCaseEmail,
         password: hashedPassword,
         role: "admin",
       },
@@ -78,7 +79,7 @@ const registerAdminUser = async (req) => {
 // User logic part
 async function getAllUsers() {
   try {
-    const users = await prisma.User.findMany();
+    const users = await prisma.user.findMany();
     return users;
   } catch (error) {
     throw new Error(`Error fetching users: ${error.message}`);
@@ -87,7 +88,7 @@ async function getAllUsers() {
 
 async function getUserById(userId) {
   try {
-    const user = await prisma.User.findUnique({
+    const user = await prisma.user.findUnique({
       where: {
         id: userId,
       },
@@ -106,7 +107,7 @@ async function getUserById(userId) {
 async function deleteUserById(userId) {
   try {
     // Check if the user exists before deleting
-    const user = await prisma.User.findUnique({
+    const user = await prisma.user.findUnique({
       where: {
         id: userId,
       },
@@ -117,7 +118,7 @@ async function deleteUserById(userId) {
     }
 
     // Delete the user
-    await prisma.User.delete({
+    await prisma.user.delete({
       where: {
         id: userId,
       },

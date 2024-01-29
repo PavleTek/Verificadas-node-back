@@ -3,6 +3,9 @@ const jwt = require("jsonwebtoken");
 const prisma = require("../prisma.js");
 const girlService = require("../girl/girlService.js");
 
+require("dotenv").config();
+const secretKey = process.env.JWT_SECRET_KEY;
+
 const registerGirlUser = async (req) => {
   const { email, password, bday, cityId } = req.body;
 
@@ -42,12 +45,13 @@ const registerGirlUser = async (req) => {
 };
 
 const login = async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
+  console.log(req.headers.authorization, "login authorization");
 
   try {
-    const user = await prisma.User.findUnique({
+    const user = await prisma.user.findUnique({
       where: {
-        username,
+        email,
       },
     });
 
@@ -61,13 +65,31 @@ const login = async (req, res) => {
       return res.status(401).send("Invalid password");
     }
 
-    const token = jwt.sign({ id: user.id, username: user.username, is_admin: user.is_admin }, "secretKey", {
-      expiresIn: "1h",
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role, girlId: user.girlId }, secretKey, {
+      expiresIn: "4h",
     });
 
     res.send({ token });
+    console.log(token);
   } catch (error) {
     res.status(500).send(error, req.body);
+  }
+};
+
+const verifyToken = async (token) => {
+  if (!token) {
+    // Token not provided, user is not logged in
+    return false;
+  }
+
+  try {
+    const decoded = jwt.verify(token, secretKey);
+
+    // If the token is valid, the user is logged in
+    return true;
+  } catch (error) {
+    // Token is invalid or has expired, user is not logged in
+    return false;
   }
 };
 
@@ -119,7 +141,7 @@ const authenticate = (req, res, next) => {
 
   const token = authHeader.split(" ")[1];
 
-  jwt.verify(token, "secretKey", (err, decoded) => {
+  jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
       console.error("Token verification error:", err);
       return res.status(401).send("Token verification failed: " + err.message);
@@ -138,7 +160,7 @@ const authenticateAdmin = (req, res, next) => {
 
   const token = authHeader.split(" ")[1];
 
-  jwt.verify(token, "secretKey", (err, decoded) => {
+  jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
       return res.status(401).send("Invalid token");
     }
@@ -187,7 +209,7 @@ const getUserFromToken = (req, res, next) => {
 
   const token = authHeader.split(" ")[1];
 
-  jwt.verify(token, "secretKey", (err, decoded) => {
+  jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
       return res.status(401).send("Invalid token");
     }
@@ -214,6 +236,7 @@ const getProfile = async (req, res) => {
 
 module.exports = {
   registerGirlUser,
+  verifyToken,
   login,
   changePassword,
   authenticate,

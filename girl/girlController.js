@@ -36,9 +36,12 @@ router.get("/services", async (req, res) => {
 // GET endpoint for fetching all Cities
 router.get("/cities", async (req, res) => {
   try {
+    console.log("get cities is being called");
     const cities = await girlService.getAllCities();
+    console.log(cities);
     res.json(cities);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: error.message });
   }
 });
