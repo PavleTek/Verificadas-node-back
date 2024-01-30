@@ -78,15 +78,14 @@ const login = async (req, res) => {
 
 const verifyToken = async (token) => {
   if (!token) {
-    // Token not provided, user is not logged in
-    return false;
+    return false ;
   }
 
   try {
     const decoded = jwt.verify(token, secretKey);
 
     // If the token is valid, the user is logged in
-    return true;
+    return  decoded;
   } catch (error) {
     // Token is invalid or has expired, user is not logged in
     return false;
@@ -166,9 +165,11 @@ const authenticateAdmin = (req, res, next) => {
     }
 
     req.user = decoded;
+    console.log(req.user.role);
 
     // Check if the user is an admin
-    if (!req.user.role !== "admin") {
+    if (req.user.role !== "admin") {
+      console.log("admin required not available for you");
       return res.status(403).send("Access denied. Admin rights required.");
     }
 

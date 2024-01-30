@@ -39,13 +39,20 @@ router.delete("/user/:userId", userService.authenticateAdmin, async (req, res) =
 // POST endpoint for creating a city - Admin only
 router.post("/city", userService.authenticateAdmin, async (req, res) => {
   const response = await adminService.createCity(req);
-  res.status(response.status).send(response.data);
+  res.status(response.status).send(response);
 });
 
 // PUT endpoint for updating a city name - Admin only
 router.put("/city", userService.authenticateAdmin, async (req, res) => {
   const response = await adminService.updateCityName(req);
-  res.status(response.status).send(response.data);
+  res.status(response.status).send(response);
+});
+
+// DELETE endpoint for deleting a city - Admin only
+router.delete("/city/:cityId", userService.authenticateAdmin, async (req, res) => {
+  const cityId = Number(req.params.cityId);
+  const response = await adminService.deleteCity(cityId);
+  res.status(response.status).send(response);
 });
 
 // PUT endpoint for updating a verification - Admin only
@@ -57,19 +64,20 @@ router.put("/verification", userService.authenticateAdmin, async (req, res) => {
 // POST endpoint for creating a service - Admin only
 router.post("/service", userService.authenticateAdmin, async (req, res) => {
   const response = await adminService.createService(req);
-  res.status(response.status).send(response.data);
+  res.status(response.status).send(response);
 });
 
 // PUT endpoint for updating a service - Admin only
 router.put("/service", userService.authenticateAdmin, async (req, res) => {
   const response = await adminService.updateService(req);
-  res.status(response.status).send(response.data);
+  res.status(response.status).send(response);
 });
 
 // DELETE endpoint for deleting a service - Admin only
-router.delete("/service", userService.authenticateAdmin, async (req, res) => {
-  const response = await adminService.deleteService(req);
-  res.status(response.status).send(response.message);
+router.delete("/service/:serviceId", userService.authenticateAdmin, async (req, res) => {
+  const serviceId = Number(req.params.serviceId);
+  const response = await adminService.deleteService(serviceId);
+  res.status(response.status).send(response);
 });
 
 module.exports = router;

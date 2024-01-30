@@ -38,6 +38,21 @@ const updateCityName = async (req) => {
   }
 };
 
+const deleteCity = async (cityId) => {
+  try {
+    await prisma.city.delete({
+      where: {
+        id: cityId,
+      },
+    });
+    console.log(`City with ID ${cityId} deleted`);
+    return { status: 200, message: `City with ID ${cityId} has been deleted` };
+  } catch (error) {
+    console.error("Error deleting city:", error);
+    return { status: 500, data: error };
+  }
+};
+
 // Verification update
 const updateVerification = async (req) => {
   const { id, ...updateData } = req.body;
@@ -151,12 +166,12 @@ const createService = async (req) => {
 };
 
 const updateService = async (req) => {
-  const { serviceId, name, description } = req.body;
+  const { id, name, description } = req.body;
 
   try {
     const service = await prisma.service.update({
       where: {
-        id: serviceId,
+        id: id,
       },
       data: {
         name,
@@ -171,9 +186,7 @@ const updateService = async (req) => {
   }
 };
 
-const deleteService = async (req) => {
-  const { serviceId } = req.body;
-
+const deleteService = async (serviceId) => {
   try {
     await prisma.service.delete({
       where: {
@@ -191,6 +204,7 @@ const deleteService = async (req) => {
 module.exports = {
   createCity,
   updateCityName,
+  deleteCity,
   updateVerification,
   registerAdminUser,
   getAllUsers,
