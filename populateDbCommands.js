@@ -16,7 +16,7 @@ const adminUser2 = {
 };
 
 const girlUser1 = {
-  email: "girl1@edu.com",
+  email: "testingGirl@edu.com",
   password: "asdf",
   bday: new Date(1999, 2, 2),
   cityId: 1,
@@ -42,7 +42,6 @@ async function createMultipleServices() {
       body: service,
     };
     const result = await adminService.createService(request);
-    console.log(result);
   }
 }
 
@@ -52,16 +51,25 @@ async function createAdmin(user) {
 
 async function logAllUsers() {
   const allUsers = await adminService.getAllUsers();
-  console.log(allUsers);
 }
 
-async function activateGirlById(id) {
-  const girlObj1 = await girlService.getGirlById(id);
-  console.log(girlObj1);
-  const updatedGirl = { ...girlObj1, active: true };
-  const req = { body: updatedGirl };
-  girlService.updateGirl(req);
+async function createGirl() {
+  const req = {
+    body: {
+      email: "testingGirl2@edu.com",
+      password: "fdsa",
+      bday: new Date(1989, 2, 2),
+      cityId: 2,
+    },
+  };
+  await userService.registerGirlUser(req);
 }
 
-logAllUsers();
+async function getAllUsers() {
+  const response = await adminService.getAllGirlsUsersWithAllInfo();
+  console.log(response);
+  console.log("this are all users");
+}
+
+getAllUsers();
 // createAdmin(adminUser2);

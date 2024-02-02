@@ -14,6 +14,16 @@ router.get("/users", userService.authenticateAdmin, async (req, res) => {
   }
 });
 
+// GET endpoint to retrieve all girl users with all their data - Admin only
+router.get("/users/complete", userService.authenticateAdmin, async (req, res) => {
+  try {
+    const response = await adminService.getAllGirlsUsersWithAllInfo();
+    res.send(response);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
 // GET endpoint to retrieve a user by ID - Admin only
 router.get("/user/:userId", userService.authenticateAdmin, async (req, res) => {
   try {
@@ -23,6 +33,11 @@ router.get("/user/:userId", userService.authenticateAdmin, async (req, res) => {
   } catch (error) {
     res.status(500).send(error.message);
   }
+});
+
+router.put("/girl", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.updateGirl(req);
+  res.status(response.status).send(response);
 });
 
 // DELETE endpoint to delete a user by ID - Admin only

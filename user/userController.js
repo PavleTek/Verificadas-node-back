@@ -22,14 +22,13 @@ router.post("/verifyToken", async (req, res) => {
     return res.status(401).send("Token not provided");
   }
 
-  const decoded = userService.verifyToken(token);
+  const response = await userService.verifyToken(token);
 
-  if (!decoded) {
-    return res.status(401).send("Invalid token");
+  if (response.status === 200) {
+    res.status(200).send({ valid: true, data: response.data });
+  } else {
+    return res.status(401).send({ valid: false, data: response.data });
   }
-
-  // Token is valid, you can send additional data if needed
-  res.status(200).send({ valid: true, decodedData: decoded });
 });
 
 // PUT endpoint for changing password

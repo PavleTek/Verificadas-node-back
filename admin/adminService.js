@@ -10,7 +10,6 @@ const createCity = async (req) => {
         name,
       },
     });
-    console.log(`City "${city.name}" created with ID ${city.id}`);
     return { status: 200, data: city };
   } catch (error) {
     console.error("Error creating city:", error);
@@ -30,7 +29,6 @@ const updateCityName = async (req) => {
         name: newName,
       },
     });
-    console.log(`City with ID ${city.id} updated with new name: ${city.name}`);
     return { status: 200, data: city };
   } catch (error) {
     console.error("Error updating city name:", error);
@@ -45,7 +43,6 @@ const deleteCity = async (cityId) => {
         id: cityId,
       },
     });
-    console.log(`City with ID ${cityId} deleted`);
     return { status: 200, message: `City with ID ${cityId} has been deleted` };
   } catch (error) {
     console.error("Error deleting city:", error);
@@ -64,7 +61,6 @@ const updateVerification = async (req) => {
       },
       data: updateData,
     });
-    console.log(`Verification with ID ${verification.id} updated`);
     return { status: 200, data: verification };
   } catch (error) {
     console.error("Error updating verification:", error);
@@ -101,6 +97,43 @@ async function getAllUsers() {
   }
 }
 
+const getAllGirlsUsersWithAllInfo = async () => {
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        role: "girl", // Filter users by role 'girl'
+      },
+    });
+
+    const usersWithGirls = await Promise.all(
+      users.map(async (user) => {
+        if (!user.girlId) return null; // Skip users without a girlId
+
+        const girl = await prisma.girl.findUnique({
+          where: {
+            id: user.girlId,
+          },
+          include: {
+            city: true, // Include city details
+            services: true, // Include services
+            verification: true, // Include verification details
+          },
+        });
+
+        return girl ? { ...user, girl } : null;
+      })
+    );
+
+    return {
+      status: 200,
+      data: usersWithGirls.filter((user) => user !== null), // Filter out null values
+    };
+  } catch (error) {
+    console.error("Error fetching users with role 'girl':", error);
+    return { status: 500, data: error };
+  }
+};
+
 async function getUserById(userId) {
   try {
     const user = await prisma.user.findUnique({
@@ -116,6 +149,40 @@ async function getUserById(userId) {
     return user;
   } catch (error) {
     throw new Error(`Error fetching user by ID: ${error.message}`);
+  }
+}
+
+async function updateGirl(req) {
+  const { id, serviceIds, ...updateData } = req.body; // Extract the 'serviceIds' field
+
+  // Exclude the 'verification' field from the updateData object
+  delete updateData.verification;
+  delete updateData.verificationId;
+
+  try {
+    const girl = await prisma.girl.update({
+      where: {
+        id,
+      },
+      data: {
+        ...updateData, // Include other update data
+        city: {
+          connect: {
+            id: updateData.city.id, // Use 'connect' to update the associated City by ID
+          },
+        },
+        services: {
+          connect: serviceIds.map((serviceId) => ({
+            id: serviceId,
+          })),
+        },
+      },
+    });
+
+    return { status: 200, data: girl };
+  } catch (error) {
+    console.error("Error updating girl:", error);
+    return { status: 500, data: error };
   }
 }
 
@@ -157,7 +224,6 @@ const createService = async (req) => {
         description,
       },
     });
-    console.log(`Service "${service.name}" created with ID ${service.id}`);
     return { status: 200, data: service };
   } catch (error) {
     console.error("Error creating service:", error);
@@ -178,7 +244,6 @@ const updateService = async (req) => {
         description,
       },
     });
-    console.log(`Service with ID ${service.id} updated`);
     return { status: 200, data: service };
   } catch (error) {
     console.error("Error updating service:", error);
@@ -193,7 +258,6 @@ const deleteService = async (serviceId) => {
         id: serviceId,
       },
     });
-    console.log(`Service with ID ${serviceId} deleted`);
     return { status: 200, message: `Service with ID ${serviceId} has been deleted` };
   } catch (error) {
     console.error("Error deleting service:", error);
@@ -213,4 +277,6 @@ module.exports = {
   createService,
   updateService,
   deleteService,
+  getAllGirlsUsersWithAllInfo,
+  updateGirl,
 };

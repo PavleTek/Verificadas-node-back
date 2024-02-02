@@ -5,7 +5,7 @@ const prisma = require("../prisma.js");
 const createGirl = async (bday, cityId, verificationId) => {
   try {
     const serviceIds = [];
-    const girl = await prisma.Girl.create({
+    const girl = await prisma.girl.create({
       data: {
         name: "",
         bday,
@@ -40,7 +40,6 @@ const createGirl = async (bday, cityId, verificationId) => {
         verificationId: verificationId,
       },
     });
-    console.log(`Girl "${girl.name}" created with ID ${girl.id}`);
     return { status: 200, data: girl };
   } catch (error) {
     console.error("Error creating girl:", error);
@@ -49,25 +48,24 @@ const createGirl = async (bday, cityId, verificationId) => {
 };
 
 const updateGirl = async (req) => {
-  const { id, services, ...updateData } = req.body; // Extract the 'services' field
+  const { id, serviceIds, ...updateData } = req.body; // Extract the 'serviceIds' field
 
   try {
-    const girl = await prisma.Girl.update({
+    const girl = await prisma.girl.update({
       where: {
         id,
       },
       data: {
         ...updateData, // Include other update data
         services: {
-          // Use 'connect' to update the associated services
-          set: services.map((serviceId) => ({
+          // Use 'connect' to update the associated serviceIds
+          connect: serviceIds.map((serviceId) => ({
             id: serviceId,
           })),
         },
       },
     });
 
-    console.log(`Girl with ID ${girl.id} updated`);
     return { status: 200, data: girl };
   } catch (error) {
     console.error("Error updating girl:", error);
@@ -93,7 +91,6 @@ const createVerification = async (bday) => {
         girlId: undefined,
       },
     });
-    console.log(`Verification created with ID ${verification.id}`);
     return { status: 200, data: verification, verificationId: verification.id };
   } catch (error) {
     console.error("Error creating verification:", error);
@@ -139,7 +136,7 @@ const getGirlById = async (girlId) => {
 const getAllServices = async () => {
   try {
     const services = await prisma.service.findMany({});
-    return services;
+    return { status: 200, data: services };
   } catch (error) {
     console.error("Error fetching services:", error);
     throw error; // Or handle error as needed
@@ -149,7 +146,7 @@ const getAllServices = async () => {
 const getAllCities = async () => {
   try {
     const cities = await prisma.city.findMany({});
-    return cities;
+    return { status: 200, data: cities };
   } catch (error) {
     console.error("Error fetching cities:", error);
     throw error; // Or handle error as needed

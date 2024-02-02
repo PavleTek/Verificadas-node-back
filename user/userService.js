@@ -12,14 +12,16 @@ const registerGirlUser = async (req) => {
   try {
     // Step 1: Create a verification
     const verificationResult = await girlService.createVerification(bday);
+    console.log(verificationResult);
     const verificationId = verificationResult.verificationId;
 
     // Step 2: Create a girl with the verification ID
     const girlResult = await girlService.createGirl(bday, cityId, verificationId);
+    console.log(girlResult);
     const girlId = girlResult.data.id;
 
     // update verification to add girl id
-    await prisma.Verification.update({
+    await prisma.verification.update({
       where: {
         id: verificationId,
       },
@@ -29,7 +31,7 @@ const registerGirlUser = async (req) => {
     });
     // Step 4: Create a user with the girl ID
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await prisma.User.create({
+    const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
@@ -46,7 +48,6 @@ const registerGirlUser = async (req) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  console.log(req.headers.authorization, "login authorization");
 
   try {
     const user = await prisma.user.findUnique({
@@ -70,7 +71,6 @@ const login = async (req, res) => {
     });
 
     res.send({ token });
-    console.log(token);
   } catch (error) {
     res.status(500).send(error, req.body);
   }
@@ -78,17 +78,19 @@ const login = async (req, res) => {
 
 const verifyToken = async (token) => {
   if (!token) {
-    return false ;
+    return false;
   }
 
   try {
     const decoded = jwt.verify(token, secretKey);
+    console.log(decoded);
 
     // If the token is valid, the user is logged in
-    return  decoded;
+    return { status: 200, data: decoded };
   } catch (error) {
+    console.log(error, "ERROR");
     // Token is invalid or has expired, user is not logged in
-    return false;
+    return { status: 401, data: {} };
   }
 };
 
@@ -165,11 +167,9 @@ const authenticateAdmin = (req, res, next) => {
     }
 
     req.user = decoded;
-    console.log(req.user.role);
 
     // Check if the user is an admin
     if (req.user.role !== "admin") {
-      console.log("admin required not available for you");
       return res.status(403).send("Access denied. Admin rights required.");
     }
 

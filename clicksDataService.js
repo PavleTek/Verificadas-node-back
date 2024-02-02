@@ -202,7 +202,6 @@ const createDailyStatsRecords = async () => {
       });
     }
 
-    console.log(`Daily stats records created for ${today}`);
   } catch (error) {
     console.error("Error creating daily stats records:", error);
   }
