@@ -1,5 +1,6 @@
 const userService = require("./user/userService.js");
 const girlService = require("./girl/girlService.js");
+const prisma = require("./prisma.js");
 const adminService = require("./admin/adminService.js");
 const { all } = require("./user/userController.js");
 
@@ -56,10 +57,10 @@ async function logAllUsers() {
 async function createGirl() {
   const req = {
     body: {
-      email: "testingGirl2@edu.com",
+      email: "thirdGirlButYes@edu.com",
       password: "fdsa",
-      bday: new Date(1989, 2, 2),
-      cityId: 2,
+      bday: new Date(2001, 2, 2),
+      cityId: 1,
     },
   };
   await userService.registerGirlUser(req);
@@ -71,5 +72,18 @@ async function getAllUsers() {
   console.log("this are all users");
 }
 
-getAllUsers();
-// createAdmin(adminUser2);
+async function deleteAllGirls() {
+  try {
+    const deletedGirls = await prisma.girl.deleteMany();
+    const deletedVerifications = await prisma.verification.deleteMany();
+    const deletePrices = await prisma.prices.deleteMany();
+    return { success: true, message: `Deleted ${deletedGirls.count} girls.` };
+  } catch (error) {
+    console.error("Error deleting girls:", error);
+    return { success: false, message: "Failed to delete girls." };
+  } finally {
+    await prisma.$disconnect(); // Close the Prisma client connection
+  }
+}
+
+createGirl();

@@ -117,6 +117,7 @@ const getAllGirlsUsersWithAllInfo = async () => {
             city: true, // Include city details
             services: true, // Include services
             verification: true, // Include verification details
+            sessionPrices: true, // Include Prices
           },
         });
 
@@ -153,11 +154,13 @@ async function getUserById(userId) {
 }
 
 async function updateGirl(req) {
-  const { id, serviceIds, ...updateData } = req.body; // Extract the 'serviceIds' field
+  const { id, sessionPricesId, sessionPrices, ...updateData } = req.body; // Extract the 'serviceIds' field
 
   // Exclude the 'verification' field from the updateData object
   delete updateData.verification;
   delete updateData.verificationId;
+  delete updateData.sessionPricesId;
+  delete updateData.sessionPrices;
 
   try {
     const girl = await prisma.girl.update({
@@ -165,21 +168,27 @@ async function updateGirl(req) {
         id,
       },
       data: {
-        ...updateData, // Include other update data
+        ...updateData,
         city: {
           connect: {
-            id: updateData.city.id, // Use 'connect' to update the associated City by ID
+            id: updateData.city.id,
           },
         },
         services: {
-          connect: serviceIds.map((serviceId) => ({
-            id: serviceId,
+          connect: updateData.services.map((service) => ({
+            id: service.id,
           })),
         },
       },
     });
+    const updatedPrices = await prisma.prices.update({
+      where: { id: sessionPricesId },
+      data: {
+        ...sessionPrices,
+      },
+    });
 
-    return { status: 200, data: girl };
+    return { status: 200, data: { girl, sessionPrices } };
   } catch (error) {
     console.error("Error updating girl:", error);
     return { status: 500, data: error };

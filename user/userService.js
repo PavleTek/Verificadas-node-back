@@ -12,18 +12,28 @@ const registerGirlUser = async (req) => {
   try {
     // Step 1: Create a verification
     const verificationResult = await girlService.createVerification(bday);
-    console.log(verificationResult);
     const verificationId = verificationResult.verificationId;
 
-    // Step 2: Create a girl with the verification ID
-    const girlResult = await girlService.createGirl(bday, cityId, verificationId);
-    console.log(girlResult);
+    // Step 2: Create a prices object for the girl
+    const pricesObject = await girlService.createPricesObject();
+    const pricesObjectId = pricesObject.pricesObjectId;
+
+    // Step 3: Create a girl with the verification ID
+    const girlResult = await girlService.createGirl(bday, cityId, verificationId, pricesObjectId);
     const girlId = girlResult.data.id;
 
     // update verification to add girl id
     await prisma.verification.update({
       where: {
         id: verificationId,
+      },
+      data: {
+        girlId: girlId,
+      },
+    });
+    await prisma.prices.update({
+      where: {
+        id: pricesObjectId,
       },
       data: {
         girlId: girlId,

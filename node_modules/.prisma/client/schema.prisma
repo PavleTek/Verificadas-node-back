@@ -39,8 +39,6 @@ model Girl {
   specificLocation String
   phoneNumber      String
   description      String
-  sessionPrices    Json // Array of {price: number, duration: SessionDuration}
-  oneHourPrice     Float
   ethnicity        String
   height           Int
   weight           Int
@@ -57,8 +55,23 @@ model Girl {
   editLevel        Int
   countryOfOrigin  String?
   categories       Json // Change to Json type
+  sessionPricesId  Int?          @unique
+  sessionPrices    Prices?       @relation(fields: [sessionPricesId], references: [id])
   verificationId   Int?          @unique
   verification     Verification? @relation(fields: [verificationId], references: [id])
+}
+
+model Prices {
+  id                   Int    @id @default(autoincrement())
+  halfHourPrice        Int?
+  oneHourPrice         Int?
+  oneAndAHalfHourPrice Int?
+  twoHourPrice         Int?
+  fourHourPrice        Int?
+  dinnerPrice          Int?
+  wholeNight           Int?
+  girlId               Int?
+  girl                 Girl?
 }
 
 enum GirlCategory {

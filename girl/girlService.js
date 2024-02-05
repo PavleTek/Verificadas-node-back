@@ -2,7 +2,7 @@ const prisma = require("../prisma.js");
 
 // This function will only be called through function CreateGirlUser
 // Will never be called independently through api
-const createGirl = async (bday, cityId, verificationId) => {
+const createGirl = async (bday, cityId, verificationId, pricesObjectId) => {
   try {
     const serviceIds = [];
     const girl = await prisma.girl.create({
@@ -15,8 +15,6 @@ const createGirl = async (bday, cityId, verificationId) => {
         specificLocation: "",
         phoneNumber: "",
         description: "",
-        sessionPrices: [],
-        oneHourPrice: 0,
         ethnicity: "",
         height: 0,
         weight: 0,
@@ -29,14 +27,28 @@ const createGirl = async (bday, cityId, verificationId) => {
           })),
         },
         parking: false,
-        schedule: {},
-        attributes: {},
+        schedule: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] },
+        attributes: {
+          contexture: "",
+          hair: "",
+          eyes: "",
+          chestSize: "",
+          bottomSize: "",
+          shaving: "",
+          attentionAtHotels: true,
+          attentionAtGirlPlace: true,
+          attentionAtClientPlace: true,
+          smoking: false,
+          tatoos: false,
+          languages: [],
+        },
         images: [],
         videos: [],
         profilePicture: "",
         editLevel: 0,
         countryOfOrigin: undefined,
         categories: [],
+        sessionPricesId: pricesObjectId,
         verificationId: verificationId,
       },
     });
@@ -77,7 +89,7 @@ const updateGirl = async (req) => {
 // Will never be called independently through api
 const createVerification = async (bday) => {
   try {
-    const verification = await prisma.Verification.create({
+    const verification = await prisma.verification.create({
       data: {
         carnetFrontal: "",
         carnetAtras: "",
@@ -94,6 +106,26 @@ const createVerification = async (bday) => {
     return { status: 200, data: verification, verificationId: verification.id };
   } catch (error) {
     console.error("Error creating verification:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const createPricesObject = async () => {
+  try {
+    const pricesObject = await prisma.prices.create({
+      data: {
+        halfHourPrice: 0,
+        oneHourPrice: 0,
+        oneAndAHalfHourPrice: 0,
+        twoHourPrice: 0,
+        fourHourPrice: 0,
+        dinnerPrice: 0,
+        wholeNight: 0,
+      },
+    });
+    return { status: 200, data: pricesObject, pricesObjectId: pricesObject.id };
+  } catch (error) {
+    console.error("Error creating Prices Object:", error);
     return { status: 500, data: error };
   }
 };
@@ -161,4 +193,5 @@ module.exports = {
   getGirlById,
   getAllServices,
   getAllCities,
+  createPricesObject,
 };
