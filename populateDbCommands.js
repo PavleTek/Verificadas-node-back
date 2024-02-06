@@ -57,7 +57,7 @@ async function logAllUsers() {
 async function createGirl() {
   const req = {
     body: {
-      email: "thirdGirlButYes@edu.com",
+      email: "2girlJan24@edu.com",
       password: "fdsa",
       bday: new Date(2001, 2, 2),
       cityId: 1,
