@@ -12,7 +12,7 @@ router.post("/register/girl", async (req, res) => {
 // POST endpoint for user login
 router.post("/login", userService.login);
 
-router.post("/verifyToken", async (req, res) => {
+router.post("/verifyTokenAdmin", async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).send("No Bearer token provided");
@@ -22,7 +22,26 @@ router.post("/verifyToken", async (req, res) => {
     return res.status(401).send("Token not provided");
   }
 
-  const response = await userService.verifyToken(token);
+  const response = await userService.verifyTokenAdmin(token);
+
+  if (response.status === 200) {
+    res.status(200).send({ valid: true, data: response.data });
+  } else {
+    return res.status(401).send({ valid: false, data: response.data });
+  }
+});
+
+router.post("/verifyTokenGirl", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).send("No Bearer token provided");
+  }
+  const token = authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).send("Token not provided");
+  }
+
+  const response = await userService.verifyTokenGirl(token);
 
   if (response.status === 200) {
     res.status(200).send({ valid: true, data: response.data });

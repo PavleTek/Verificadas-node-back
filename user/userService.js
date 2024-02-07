@@ -80,20 +80,39 @@ const login = async (req, res) => {
       expiresIn: "4h",
     });
 
-    res.send({ token });
+    res.send({ token, role: user.role });
   } catch (error) {
     res.status(500).send(error, req.body);
   }
 };
 
-const verifyToken = async (token) => {
+const verifyTokenAdmin = async (token) => {
   if (!token) {
     return false;
   }
 
   try {
     const decoded = jwt.verify(token, secretKey);
-    console.log(decoded);
+    const isAdmin = decoded.role === "admin";
+    if (isAdmin) {
+      return { status: 200, data: decoded };
+    } else {
+      return { status: 401, data: { message: "Not an administrator" } };
+    }
+  } catch (error) {
+    console.log(error, "ERROR");
+    // Token is invalid or has expired, user is not logged in
+    return { status: 401, data: {} };
+  }
+};
+
+const verifyTokenGirl = async (token) => {
+  if (!token) {
+    return false;
+  }
+
+  try {
+    const decoded = jwt.verify(token, secretKey);
 
     // If the token is valid, the user is logged in
     return { status: 200, data: decoded };
@@ -247,7 +266,8 @@ const getProfile = async (req, res) => {
 
 module.exports = {
   registerGirlUser,
-  verifyToken,
+  verifyTokenAdmin,
+  verifyTokenGirl,
   login,
   changePassword,
   authenticate,
