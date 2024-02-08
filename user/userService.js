@@ -253,11 +253,12 @@ const getProfile = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const user = await prisma.User.findUnique({
+    const user = await prisma.user.findUnique({
       where: {
         id: userId,
       },
     });
+    delete user.password;
     res.send(user);
   } catch (error) {
     res.status(500).send(error);
