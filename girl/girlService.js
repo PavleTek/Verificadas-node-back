@@ -178,7 +178,12 @@ const getGirlById = async (girlId) => {
     const girl = await prisma.girl.findUnique({
       where: {
         id: girlId,
-        active: true, // Check if the girl is active
+      },
+      include: {
+        city: true, // Include city details
+        services: true, // Include services
+        verification: true, // Include verification details
+        sessionPrices: true, // Include Prices
       },
     });
 
