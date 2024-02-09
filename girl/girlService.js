@@ -174,6 +174,9 @@ const getGirlsByCityId = async (cityId) => {
 };
 
 const getGirlById = async (girlId) => {
+  if (girlId !== undefined) {
+    girlId = Number(girlId);
+  }
   try {
     const girl = await prisma.girl.findUnique({
       where: {
