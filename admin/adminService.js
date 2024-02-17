@@ -126,7 +126,6 @@ const getAllGirlsUsersWithAllInfo = async () => {
       })
     );
 
-    console.log(usersWithGirls);
     return {
       status: 200,
       data: usersWithGirls.filter((user) => user !== null), // Filter out null values
@@ -160,6 +159,9 @@ async function updateGirl(req) {
 
   // Exclude the 'verification' field from the updateData object
   delete updateData.verification;
+  delete updateData.verificationId;
+  delete updateData.subscriptionId;
+  delete updateData.subscription;
   delete updateData.verificationId;
   delete updateData.sessionPricesId;
   delete updateData.sessionPrices;

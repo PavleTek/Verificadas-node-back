@@ -73,8 +73,6 @@ async function createGirlAndAdminUser() {
 
 async function getAllUsers() {
   const response = await adminService.getAllGirlsUsersWithAllInfo();
-  console.log(response);
-  console.log("this are all users");
 }
 
 async function deleteAllGirls() {
