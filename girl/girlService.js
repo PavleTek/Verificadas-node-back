@@ -2,7 +2,7 @@ const prisma = require("../prisma.js");
 
 // This function will only be called through function CreateGirlUser
 // Will never be called independently through api
-const createGirl = async (bday, cityId, verificationId, pricesObjectId) => {
+const createGirl = async (bday, cityId, verificationId, pricesObjectId, subscriptionId) => {
   try {
     const serviceIds = [];
     const girl = await prisma.girl.create({
@@ -22,6 +22,11 @@ const createGirl = async (bday, cityId, verificationId, pricesObjectId) => {
         waistCm: 0,
         bottomCm: 0,
         services: {
+          connect: serviceIds.map((serviceId) => ({
+            id: serviceId,
+          })),
+        },
+        paidServices: {
           connect: serviceIds.map((serviceId) => ({
             id: serviceId,
           })),
@@ -78,6 +83,8 @@ const createGirl = async (bday, cityId, verificationId, pricesObjectId) => {
         categories: [],
         sessionPricesId: pricesObjectId,
         verificationId: verificationId,
+        paymentTier: '',
+        subscriptionId: subscriptionId
       },
     });
     return { status: 200, data: girl };
@@ -134,6 +141,35 @@ const createVerification = async (bday) => {
     return { status: 200, data: verification, verificationId: verification.id };
   } catch (error) {
     console.error("Error creating verification:", error);
+    return { status: 500, data: error };
+  }
+};
+
+// This function will only be called through function CreateGirlUser
+// Will never be called independently through api
+const createSubscription = async () => {
+  try {
+    const today = new Date();
+    const pause = {
+      available: true,
+      startDate: undefined,
+      endTime: undefined,
+    };
+    const subscription = await prisma.subscription.create({
+      data: {
+        active: false,
+        expiryDate: today,
+        DeactivationDate: today,
+        firstPause: pause,
+        secondPause: pause,
+        ThirdPause: pause,
+        payments: undefined,
+        girlId: undefined,
+      },
+    });
+    return { status: 200, data: subscription, subscriptionId: subscription.id };
+  } catch (error) {
+    console.error("Error creating Subscription:", error);
     return { status: 500, data: error };
   }
 };
@@ -230,4 +266,5 @@ module.exports = {
   getAllServices,
   getAllCities,
   createPricesObject,
+  createSubscription,
 };

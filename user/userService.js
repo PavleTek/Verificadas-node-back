@@ -18,11 +18,15 @@ const registerGirlUser = async (req) => {
     const pricesObject = await girlService.createPricesObject();
     const pricesObjectId = pricesObject.pricesObjectId;
 
+    // Step 3: Create a Subscription Object for the girl
+    const subscription = await girlService.createSubscription();
+    const subscriptionId = subscription.subscriptionId
+
     // Step 3: Create a girl with the verification ID
     const girlResult = await girlService.createGirl(bday, cityId, verificationId, pricesObjectId);
     const girlId = girlResult.data.id;
 
-    // update verification to add girl id
+    // update verification, prices, and subscription to add girl id
     await prisma.verification.update({
       where: {
         id: verificationId,
@@ -39,7 +43,15 @@ const registerGirlUser = async (req) => {
         girlId: girlId,
       },
     });
-    // Step 4: Create a user with the girl ID
+    await prisma.subscription.update({
+      where: {
+        id: subscriptionId,
+      },
+      data: {
+        girlId: girlId,
+      },
+    });
+    // Step 5: Create a user with the girl ID
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: {

@@ -119,6 +119,7 @@ model Subscription {
   firstPause        Json
   secondPause       Json
   ThirdPause        Json
+  girlId            Int?
   girl              Girl?
   payments          SubscriptionPayment[]
 }

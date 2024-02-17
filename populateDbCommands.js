@@ -66,6 +66,11 @@ async function createGirl() {
   await userService.registerGirlUser(req);
 }
 
+async function createGirlAndAdminUser() {
+  await createGirl();
+  await createAdmin(adminUser2)
+}
+
 async function getAllUsers() {
   const response = await adminService.getAllGirlsUsersWithAllInfo();
   console.log(response);
@@ -86,4 +91,4 @@ async function deleteAllGirls() {
   }
 }
 
-deleteAllGirls();
+createGirlAndAdminUser();
