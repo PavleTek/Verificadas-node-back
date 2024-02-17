@@ -29,13 +29,13 @@ model GirlClickStats {
 }
 
 model Girl {
-  id               Int           @id @default(autoincrement())
+  id               Int              @id @default(autoincrement())
   name             String
   bday             DateTime
   active           Boolean
   bluredFace       Boolean
   cityId           Int
-  city             City          @relation(fields: [cityId], references: [id])
+  city             City             @relation(fields: [cityId], references: [id])
   specificLocation String
   phoneNumber      String
   description      String
@@ -45,20 +45,24 @@ model Girl {
   chestCm          Int
   waistCm          Int
   bottomCm         Int
-  services         Service[]     @relation("GirlServices")
+  services         Service[]        @relation("GirlServices")
+  paidServices     Service[]        @relation("GirlPaidServices")
+  paymentTier      String
+  subscriptionId   Int?             @unique
+  subscription     Subscription?    @relation(fields: [subscriptionId], references: [id])
   parking          Boolean
-  schedule         Json // Since Schedule is a complex object
-  attributes       Json // Since Attributes is a complex object
-  images           Json // Change to Json type
-  videos           Json // Change to Json type
+  schedule         Json
+  attributes       Json
+  images           Json
+  videos           Json
   profilePicture   String
   editLevel        Int
   countryOfOrigin  String?
-  categories       Json // Change to Json type
-  sessionPricesId  Int?          @unique
-  sessionPrices    Prices?       @relation(fields: [sessionPricesId], references: [id])
-  verificationId   Int?          @unique
-  verification     Verification? @relation(fields: [verificationId], references: [id])
+  categories       Json
+  sessionPricesId  Int?             @unique
+  sessionPrices    Prices?          @relation(fields: [sessionPricesId], references: [id])
+  verificationId   Int?             @unique
+  verification     Verification?    @relation(fields: [verificationId], references: [id])
 }
 
 model Prices {
@@ -74,20 +78,12 @@ model Prices {
   girl                 Girl?
 }
 
-enum GirlCategory {
-  Gold
-  Silver
-  Bronze
-  Maduras
-  Masajistas
-  Barbie
-}
-
 model Service {
   id          Int    @id @default(autoincrement())
   name        String
   description String
   girls       Girl[] @relation("GirlServices")
+  paidGirls   Girl[] @relation("GirlPaidServices")
 }
 
 model User {
@@ -115,10 +111,34 @@ model Verification {
   Girl             Girl?
 }
 
+model Subscription {
+  id                Int                 @id @default(autoincrement())
+  active            Boolean
+  expiryDate        DateTime
+  DeactivationDate  DateTime
+  firstPause        Json
+  secondPause       Json
+  ThirdPause        Json
+  girl              Girl?
+  payments          SubscriptionPayment[]
+}
+
+
+model SubscriptionPayment {
+  id            Int       @id @default(autoincrement())
+  subscriptionId Int
+  paymentTier   String
+  amountPaid    Int
+  paymentDate   DateTime
+  duration      String
+  paymentMethod String
+  Subscription  Subscription @relation(fields: [subscriptionId], references: [id])
+}
+
 enum VerificationStatus {
   pending
   scheduled
-  procesing
+  processing
   verified
 }
 
