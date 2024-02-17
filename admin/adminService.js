@@ -118,6 +118,7 @@ const getAllGirlsUsersWithAllInfo = async () => {
             services: true, // Include services
             verification: true, // Include verification details
             sessionPrices: true, // Include Prices
+            subscription: true, // Include Subscritpion
           },
         });
 
@@ -125,6 +126,7 @@ const getAllGirlsUsersWithAllInfo = async () => {
       })
     );
 
+    console.log(usersWithGirls);
     return {
       status: 200,
       data: usersWithGirls.filter((user) => user !== null), // Filter out null values

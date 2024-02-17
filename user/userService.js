@@ -20,14 +20,14 @@ const registerGirlUser = async (req) => {
 
     // Step 3: Create a Subscription Object for the girl
     const subscription = await girlService.createSubscription();
-    const subscriptionId = subscription.subscriptionId
+    const subscriptionId = subscription.subscriptionId;
 
-    // Step 3: Create a girl with the verification ID
-    const girlResult = await girlService.createGirl(bday, cityId, verificationId, pricesObjectId);
+    // Step 4: Create a girl with the verification ID
+    const girlResult = await girlService.createGirl(bday, cityId, verificationId, pricesObjectId, subscriptionId);
     const girlId = girlResult.data.id;
 
     // update verification, prices, and subscription to add girl id
-    await prisma.verification.update({
+    const updatedVerification = await prisma.verification.update({
       where: {
         id: verificationId,
       },
@@ -35,7 +35,7 @@ const registerGirlUser = async (req) => {
         girlId: girlId,
       },
     });
-    await prisma.prices.update({
+    const updatedPrices = await prisma.prices.update({
       where: {
         id: pricesObjectId,
       },
@@ -43,7 +43,7 @@ const registerGirlUser = async (req) => {
         girlId: girlId,
       },
     });
-    await prisma.subscription.update({
+    const updatedSubscription = await prisma.subscription.update({
       where: {
         id: subscriptionId,
       },
@@ -51,6 +51,7 @@ const registerGirlUser = async (req) => {
         girlId: girlId,
       },
     });
+
     // Step 5: Create a user with the girl ID
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({

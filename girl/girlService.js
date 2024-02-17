@@ -5,6 +5,11 @@ const prisma = require("../prisma.js");
 const createGirl = async (bday, cityId, verificationId, pricesObjectId, subscriptionId) => {
   try {
     const serviceIds = [];
+    const multimedia = {
+      verifiedUploaded: [],
+      active: [],
+      request: [],
+    };
     const girl = await prisma.girl.create({
       data: {
         name: "",
@@ -75,16 +80,16 @@ const createGirl = async (bday, cityId, verificationId, pricesObjectId, subscrip
           tatoos: false,
           languages: [],
         },
-        images: [],
-        videos: [],
+        images: multimedia,
+        videos: multimedia,
         profilePicture: "",
         editLevel: 0,
         countryOfOrigin: undefined,
         categories: [],
         sessionPricesId: pricesObjectId,
         verificationId: verificationId,
-        paymentTier: '',
-        subscriptionId: subscriptionId
+        paymentTier: "",
+        subscriptionId: subscriptionId,
       },
     });
     return { status: 200, data: girl };

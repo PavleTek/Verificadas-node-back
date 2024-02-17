@@ -68,7 +68,7 @@ async function createGirl() {
 
 async function createGirlAndAdminUser() {
   await createGirl();
-  await createAdmin(adminUser2)
+  await createAdmin(adminUser2);
 }
 
 async function getAllUsers() {
@@ -80,8 +80,10 @@ async function getAllUsers() {
 async function deleteAllGirls() {
   try {
     const deletedGirls = await prisma.girl.deleteMany();
+    const deleteAllUsers = await prisma.user.deleteMany();
     const deletedVerifications = await prisma.verification.deleteMany();
     const deletePrices = await prisma.prices.deleteMany();
+    const deleteSubscriptions = await prisma.subscription.deleteMany();
     return { success: true, message: `Deleted ${deletedGirls.count} girls.` };
   } catch (error) {
     console.error("Error deleting girls:", error);
