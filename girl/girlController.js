@@ -1,12 +1,86 @@
 const express = require("express");
 const girlService = require("./girlService");
+const userService = require("../user/userService");
 
 const router = express.Router();
 
 // PUT endpoint for updating a girl
-router.put("/girl", async (req, res) => {
+router.put("/girl", userService.authenticate, async (req, res) => {
   const response = await girlService.updateGirl(req);
   res.status(response.status).send(response.data);
+});
+
+// POST endpoint to create a client review
+router.post("/clientReview", userService.authenticate, async (req, res) => {
+  try {
+    const response = await girlService.createClientReview(req);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// GET Endpoint to retriever all cliente reviews that start with a number
+router.get("/clientReviewByPhone/:phone", userService.authenticate, async (req, res) => {
+  const { phonePrefix } = req.params;
+  try {
+    const response = await girlService.getClientReviewsByPhoneNumberPrefix(phonePrefix);
+    res.status(response.status).send(response.data);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// GET Endpoint to retriever all cliente reviews from a specific Girl
+router.get("/clientReviewByGirl/:girlId", userService.authenticate, async (req, res) => {
+  const { girlId } = req.params;
+  try {
+    const response = await girlService.getClientReviewsByGirlId(girlId);
+    res.status(response.status).send(response.data);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// DELETE Endpoint to delete a specific review
+router.delete("/clientReview/:reviewId", userService.authenticate, async (req, res) => {
+  const { reviewId } = req.params;
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).send("No Bearer token provided");
+  }
+  const token = authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).send("Token not provided");
+  }
+  try {
+    const response = await girlService.deleteReviewById(reviewId, token);
+    res.status(response.status).send(response.data);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+router.put("/clientReview/:reviewId", userService.authenticate, async (req, res) => {
+  const { reviewId } = req.params;
+  const { updatedReview } = req.body; // Assuming the updated review is sent in the request body
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).send("No Bearer token provided");
+  }
+  
+  const token = authHeader.split(" ")[1];
+  
+  if (!token) {
+    return res.status(401).send("Token not provided");
+  }
+  
+  try {
+    const response = await girlService.updateReviewById(reviewId, token, updatedReview);
+    res.status(response.status).send(response.data);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
 // GET endpoint for fetching girls by city ID

@@ -136,6 +136,14 @@ model SubscriptionPayment {
   Subscription  Subscription @relation(fields: [subscriptionId], references: [id])
 }
 
+model ClientReview {
+  id        Int     @id @default(autoincrement())
+  girlId    Int
+  review    String
+  phoneNumber String
+  rating    Int
+}
+
 enum VerificationStatus {
   pending
   scheduled

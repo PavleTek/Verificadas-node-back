@@ -1,4 +1,7 @@
 const prisma = require("../prisma.js");
+const userService = require("../user/userService.js");
+const jwt = require("jsonwebtoken");
+const secretKey = process.env.JWT_SECRET_KEY;
 
 // This function will only be called through function CreateGirlUser
 // Will never be called independently through api
@@ -199,6 +202,133 @@ const createPricesObject = async () => {
   }
 };
 
+const createClientReview = async (req) => {
+  const data = req.body;
+  try {
+    const clientReview = await prisma.clientReview.create({
+      data: data,
+    });
+    return { status: 200, data: clientReview };
+  } catch (error) {
+    console.error("Error creating Prices Object:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const getClientReviewsByPhoneNumberPrefix = async (phoneNumberPrefix) => {
+  try {
+    const clientReviews = await prisma.clientReview.findMany({
+      where: {
+        phoneNumber: {
+          startsWith: phoneNumberPrefix,
+        },
+      },
+      take: 50,
+    });
+    return { status: 200, data: clientReviews };
+  } catch (error) {
+    console.error("Error retrieving client reviews:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const getClientReviewsByGirlId = async (girlId) => {
+  const parsedGirlId = parseInt(girlId, 10);
+  try {
+    const clientReviews = await prisma.clientReview.findMany({
+      where: {
+        girlId: parsedGirlId,
+      },
+    });
+    return { status: 200, data: clientReviews };
+  } catch (error) {
+    console.error("Error retrieving client reviews:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const deleteReviewById = async (reviewId, girlToken) => {
+  const decoded = jwt.verify(girlToken, secretKey);
+  const girlId = decoded.girlId;
+
+  // Convert reviewId to a number
+  const parsedReviewId = parseInt(reviewId, 10);
+
+  try {
+    // Check if the requesting girl matches the girlId associated with the review
+    const review = await prisma.clientReview.findUnique({
+      where: {
+        id: parsedReviewId,
+      },
+      select: {
+        girlId: true,
+      },
+    });
+
+    if (!review) {
+      throw new Error("Client review not found.");
+    }
+
+    if (review.girlId !== girlId) {
+      throw new Error("Unauthorized to delete this client review.");
+    }
+
+    const deletedReview = await prisma.clientReview.delete({
+      where: {
+        id: parsedReviewId,
+      },
+    });
+    return { status: 200, data: deletedReview };
+  } catch (error) {
+    console.error("Error deleting client review:", error);
+    return { status: 500, data: error.message };
+  }
+};
+
+const updateReviewById = async (reviewId, girlToken, updatedReview) => {
+  const decoded = jwt.verify(girlToken, secretKey);
+  const girlId = decoded.girlId;
+
+  // Convert reviewId to a number
+  const parsedReviewId = parseInt(reviewId, 10);
+
+  try {
+    // Check if the requesting girl matches the girlId associated with the review
+    const review = await prisma.clientReview.findUnique({
+      where: {
+        id: parsedReviewId,
+      },
+      select: {
+        girlId: true,
+      },
+    });
+
+    if (!review) {
+      throw new Error("Client review not found.");
+    }
+
+    if (review.girlId !== girlId) {
+      throw new Error("Unauthorized to update this client review.");
+    }
+
+    const updatedReviewData = {
+      review: updatedReview,
+    };
+
+    const updatedReviewResult = await prisma.clientReview.update({
+      where: {
+        id: parsedReviewId,
+      },
+      data: updatedReviewData,
+    });
+
+    return { status: 200, data: updatedReviewResult };
+  } catch (error) {
+    console.error("Error updating client review:", error);
+    return { status: 500, data: error.message };
+  }
+};
+
 const getGirlsByCityId = async (cityId) => {
   try {
     const girls = await prisma.girl.findMany({
@@ -272,4 +402,9 @@ module.exports = {
   getAllCities,
   createPricesObject,
   createSubscription,
+  createClientReview,
+  getClientReviewsByPhoneNumberPrefix,
+  getClientReviewsByGirlId,
+  deleteReviewById,
+  updateReviewById,
 };
