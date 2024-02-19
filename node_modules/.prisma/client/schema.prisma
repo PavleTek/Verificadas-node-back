@@ -143,6 +143,7 @@ model ClientReview {
   phoneNumber String
   rating      Int
   client      Client   @relation(fields: [phoneNumber], references: [phoneNumber])
+  date        DateTime @default(now())
 }
 
 model Client {

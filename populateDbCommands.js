@@ -93,6 +93,7 @@ async function deleteAllGirls() {
 
 async function deleteAllReviews() {
   const deletedReveiws = await prisma.clientReview.deleteMany();
+  const deletedClients = await prisma.client.deleteMany();
 }
 
 deleteAllReviews();

@@ -21,9 +21,9 @@ router.post("/clientReview", userService.authenticate, async (req, res) => {
 });
 
 // GET Endpoint to retriever all cliente reviews that start with a number
-router.get("/clientByPhone/:phone", userService.authenticate, async (req, res) => {
-  console.log("being called");
+router.get("/clientByPhone/:phonePrefix", userService.authenticate, async (req, res) => {
   const { phonePrefix } = req.params;
+  console.log(req.params);
   try {
     const response = await girlService.getClientsByPhonePrefix(phonePrefix);
     res.status(response.status).send(response.data);
@@ -33,7 +33,7 @@ router.get("/clientByPhone/:phone", userService.authenticate, async (req, res) =
 });
 
 // GET Endpoint to retriever all cliente reviews that start with a number
-router.get("/clientReviewByPhone/:phone", userService.authenticate, async (req, res) => {
+router.get("/clientReviewByPhone/:phoneNumber", userService.authenticate, async (req, res) => {
   const { phoneNumber } = req.params;
   try {
     const response = await girlService.getClientReviewsByPhoneNumber(phoneNumber);
@@ -67,7 +67,7 @@ router.delete("/clientReview/:reviewId", userService.authenticate, async (req, r
   }
   try {
     const response = await girlService.deleteReviewById(reviewId, token);
-    res.status(response.status).send(response.data);
+    res.status(response.status).send(response);
   } catch (error) {
     res.status(500).send(error.message);
   }

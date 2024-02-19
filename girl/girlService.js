@@ -227,6 +227,7 @@ const createClientReview = async (req) => {
         girlId: data.girlId,
         review: data.review,
         rating: data.rating,
+        date: new Date(),
         client: {
           connect: {
             phoneNumber: data.phoneNumber,
@@ -243,6 +244,7 @@ const createClientReview = async (req) => {
 };
 
 const getClientsByPhonePrefix = async (phoneNumberPrefix) => {
+  console.log(phoneNumberPrefix);
   try {
     // Retrieve clients whose phone numbers contain the specified prefix
     const clients = await prisma.client.findMany({
