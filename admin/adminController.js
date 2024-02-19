@@ -14,6 +14,16 @@ router.get("/users", userService.authenticateAdmin, async (req, res) => {
   }
 });
 
+// POPST endpoint to create a girl user - Admin only
+router.post("/users", userService.authenticateAdmin, async (req, res) => {
+  try {
+    const users = await adminService.registerGirlUser(req);
+    res.send(users);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
 // GET endpoint to retrieve all girl users with all their data - Admin only
 router.get("/users/complete", userService.authenticateAdmin, async (req, res) => {
   try {

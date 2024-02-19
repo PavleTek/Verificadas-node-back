@@ -63,7 +63,7 @@ async function createGirl() {
       cityId: 1,
     },
   };
-  await userService.registerGirlUser(req);
+  await adminService.registerGirlUser(req);
 }
 
 async function createGirlAndAdminUser() {
@@ -91,4 +91,8 @@ async function deleteAllGirls() {
   }
 }
 
-createGirlAndAdminUser();
+async function deleteAllReviews() {
+  const deletedReveiws = await prisma.clientReview.deleteMany();
+}
+
+deleteAllReviews();

@@ -1,5 +1,6 @@
 const prisma = require("../prisma.js");
 const bcrypt = require("bcrypt");
+const girlService = require("../girl/girlService.js");
 
 // City logic part
 const createCity = async (req) => {
@@ -154,6 +155,71 @@ async function getUserById(userId) {
   }
 }
 
+const registerGirlUser = async (req) => {
+  const { email, password, bday, cityId } = req.body;
+
+  try {
+    // Step 1: Create a verification
+    const verificationResult = await girlService.createVerification(bday);
+    const verificationId = verificationResult.verificationId;
+
+    // Step 2: Create a prices object for the girl
+    const pricesObject = await girlService.createPricesObject();
+    const pricesObjectId = pricesObject.pricesObjectId;
+
+    // Step 3: Create a Subscription Object for the girl
+    const subscription = await girlService.createSubscription();
+    const subscriptionId = subscription.subscriptionId;
+
+    // Step 4: Create a girl with the verification ID
+    const girlResult = await girlService.createGirl(bday, cityId, verificationId, pricesObjectId, subscriptionId);
+    const girlId = girlResult.data.id;
+
+    // update verification, prices, and subscription to add girl id
+    const updatedVerification = await prisma.verification.update({
+      where: {
+        id: verificationId,
+      },
+      data: {
+        girlId: girlId,
+      },
+    });
+    const updatedPrices = await prisma.prices.update({
+      where: {
+        id: pricesObjectId,
+      },
+      data: {
+        girlId: girlId,
+      },
+    });
+    const updatedSubscription = await prisma.subscription.update({
+      where: {
+        id: subscriptionId,
+      },
+      data: {
+        girlId: girlId,
+      },
+    });
+
+    // Step 5: Create a user with the girl ID
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role: "girl",
+        girlId: girlId,
+      },
+    });
+
+    console.log("worked");
+    return { status: 200, data: user };
+  } catch (error) {
+    console.log(error);
+    return { status: 500, data: error };
+  }
+};
+
 async function updateGirl(req) {
   const { id, sessionPricesId, sessionPrices, ...updateData } = req.body; // Extract the 'serviceIds' field
 
@@ -292,4 +358,5 @@ module.exports = {
   deleteService,
   getAllGirlsUsersWithAllInfo,
   updateGirl,
+  registerGirlUser,
 };

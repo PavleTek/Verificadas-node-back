@@ -205,29 +205,77 @@ const createPricesObject = async () => {
 const createClientReview = async (req) => {
   const data = req.body;
   try {
-    const clientReview = await prisma.clientReview.create({
-      data: data,
+    // Find or create the client based on the provided phone number
+    let client = await prisma.client.findUnique({
+      where: {
+        phoneNumber: data.phoneNumber,
+      },
     });
+
+    // If the client doesn't exist, create a new one
+    if (!client) {
+      client = await prisma.client.create({
+        data: {
+          phoneNumber: data.phoneNumber,
+        },
+      });
+    }
+
+    // Create the client review and associate it with the client
+    const clientReview = await prisma.clientReview.create({
+      data: {
+        girlId: data.girlId,
+        review: data.review,
+        rating: data.rating,
+        client: {
+          connect: {
+            phoneNumber: data.phoneNumber,
+          },
+        },
+      },
+    });
+
     return { status: 200, data: clientReview };
   } catch (error) {
-    console.error("Error creating Prices Object:", error);
+    console.error("Error creating client review:", error);
     return { status: 500, data: error };
   }
 };
 
-const getClientReviewsByPhoneNumberPrefix = async (phoneNumberPrefix) => {
+const getClientsByPhonePrefix = async (phoneNumberPrefix) => {
   try {
-    const clientReviews = await prisma.clientReview.findMany({
+    // Retrieve clients whose phone numbers contain the specified prefix
+    const clients = await prisma.client.findMany({
       where: {
         phoneNumber: {
-          startsWith: phoneNumberPrefix,
+          contains: phoneNumberPrefix,
         },
       },
-      take: 50,
+      take: 10,
+      orderBy: {
+        phoneNumber: "asc", // Sort by phone number in ascending order
+      },
     });
+
+    return { status: 200, data: clients };
+  } catch (error) {
+    console.error("Error retrieving clients by phone prefix:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const getClientReviewsByPhoneNumber = async (phoneNumber) => {
+  try {
+    // Retrieve client reviews associated with the specified phone number
+    const clientReviews = await prisma.clientReview.findMany({
+      where: {
+        phoneNumber: phoneNumber,
+      },
+    });
+
     return { status: 200, data: clientReviews };
   } catch (error) {
-    console.error("Error retrieving client reviews:", error);
+    console.error("Error retrieving client reviews by phone number:", error);
     return { status: 500, data: error };
   }
 };
@@ -403,8 +451,9 @@ module.exports = {
   createPricesObject,
   createSubscription,
   createClientReview,
-  getClientReviewsByPhoneNumberPrefix,
+  getClientsByPhonePrefix,
   getClientReviewsByGirlId,
   deleteReviewById,
+  getClientReviewsByPhoneNumber,
   updateReviewById,
 };

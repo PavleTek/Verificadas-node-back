@@ -38,7 +38,7 @@ model Girl {
   city             City             @relation(fields: [cityId], references: [id])
   specificLocation String
   phoneNumber      String
-  description      String
+  description      String           @db.VarChar(550)
   ethnicity        String
   height           Int
   weight           Int
@@ -137,11 +137,17 @@ model SubscriptionPayment {
 }
 
 model ClientReview {
-  id        Int     @id @default(autoincrement())
-  girlId    Int
-  review    String
+  id          Int      @id @default(autoincrement())
+  girlId      Int
+  review      String   @db.VarChar(3000)
   phoneNumber String
-  rating    Int
+  rating      Int
+  client      Client   @relation(fields: [phoneNumber], references: [phoneNumber])
+}
+
+model Client {
+  phoneNumber String  @id @unique
+  clientReviews ClientReview[]
 }
 
 enum VerificationStatus {

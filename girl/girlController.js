@@ -14,6 +14,19 @@ router.put("/girl", userService.authenticate, async (req, res) => {
 router.post("/clientReview", userService.authenticate, async (req, res) => {
   try {
     const response = await girlService.createClientReview(req);
+    res.status(response.status).send(response);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// GET Endpoint to retriever all cliente reviews that start with a number
+router.get("/clientByPhone/:phone", userService.authenticate, async (req, res) => {
+  console.log("being called");
+  const { phonePrefix } = req.params;
+  try {
+    const response = await girlService.getClientsByPhonePrefix(phonePrefix);
+    res.status(response.status).send(response.data);
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -21,9 +34,9 @@ router.post("/clientReview", userService.authenticate, async (req, res) => {
 
 // GET Endpoint to retriever all cliente reviews that start with a number
 router.get("/clientReviewByPhone/:phone", userService.authenticate, async (req, res) => {
-  const { phonePrefix } = req.params;
+  const { phoneNumber } = req.params;
   try {
-    const response = await girlService.getClientReviewsByPhoneNumberPrefix(phonePrefix);
+    const response = await girlService.getClientReviewsByPhoneNumber(phoneNumber);
     res.status(response.status).send(response.data);
   } catch (error) {
     res.status(500).send(error.message);
@@ -64,17 +77,17 @@ router.put("/clientReview/:reviewId", userService.authenticate, async (req, res)
   const { reviewId } = req.params;
   const { updatedReview } = req.body; // Assuming the updated review is sent in the request body
   const authHeader = req.headers.authorization;
-  
+
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).send("No Bearer token provided");
   }
-  
+
   const token = authHeader.split(" ")[1];
-  
+
   if (!token) {
     return res.status(401).send("Token not provided");
   }
-  
+
   try {
     const response = await girlService.updateReviewById(reviewId, token, updatedReview);
     res.status(response.status).send(response.data);
