@@ -28,11 +28,11 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
         phoneNumber: girlPhoneNumber,
         description: "",
         ethnicity: "",
-        height: 0,
-        weight: 0,
-        chestCm: 0,
-        waistCm: 0,
-        bottomCm: 0,
+        height: 160,
+        weight:60,
+        chestCm: 90,
+        waistCm: 60,
+        bottomCm: 90,
         services: {
           connect: serviceIds.map((serviceId) => ({
             id: serviceId,
