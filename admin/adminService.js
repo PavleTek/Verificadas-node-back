@@ -156,7 +156,7 @@ async function getUserById(userId) {
 }
 
 const registerGirlUser = async (req) => {
-  const { email, password, bday, cityId } = req.body;
+  const { email, phoneNumber, password, bday, cityId } = req.body;
 
   try {
     // Step 1: Create a verification
@@ -172,7 +172,7 @@ const registerGirlUser = async (req) => {
     const subscriptionId = subscription.subscriptionId;
 
     // Step 4: Create a girl with the verification ID
-    const girlResult = await girlService.createGirl(bday, cityId, verificationId, pricesObjectId, subscriptionId);
+    const girlResult = await girlService.createGirl(bday, phoneNumber, cityId, verificationId, pricesObjectId, subscriptionId);
     const girlId = girlResult.data.id;
 
     // update verification, prices, and subscription to add girl id

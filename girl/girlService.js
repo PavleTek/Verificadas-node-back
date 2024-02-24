@@ -5,7 +5,11 @@ const secretKey = process.env.JWT_SECRET_KEY;
 
 // This function will only be called through function CreateGirlUser
 // Will never be called independently through api
-const createGirl = async (bday, cityId, verificationId, pricesObjectId, subscriptionId) => {
+const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjectId, subscriptionId) => {
+  let girlPhoneNumber = "";
+  if (phoneNumber) {
+    girlPhoneNumber = phoneNumber
+  }
   try {
     const serviceIds = [];
     const multimedia = {
@@ -21,7 +25,7 @@ const createGirl = async (bday, cityId, verificationId, pricesObjectId, subscrip
         bluredFace: false,
         cityId: cityId,
         specificLocation: "",
-        phoneNumber: "",
+        phoneNumber: girlPhoneNumber,
         description: "",
         ethnicity: "",
         height: 0,
