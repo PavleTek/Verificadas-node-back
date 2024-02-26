@@ -19,7 +19,7 @@ const createCity = async (req) => {
 };
 
 const updateCityName = async (req) => {
-  const { id, newName } = req.body;
+  const { id, name } = req.body;
 
   try {
     const city = await prisma.city.update({
@@ -27,7 +27,7 @@ const updateCityName = async (req) => {
         id: id,
       },
       data: {
-        name: newName,
+        name: name,
       },
     });
     return { status: 200, data: city };
@@ -344,6 +344,104 @@ const deleteService = async (serviceId) => {
   }
 };
 
+// Specific Location logic part
+const createSpecificLocation = async (req) => {
+  const { name } = req.body;
+  try {
+    const specificLocation = await prisma.specificLocation.create({
+      data: {
+        name,
+      },
+    });
+    return { status: 200, data: specificLocation };
+  } catch (error) {
+    console.error("Error creating specific location:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const updateSpecificLocationName = async (req) => {
+  const { id, name } = req.body;
+
+  try {
+    const specificLocation = await prisma.specificLocation.update({
+      where: {
+        id: id,
+      },
+      data: {
+        name: name,
+      },
+    });
+    return { status: 200, data: specificLocation };
+  } catch (error) {
+    console.error("Error updating specific location name:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const deleteSpecificLocation = async (specificLocationId) => {
+  try {
+    await prisma.specificLocation.delete({
+      where: {
+        id: specificLocationId,
+      },
+    });
+    return { status: 200, message: `Specific Location with ID: ${specificLocationId} has been deleted` };
+  } catch (error) {
+    console.error("Error deleting specific location:", error);
+    return { status: 500, data: error };
+  }
+};
+
+// Ethnicity Location logic part
+const createEthnicity = async (req) => {
+  const { name } = req.body;
+  try {
+    const ethnicity = await prisma.ethnicity.create({
+      data: {
+        name,
+      },
+    });
+    return { status: 200, data: ethnicity };
+  } catch (error) {
+    console.error("Error creating ethnicity:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const updateEthnicityName = async (req) => {
+  const { id, name } = req.body;
+
+  try {
+    const ethnicity = await prisma.ethnicity.update({
+      where: {
+        id: id,
+      },
+      data: {
+        name: name,
+      },
+    });
+    return { status: 200, data: ethnicity };
+  } catch (error) {
+    console.error("Error updating ethnicity name:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const deleteEthnicity = async (ethnicityId) => {
+  try {
+    await prisma.ethnicity.delete({
+      where: {
+        id: ethnicityId,
+      },
+    });
+    return { status: 200, message: `Ethnicity with ID: ${ethnicityId} has been deleted` };
+  } catch (error) {
+    console.error("Error deleting Ethnicity:", error);
+    return { status: 500, data: error };
+  }
+};
+
 module.exports = {
   createCity,
   updateCityName,
@@ -359,4 +457,10 @@ module.exports = {
   getAllGirlsUsersWithAllInfo,
   updateGirl,
   registerGirlUser,
+  createSpecificLocation,
+  updateSpecificLocationName,
+  deleteSpecificLocation,
+  createEthnicity,
+  updateEthnicityName,
+  deleteEthnicity,
 };

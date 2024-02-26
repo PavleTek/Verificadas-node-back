@@ -67,9 +67,33 @@ router.post("/city", userService.authenticateAdmin, async (req, res) => {
   res.status(response.status).send(response);
 });
 
+// POST endpoint for creating a specific location - Admin only
+router.post("/specificLocation", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.createSpecificLocation(req);
+  res.status(response.status).send(response);
+});
+
+// POST endpoint for creating a ethnicity - Admin only
+router.post("/ethnicity", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.createEthnicity(req);
+  res.status(response.status).send(response);
+});
+
 // PUT endpoint for updating a city name - Admin only
 router.put("/city", userService.authenticateAdmin, async (req, res) => {
   const response = await adminService.updateCityName(req);
+  res.status(response.status).send(response);
+});
+
+// PUT endpoint for updating a specific location name - Admin only
+router.put("/specificLocation", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.updateSpecificLocationName(req);
+  res.status(response.status).send(response);
+});
+
+// PUT endpoint for updating a ethnicity name - Admin only
+router.put("/ethnicity", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.updateEthnicityName(req);
   res.status(response.status).send(response);
 });
 
@@ -77,6 +101,20 @@ router.put("/city", userService.authenticateAdmin, async (req, res) => {
 router.delete("/city/:cityId", userService.authenticateAdmin, async (req, res) => {
   const cityId = Number(req.params.cityId);
   const response = await adminService.deleteCity(cityId);
+  res.status(response.status).send(response);
+});
+
+// DELETE endpoint for deleting a specific location - Admin only
+router.delete("/specificLocation/:specificLocationId", userService.authenticateAdmin, async (req, res) => {
+  const specificLocationId = Number(req.params.specificLocationId);
+  const response = await adminService.deleteSpecificLocation(specificLocationId);
+  res.status(response.status).send(response);
+});
+
+// DELETE endpoint for deleting a ethnicity - Admin only
+router.delete("/ethnicity/:ethnicityId", userService.authenticateAdmin, async (req, res) => {
+  const ethnicityId = Number(req.params.ethnicityId);
+  const response = await adminService.deleteEthnicity(ethnicityId);
   res.status(response.status).send(response);
 });
 

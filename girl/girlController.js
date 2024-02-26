@@ -130,4 +130,24 @@ router.get("/cities", async (req, res) => {
   }
 });
 
+// GET endpoint for fetching all Specific Locations
+router.get("/specificLocation", async (req, res) => {
+  try {
+    const locations = await girlService.getAllSpecificLocations();
+    res.json(locations);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET endpoint for fetching all Ethnicities
+router.get("/ethnicity", async (req, res) => {
+  try {
+    const ethnicityOptions = await girlService.getAllEthnicities();
+    res.json(ethnicityOptions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

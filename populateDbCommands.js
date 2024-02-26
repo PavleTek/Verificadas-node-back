@@ -79,6 +79,8 @@ async function deleteAllGirls() {
   try {
     const deletedGirls = await prisma.girl.deleteMany();
     const deleteAllUsers = await prisma.user.deleteMany();
+    const deletedReveiws = await prisma.clientReview.deleteMany();
+    const deletedClients = await prisma.client.deleteMany();
     const deletedVerifications = await prisma.verification.deleteMany();
     const deletePrices = await prisma.prices.deleteMany();
     const deleteSubscriptions = await prisma.subscription.deleteMany();
@@ -96,4 +98,4 @@ async function deleteAllReviews() {
   const deletedClients = await prisma.client.deleteMany();
 }
 
-deleteAllReviews();
+createGirlAndAdminUser();

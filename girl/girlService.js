@@ -8,7 +8,7 @@ const secretKey = process.env.JWT_SECRET_KEY;
 const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjectId, subscriptionId) => {
   let girlPhoneNumber = "";
   if (phoneNumber) {
-    girlPhoneNumber = phoneNumber
+    girlPhoneNumber = phoneNumber;
   }
   try {
     const serviceIds = [];
@@ -24,12 +24,12 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
         active: false,
         bluredFace: false,
         cityId: cityId,
-        specificLocation: "",
+        specificLocationId: undefined,
         phoneNumber: girlPhoneNumber,
         description: "",
-        ethnicity: "",
+        ethnicityId: undefined,
         height: 160,
-        weight:60,
+        weight: 60,
         chestCm: 90,
         waistCm: 60,
         bottomCm: 90,
@@ -90,7 +90,7 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
         images: multimedia,
         videos: multimedia,
         profilePicture: "",
-        editLevel: 0,
+        editLevel: "Nulo",
         countryOfOrigin: undefined,
         categories: [],
         sessionPricesId: pricesObjectId,
@@ -140,7 +140,7 @@ const createVerification = async (bday) => {
       data: {
         carnetFrontal: "",
         carnetAtras: "",
-        status: "pending",
+        status: "Pending",
         name: "",
         lastname: "",
         bday: bday,
@@ -446,6 +446,26 @@ const getAllCities = async () => {
   }
 };
 
+const getAllSpecificLocations = async () => {
+  try {
+    const locations = await prisma.specificLocation.findMany({});
+    return { status: 200, data: locations };
+  } catch (error) {
+    console.error("Error fetching specific locations:", error);
+    throw error; // Or handle error as needed
+  }
+};
+
+const getAllEthnicities = async () => {
+  try {
+    const options = await prisma.ethnicity.findMany({});
+    return { status: 200, data: options };
+  } catch (error) {
+    console.error("Error fetching ethnicities:", error);
+    throw error; // Or handle error as needed
+  }
+};
+
 module.exports = {
   createGirl,
   updateGirl,
@@ -457,9 +477,11 @@ module.exports = {
   createPricesObject,
   createSubscription,
   createClientReview,
+  getAllSpecificLocations,
   getClientsByPhonePrefix,
   getClientReviewsByGirlId,
   deleteReviewById,
   getClientReviewsByPhoneNumber,
+  getAllEthnicities,
   updateReviewById,
 };
