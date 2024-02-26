@@ -150,4 +150,14 @@ router.get("/ethnicity", async (req, res) => {
   }
 });
 
+// GET endpoint for fetching all Ethnicities
+router.get("/nationality", async (req, res) => {
+  try {
+    const nationalities = await girlService.getAllNationalities();
+    res.json(nationalities);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

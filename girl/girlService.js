@@ -28,6 +28,7 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
         phoneNumber: girlPhoneNumber,
         description: "",
         ethnicityId: undefined,
+        countryOfOriginId: undefined,
         height: 160,
         weight: 60,
         chestCm: 90,
@@ -428,7 +429,11 @@ const getGirlById = async (girlId) => {
 
 const getAllServices = async () => {
   try {
-    const services = await prisma.service.findMany({});
+    const services = await prisma.service.findMany({
+      orderBy: {
+        name: "asc",
+      },
+    });
     return { status: 200, data: services };
   } catch (error) {
     console.error("Error fetching services:", error);
@@ -438,7 +443,11 @@ const getAllServices = async () => {
 
 const getAllCities = async () => {
   try {
-    const cities = await prisma.city.findMany({});
+    const cities = await prisma.city.findMany({
+      orderBy: {
+        name: "asc",
+      },
+    });
     return { status: 200, data: cities };
   } catch (error) {
     console.error("Error fetching cities:", error);
@@ -448,7 +457,11 @@ const getAllCities = async () => {
 
 const getAllSpecificLocations = async () => {
   try {
-    const locations = await prisma.specificLocation.findMany({});
+    const locations = await prisma.specificLocation.findMany({
+      orderBy: {
+        name: "asc",
+      },
+    });
     return { status: 200, data: locations };
   } catch (error) {
     console.error("Error fetching specific locations:", error);
@@ -458,10 +471,28 @@ const getAllSpecificLocations = async () => {
 
 const getAllEthnicities = async () => {
   try {
-    const options = await prisma.ethnicity.findMany({});
+    const options = await prisma.ethnicity.findMany({
+      orderBy: {
+        name: "asc",
+      },
+    });
     return { status: 200, data: options };
   } catch (error) {
     console.error("Error fetching ethnicities:", error);
+    throw error; // Or handle error as needed
+  }
+};
+
+const getAllNationalities = async () => {
+  try {
+    const nationalities = await prisma.nationality.findMany({
+      orderBy: {
+        name: "asc",
+      },
+    });
+    return { status: 200, data: nationalities };
+  } catch (error) {
+    console.error("Error fetching nationalities", error);
     throw error; // Or handle error as needed
   }
 };
@@ -483,5 +514,6 @@ module.exports = {
   deleteReviewById,
   getClientReviewsByPhoneNumber,
   getAllEthnicities,
+  getAllNationalities,
   updateReviewById,
 };

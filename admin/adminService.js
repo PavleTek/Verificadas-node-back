@@ -442,6 +442,55 @@ const deleteEthnicity = async (ethnicityId) => {
   }
 };
 
+// Nationality logic part
+const createNationality = async (req) => {
+  const { name } = req.body;
+  try {
+    const nationality = await prisma.nationality.create({
+      data: {
+        name,
+      },
+    });
+    return { status: 200, data: nationality };
+  } catch (error) {
+    console.error("Error creating nationality:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const updateNationality = async (req) => {
+  const { id, name } = req.body;
+
+  try {
+    const nationality = await prisma.nationality.update({
+      where: {
+        id: id,
+      },
+      data: {
+        name: name,
+      },
+    });
+    return { status: 200, data: nationality };
+  } catch (error) {
+    console.error("Error updating nationality name:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const deleteNationality = async (nationalityId) => {
+  try {
+    await prisma.nationality.delete({
+      where: {
+        id: nationalityId,
+      },
+    });
+    return { status: 200, message: `Nationality with ID: ${nationalityId} has been deleted` };
+  } catch (error) {
+    console.error("Error deleting Nationality:", error);
+    return { status: 500, data: error };
+  }
+};
+
 module.exports = {
   createCity,
   updateCityName,
@@ -463,4 +512,7 @@ module.exports = {
   createEthnicity,
   updateEthnicityName,
   deleteEthnicity,
+  createNationality,
+  updateNationality,
+  deleteNationality,
 };

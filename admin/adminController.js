@@ -79,6 +79,12 @@ router.post("/ethnicity", userService.authenticateAdmin, async (req, res) => {
   res.status(response.status).send(response);
 });
 
+// POST endpoint for creating a nationality - Admin only
+router.post("/nationality", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.createNationality(req);
+  res.status(response.status).send(response);
+});
+
 // PUT endpoint for updating a city name - Admin only
 router.put("/city", userService.authenticateAdmin, async (req, res) => {
   const response = await adminService.updateCityName(req);
@@ -94,6 +100,12 @@ router.put("/specificLocation", userService.authenticateAdmin, async (req, res) 
 // PUT endpoint for updating a ethnicity name - Admin only
 router.put("/ethnicity", userService.authenticateAdmin, async (req, res) => {
   const response = await adminService.updateEthnicityName(req);
+  res.status(response.status).send(response);
+});
+
+// PUT endpoint for updating a nationality name - Admin only
+router.put("/nationality", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.updateNationality(req);
   res.status(response.status).send(response);
 });
 
@@ -115,6 +127,13 @@ router.delete("/specificLocation/:specificLocationId", userService.authenticateA
 router.delete("/ethnicity/:ethnicityId", userService.authenticateAdmin, async (req, res) => {
   const ethnicityId = Number(req.params.ethnicityId);
   const response = await adminService.deleteEthnicity(ethnicityId);
+  res.status(response.status).send(response);
+});
+
+// DELETE endpoint for deleting a nationality - Admin only
+router.delete("/nationality/:nationalityId", userService.authenticateAdmin, async (req, res) => {
+  const nationalityId = Number(req.params.nationalityId);
+  const response = await adminService.deleteNationality(nationalityId);
   res.status(response.status).send(response);
 });
 

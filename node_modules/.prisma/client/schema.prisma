@@ -29,19 +29,21 @@ model GirlClickStats {
 }
 
 model Girl {
-  id                Int              @id @default(autoincrement())
+  id                Int               @id @default(autoincrement())
   name              String
   bday              DateTime
   active            Boolean
   bluredFace        Boolean
   cityId            Int
-  city              City             @relation(fields: [cityId], references: [id])
+  city              City              @relation(fields: [cityId], references: [id])
   specificLocationId Int?
   specificLocation  SpecificLocation? @relation(fields: [specificLocationId], references: [id])
   phoneNumber       String
-  description       String           @db.VarChar(550)
+  description       String            @db.VarChar(550)
   ethnicityId       Int?
   ethnicity         Ethnicity?        @relation(fields: [ethnicityId], references: [id])
+  nationalityId     Int?
+  nationality       Nationality?  @relation(fields: [nationalityId], references: [id])
   height            Int
   weight            Int
   chestCm           Int
@@ -59,7 +61,6 @@ model Girl {
   videos            Json
   profilePicture    String
   editLevel         EditLevel
-  countryOfOrigin   String?
   categories        Json
   sessionPricesId   Int?             @unique
   sessionPrices     Prices?          @relation(fields: [sessionPricesId], references: [id])
@@ -68,6 +69,12 @@ model Girl {
 }
 
 model Ethnicity {
+  id    Int    @id @default(autoincrement())
+  name  String
+  girls Girl[]
+}
+
+model Nationality {
   id    Int    @id @default(autoincrement())
   name  String
   girls Girl[]
