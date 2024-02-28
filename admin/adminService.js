@@ -116,6 +116,9 @@ const getAllGirlsUsersWithAllInfo = async () => {
           },
           include: {
             city: true, // Include city details
+            nationality: true,
+            ethnicity: true,
+            specificLocation: true,
             services: true, // Include services
             verification: true, // Include verification details
             sessionPrices: true, // Include Prices
@@ -212,7 +215,6 @@ const registerGirlUser = async (req) => {
       },
     });
 
-    console.log("worked");
     return { status: 200, data: user };
   } catch (error) {
     console.log(error);
@@ -227,6 +229,9 @@ async function updateGirl(req) {
   delete updateData.verification;
   delete updateData.verificationId;
   delete updateData.subscriptionId;
+  delete updateData.specificLocationId;
+  delete updateData.ethnicityId;
+  delete updateData.nationalityId;
   delete updateData.subscription;
   delete updateData.verificationId;
   delete updateData.sessionPricesId;
@@ -242,6 +247,21 @@ async function updateGirl(req) {
         city: {
           connect: {
             id: updateData.city.id,
+          },
+        },
+        nationality: {
+          connect: {
+            id: updateData.nationality.id,
+          },
+        },
+        ethnicity: {
+          connect: {
+            id: updateData.ethnicity.id,
+          },
+        },
+        specificLocation: {
+          connect: {
+            id: updateData.specificLocation.id,
           },
         },
         services: {

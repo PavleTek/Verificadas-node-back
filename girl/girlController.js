@@ -23,7 +23,6 @@ router.post("/clientReview", userService.authenticate, async (req, res) => {
 // GET Endpoint to retriever all cliente reviews that start with a number
 router.get("/clientByPhone/:phonePrefix", userService.authenticate, async (req, res) => {
   const { phonePrefix } = req.params;
-  console.log(req.params);
   try {
     const response = await girlService.getClientsByPhonePrefix(phonePrefix);
     res.status(response.status).send(response.data);
