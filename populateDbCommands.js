@@ -58,6 +58,7 @@ async function createGirl() {
   const req = {
     body: {
       email: "zxcv",
+      phoneNumber: '56976681508',
       password: "zxcv",
       bday: new Date(2001, 2, 2),
       cityId: 1,

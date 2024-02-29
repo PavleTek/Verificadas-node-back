@@ -34,6 +34,7 @@ model Girl {
   bday               DateTime
   active             Boolean
   bluredFace         Boolean
+  barbie             Boolean           @default(false)
   cityId             Int
   city               City              @relation(fields: [cityId], references: [id])
   specificLocationId Int?
@@ -119,7 +120,6 @@ model User {
 
 model Verification {
   id               Int                @id @default(autoincrement())
-  barbie           Boolean            @default(false)
   carnetFrontal    String
   carnetAtras      String
   status           VerificationStatus

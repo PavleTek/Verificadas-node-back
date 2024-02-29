@@ -14,7 +14,7 @@ router.get("/users", userService.authenticateAdmin, async (req, res) => {
   }
 });
 
-// POPST endpoint to create a girl user - Admin only
+// POST endpoint to create a girl user - Admin only
 router.post("/users", userService.authenticateAdmin, async (req, res) => {
   try {
     const users = await adminService.registerGirlUser(req);
@@ -47,6 +47,11 @@ router.get("/user/:userId", userService.authenticateAdmin, async (req, res) => {
 
 router.put("/girl", userService.authenticateAdmin, async (req, res) => {
   const response = await adminService.updateGirl(req);
+  res.status(response.status).send(response);
+});
+
+router.put("/girlPhysicalVerification", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.updateGirlPhysicalVerification(req);
   res.status(response.status).send(response);
 });
 
@@ -139,8 +144,8 @@ router.delete("/nationality/:nationalityId", userService.authenticateAdmin, asyn
 
 // PUT endpoint for updating a verification - Admin only
 router.put("/verification", userService.authenticateAdmin, async (req, res) => {
-  const response = await girlService.updateVerification(req);
-  res.status(response.status).send(response.data);
+  const response = await adminService.updateVerification(req);
+  res.status(response.status).send(response);
 });
 
 // POST endpoint for creating a service - Admin only

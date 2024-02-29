@@ -53,18 +53,31 @@ const deleteCity = async (cityId) => {
 
 // Verification update
 const updateVerification = async (req) => {
-  const { id, ...updateData } = req.body;
-
+  const { girlId, verificationId, verificationData, girlData, adminData } = req.body;
+  const verificationStatus = verificationData.status;
+  if (verificationStatus === "Verified") {
+    verificationData.verificationDate = new Date();
+    verificationData.verifiedBy = adminData.id;
+  }
+  console.log(verificationData);
+  delete verificationData.carnetAtras;
+  delete verificationData.carnetFrontal;
   try {
     const verification = await prisma.verification.update({
       where: {
-        id,
+        id: verificationId,
       },
-      data: updateData,
+      data: verificationData,
     });
-    return { status: 200, data: verification };
+    const girl = await prisma.girl.update({
+      where: {
+        id: girlId,
+      },
+      data: girlData,
+    });
+    return { status: 200, data: { verification, girl } };
   } catch (error) {
-    console.error("Error updating verification:", error);
+    console.error("Error updating verification Information:", error);
     return { status: 500, data: error };
   }
 };
@@ -282,6 +295,66 @@ async function updateGirl(req) {
   } catch (error) {
     console.error("Error updating girl:", error);
     return { status: 500, data: error };
+  }
+}
+
+// async function updateVerification(verificationId, verificationData) {
+//   try {
+//     const updatedVerification = await prisma.verification.update({
+//       where: { id: verificationId },
+//       data: verificationData,
+//     });
+//     return { status: 200, data: updatedVerification };
+//   } catch (error) {
+//     console.error("Error updating girl verification by ID:", error);
+//     return { status: 500, data: error.message };
+//   }
+// }
+
+async function updateGirlPhysicalVerification(req) {
+  const { girlData, girlId } = req.body;
+  try {
+    // Fetch the current attributes of the girl
+    const girl = await prisma.girl.findUnique({
+      where: { id: girlId },
+    });
+
+    if (!girl) {
+      throw new Error("Girl not found");
+    }
+
+    const currentAttributes = girl.attributes;
+    const attributesToUpdate = girlData.attributes;
+    const newAttributes = {
+      eyes: attributesToUpdate.eyes,
+      hair: attributesToUpdate.hair,
+      tatoos: currentAttributes.tatoos,
+      shaving: currentAttributes.shaving,
+      smoking: currentAttributes.smoking,
+      chestSize: attributesToUpdate.chestSize,
+      languages: currentAttributes.languages,
+      bottomSize: attributesToUpdate.bottomSize,
+      contexture: attributesToUpdate.contexture,
+      attentionAtHotels: currentAttributes.attentionAtHotels,
+      attentionAtGirlPlace: currentAttributes.attentionAtGirlPlace,
+      attentionAtClientPlace: currentAttributes.attentionAtClientPlace,
+    };
+    girlData.attributes = newAttributes;
+
+    // Perform checks on the current attributes and the proposed changes
+    // Example: Check if the new attributes are within valid ranges
+
+    // Update the girl's attributes if the changes are valid
+
+    const updatedGirl = await prisma.girl.update({
+      where: { id: girlId },
+      data: girlData,
+    });
+
+    return { status: 200, data: updatedGirl };
+  } catch (error) {
+    console.error("Error updating girl attributes:", error);
+    return { status: 500, data: error.message };
   }
 }
 
@@ -516,6 +589,7 @@ module.exports = {
   updateCityName,
   deleteCity,
   updateVerification,
+  updateGirlPhysicalVerification,
   registerAdminUser,
   getAllUsers,
   getUserById,
