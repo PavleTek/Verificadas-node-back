@@ -58,7 +58,7 @@ async function createGirl() {
   const req = {
     body: {
       email: "zxcv",
-      phoneNumber: '56976681508',
+      phoneNumber: "56976681508",
       password: "zxcv",
       bday: new Date(2001, 2, 2),
       cityId: 1,
@@ -84,6 +84,7 @@ async function deleteAllGirls() {
     const deletedClients = await prisma.client.deleteMany();
     const deletedVerifications = await prisma.verification.deleteMany();
     const deletePrices = await prisma.prices.deleteMany();
+    const deletePayments = await prisma.subscriptionPayment.deleteMany();
     const deleteSubscriptions = await prisma.subscription.deleteMany();
     return { success: true, message: `Deleted ${deletedGirls.count} girls.` };
   } catch (error) {
@@ -98,5 +99,5 @@ async function deleteAllReviews() {
   const deletedReveiws = await prisma.clientReview.deleteMany();
   const deletedClients = await prisma.client.deleteMany();
 }
-
+// deleteAllGirls();
 createGirlAndAdminUser();

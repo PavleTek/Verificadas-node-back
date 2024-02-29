@@ -54,6 +54,7 @@ const deleteCity = async (cityId) => {
 // Verification update
 const updateVerification = async (req) => {
   const { girlId, verificationId, verificationData, girlData, adminData } = req.body;
+  try {
   const verificationStatus = verificationData.status;
   if (verificationStatus === "Verified") {
     verificationData.verificationDate = new Date();
@@ -62,7 +63,6 @@ const updateVerification = async (req) => {
   console.log(verificationData);
   delete verificationData.carnetAtras;
   delete verificationData.carnetFrontal;
-  try {
     const verification = await prisma.verification.update({
       where: {
         id: verificationId,
@@ -297,19 +297,6 @@ async function updateGirl(req) {
     return { status: 500, data: error };
   }
 }
-
-// async function updateVerification(verificationId, verificationData) {
-//   try {
-//     const updatedVerification = await prisma.verification.update({
-//       where: { id: verificationId },
-//       data: verificationData,
-//     });
-//     return { status: 200, data: updatedVerification };
-//   } catch (error) {
-//     console.error("Error updating girl verification by ID:", error);
-//     return { status: 500, data: error.message };
-//   }
-// }
 
 async function updateGirlPhysicalVerification(req) {
   const { girlData, girlId } = req.body;

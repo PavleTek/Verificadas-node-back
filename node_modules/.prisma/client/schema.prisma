@@ -135,12 +135,11 @@ model Verification {
 
 model Subscription {
   id                Int                 @id @default(autoincrement())
-  active            Boolean
   expiryDate        DateTime
-  DeactivationDate  DateTime
+  deactivationDate  DateTime
   firstPause        Json
   secondPause       Json
-  ThirdPause        Json
+  thirdPause        Json
   girlId            Int?
   girl              Girl?
   payments          SubscriptionPayment[]

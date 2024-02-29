@@ -170,12 +170,11 @@ const createSubscription = async () => {
     };
     const subscription = await prisma.subscription.create({
       data: {
-        active: false,
         expiryDate: today,
-        DeactivationDate: today,
+        deactivationDate: today,
         firstPause: pause,
         secondPause: pause,
-        ThirdPause: pause,
+        thirdPause: pause,
         payments: undefined,
         girlId: undefined,
       },
