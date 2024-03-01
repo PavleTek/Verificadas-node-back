@@ -114,8 +114,8 @@ model User {
   password        String
   role            UserRole
   girlId          Int?     @unique
-  emailVerified   Boolean  @default(false)
-  verificationCode String?  // Default is null
+  welcomeMessage  String?  @db.VarChar(550)
+  welcomeSent     Boolean  @default(false)
 }
 
 model Verification {

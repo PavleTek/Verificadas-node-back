@@ -62,6 +62,7 @@ async function createGirl() {
       password: "zxcv",
       bday: new Date(2001, 2, 2),
       cityId: 1,
+      wellcomeMessage: "hello this is your message ASDASDASDASDSAD",
     },
   };
   await adminService.registerGirlUser(req);
@@ -74,6 +75,10 @@ async function createGirlAndAdminUser() {
 
 async function getAllUsers() {
   const response = await adminService.getAllGirlsUsersWithAllInfo();
+}
+async function deleteAllReviews() {
+  const deletedReveiws = await prisma.clientReview.deleteMany();
+  const deletedClients = await prisma.client.deleteMany();
 }
 
 async function deleteAllGirls() {
@@ -95,9 +100,5 @@ async function deleteAllGirls() {
   }
 }
 
-async function deleteAllReviews() {
-  const deletedReveiws = await prisma.clientReview.deleteMany();
-  const deletedClients = await prisma.client.deleteMany();
-}
 // deleteAllGirls();
 createGirlAndAdminUser();

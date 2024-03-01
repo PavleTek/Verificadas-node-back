@@ -45,8 +45,16 @@ router.get("/user/:userId", userService.authenticateAdmin, async (req, res) => {
   }
 });
 
+// PUT endpoint to update a girl object
 router.put("/girl", userService.authenticateAdmin, async (req, res) => {
   const response = await adminService.updateGirl(req);
+  res.status(response.status).send(response);
+});
+
+// PUT endpoint to update a a girl welcome message sent
+router.put("/welcomeSent/:userId", userService.authenticateAdmin, async (req, res) => {
+  const { userId } = req.params;
+  const response = await adminService.setUserWelcomeSentTrue(userId);
   res.status(response.status).send(response);
 });
 

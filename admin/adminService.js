@@ -55,14 +55,14 @@ const deleteCity = async (cityId) => {
 const updateVerification = async (req) => {
   const { girlId, verificationId, verificationData, girlData, adminData } = req.body;
   try {
-  const verificationStatus = verificationData.status;
-  if (verificationStatus === "Verified") {
-    verificationData.verificationDate = new Date();
-    verificationData.verifiedBy = adminData.id;
-  }
-  console.log(verificationData);
-  delete verificationData.carnetAtras;
-  delete verificationData.carnetFrontal;
+    const verificationStatus = verificationData.status;
+    if (verificationStatus === "Verified") {
+      verificationData.verificationDate = new Date();
+      verificationData.verifiedBy = adminData.id;
+    }
+    console.log(verificationData);
+    delete verificationData.carnetAtras;
+    delete verificationData.carnetFrontal;
     const verification = await prisma.verification.update({
       where: {
         id: verificationId,
@@ -172,7 +172,7 @@ async function getUserById(userId) {
 }
 
 const registerGirlUser = async (req) => {
-  const { email, phoneNumber, password, bday, cityId } = req.body;
+  const { email, phoneNumber, password, bday, cityId, welcomeMessage } = req.body;
 
   try {
     // Step 1: Create a verification
@@ -225,6 +225,7 @@ const registerGirlUser = async (req) => {
         password: hashedPassword,
         role: "girl",
         girlId: girlId,
+        welcomeMessage: welcomeMessage,
       },
     });
 
@@ -234,6 +235,20 @@ const registerGirlUser = async (req) => {
     return { status: 500, data: error };
   }
 };
+
+async function setUserWelcomeSentTrue(userId) {
+  try {
+    await prisma.user.update({
+      where: { id: parseInt(userId) },
+      data: {
+        welcomeSent: true,
+      },
+    });
+    return { status: 200 };
+  } catch (error) {
+    return { status: 500, data: error };
+  }
+}
 
 async function updateGirl(req) {
   const { id, sessionPricesId, sessionPrices, ...updateData } = req.body; // Extract the 'serviceIds' field
@@ -591,6 +606,7 @@ module.exports = {
   updateSpecificLocationName,
   deleteSpecificLocation,
   createEthnicity,
+  setUserWelcomeSentTrue,
   updateEthnicityName,
   deleteEthnicity,
   createNationality,
