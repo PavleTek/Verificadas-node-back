@@ -132,12 +132,55 @@ async function updateGirlSubscription(req) {
   }
 }
 
-async function editPayment(req) {}
-async function getAllPaymentsByGirl(req) {}
+async function updatePayment(req) {
+  try {
+    const { paymentData } = req.body;
+    const paymentId = paymentData.id;
+    await prisma.subscriptionPayment.update({
+      where: {
+        id: paymentId,
+      },
+      data: paymentData,
+    });
+    return { status: 200 };
+  } catch (err) {
+    return { status: 500, data: err };
+  }
+}
+
+async function deletePaymentById(paymentId) {
+  try {
+    await prisma.subscriptionPayment.delete({
+      where: {
+        id: parseInt(paymentId),
+      },
+    });
+    return { status: 200 };
+  } catch (error) {
+    return { status: 500, data: error };
+  }
+}
+
+async function getAllPaymentsBySubscriptionId(subscriptionId) {
+  try {
+    const payments = await prisma.subscriptionPayment.findMany({
+      where: {
+        subscriptionId: parseInt(subscriptionId),
+      },
+    });
+    return { status: 200, data: payments };
+  } catch (error) {
+    return { status: 500, data: error };
+  }
+}
+
 async function getAllPaymentsByTime(req) {} // month, year, currentyear, always pagination needed sos
 
 module.exports = {
   changeGirlStatus,
   updateGirlSubscription,
   registerPayment,
+  getAllPaymentsBySubscriptionId,
+  deletePaymentById,
+  updatePayment,
 };
