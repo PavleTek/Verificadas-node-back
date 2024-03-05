@@ -10,10 +10,23 @@ router.put("/girlStatus", userService.authenticateAdmin, async (req, res) => {
   res.status(response.status).send(response);
 });
 
+// PUT endpoint Registering a pause in a girls subscription
+router.put("/pause", userService.authenticate, async (req, res) => {
+  const response = await subscriptionService.registerSubscriptionPause(req);
+  res.status(response.status).send(response);
+});
+
 // GET endpoint for fetching all payments made by a girl by subscription ID
 router.get("/payment/:subscriptionId", userService.authenticateAdmin, async (req, res) => {
   const subscriptionId = Number(req.params.subscriptionId);
   const response = await subscriptionService.getAllPaymentsBySubscriptionId(subscriptionId);
+  res.status(response.status).send(response);
+});
+
+// GET endpoint for fetching the most recent registered payment of a girl by the subscription Id
+router.get("/lastPayment/:subscriptionId", userService.authenticate, async (req, res) => {
+  const subscriptionId = Number(req.params.subscriptionId);
+  const response = await subscriptionService.getMostRecentPaymentBySubscriptionId(subscriptionId);
   res.status(response.status).send(response);
 });
 

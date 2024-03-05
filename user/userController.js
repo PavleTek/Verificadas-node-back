@@ -27,7 +27,7 @@ router.post("/verifyTokenAdmin", async (req, res) => {
   if (response.status === 200) {
     res.status(200).send({ valid: true, data: response.data });
   } else {
-    return res.status(401).send({ valid: false, data: response.data });
+    return res.status(200).send({ valid: false, data: response.data });
   }
 });
 

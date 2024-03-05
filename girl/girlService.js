@@ -96,7 +96,7 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
         categories: [],
         sessionPricesId: pricesObjectId,
         verificationId: verificationId,
-        paymentTier: "",
+        paymentTier: "Premium",
         subscriptionId: subscriptionId,
       },
     });
@@ -166,7 +166,7 @@ const createSubscription = async () => {
     const pause = {
       available: true,
       startDate: undefined,
-      endTime: undefined,
+      endDate: undefined,
     };
     const subscription = await prisma.subscription.create({
       data: {
@@ -191,7 +191,7 @@ const createPricesObject = async () => {
     const pricesObject = await prisma.prices.create({
       data: {
         halfHourPrice: 0,
-        oneHourPrice: 0,
+        oneHourPrice: 100000,
         oneAndAHalfHourPrice: 0,
         twoHourPrice: 0,
         fourHourPrice: 0,
@@ -425,6 +425,35 @@ const getGirlById = async (girlId) => {
   }
 };
 
+const getCompleteGirlUserById = async (userId) => {
+  try {
+    userId = Number(userId);
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+    const girl = await prisma.girl.findUnique({
+      where: { id: user.girlId },
+      include: {
+        city: true,
+        nationality: true,
+        ethnicity: true,
+        specificLocation: true,
+        services: true,
+        paidServices: true,
+        verification: true,
+        sessionPrices: true,
+        subscription: true,
+      },
+    });
+    const userWithGirlDetails = { ...user, girl };
+
+    return { status: 200, data: userWithGirlDetails };
+  } catch (error) {
+    console.error("Error fetching user", error);
+    return { status: 500, data: error };
+  }
+};
+
 const getAllServices = async () => {
   try {
     const services = await prisma.service.findMany({
@@ -514,4 +543,5 @@ module.exports = {
   getAllEthnicities,
   getAllNationalities,
   updateReviewById,
+  getCompleteGirlUserById,
 };

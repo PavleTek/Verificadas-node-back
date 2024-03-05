@@ -72,6 +72,7 @@ router.delete("/clientReview/:reviewId", userService.authenticate, async (req, r
   }
 });
 
+// PUT endpoint to edit a specific review
 router.put("/clientReview/:reviewId", userService.authenticate, async (req, res) => {
   const { reviewId } = req.params;
   const { updatedReview } = req.body; // Assuming the updated review is sent in the request body
@@ -106,6 +107,13 @@ router.get("/girls/city/:cityId", async (req, res) => {
 router.get("/girl/:girlId", async (req, res) => {
   const { girlId } = req.params;
   const response = await girlService.getGirlById(girlId);
+  res.status(response.status).send(response.data);
+});
+
+// GET endpoint for fetching all the data bout a girl by ID
+router.get("/girlUser/:userId", userService.authenticate, async (req, res) => {
+  const { userId } = req.params;
+  const response = await girlService.getCompleteGirlUserById(userId);
   res.status(response.status).send(response.data);
 });
 

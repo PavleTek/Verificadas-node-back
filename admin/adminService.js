@@ -60,7 +60,6 @@ const updateVerification = async (req) => {
       verificationData.verificationDate = new Date();
       verificationData.verifiedBy = adminData.id;
     }
-    console.log(verificationData);
     delete verificationData.carnetAtras;
     delete verificationData.carnetFrontal;
     const verification = await prisma.verification.update({
@@ -133,6 +132,7 @@ const getAllGirlsUsersWithAllInfo = async () => {
             ethnicity: true,
             specificLocation: true,
             services: true, // Include services
+            paidServices: true,
             verification: true, // Include verification details
             sessionPrices: true, // Include Prices
             subscription: true, // Include Subscritpion
@@ -294,6 +294,11 @@ async function updateGirl(req) {
         },
         services: {
           connect: updateData.services.map((service) => ({
+            id: service.id,
+          })),
+        },
+        paidServices: {
+          connect: updateData.paidServices.map((service) => ({
             id: service.id,
           })),
         },
