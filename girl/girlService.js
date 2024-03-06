@@ -22,6 +22,7 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
         name: "",
         bday,
         active: false,
+        hiden: false,
         bluredFace: false,
         cityId: cityId,
         specificLocationId: undefined,
@@ -172,9 +173,6 @@ const createSubscription = async () => {
       data: {
         expiryDate: today,
         deactivationDate: today,
-        firstPause: pause,
-        secondPause: pause,
-        thirdPause: pause,
         payments: undefined,
         girlId: undefined,
       },

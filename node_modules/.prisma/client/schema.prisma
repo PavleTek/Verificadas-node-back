@@ -33,6 +33,7 @@ model Girl {
   name               String
   bday               DateTime
   active             Boolean
+  hiden              Boolean           @default(false)
   bluredFace         Boolean
   barbie             Boolean           @default(false)
   cityId             Int
@@ -44,17 +45,17 @@ model Girl {
   ethnicityId        Int?
   ethnicity          Ethnicity?        @relation(fields: [ethnicityId], references: [id])
   nationalityId      Int?
-  nationality        Nationality?  @relation(fields: [nationalityId], references: [id])
+  nationality        Nationality?      @relation(fields: [nationalityId], references: [id])
   height             Int
   weight             Int
   chestCm            Int
   waistCm            Int
   bottomCm           Int
-  services           Service[]        @relation("GirlServices")
-  paidServices       Service[]        @relation("GirlPaidServices")
+  services           Service[]         @relation("GirlServices")
+  paidServices       Service[]         @relation("GirlPaidServices")
   paymentTier        String
-  subscriptionId     Int?             @unique
-  subscription       Subscription?    @relation(fields: [subscriptionId], references: [id])
+  subscriptionId     Int?              @unique
+  subscription       Subscription?     @relation(fields: [subscriptionId], references: [id])
   parking            Boolean
   schedule           Json
   attributes         Json
@@ -63,10 +64,10 @@ model Girl {
   profilePicture     String
   editLevel          EditLevel
   categories         Json
-  sessionPricesId    Int?             @unique
-  sessionPrices      Prices?          @relation(fields: [sessionPricesId], references: [id])
-  verificationId     Int?             @unique
-  verification       Verification?    @relation(fields: [verificationId], references: [id])
+  sessionPricesId    Int?              @unique
+  sessionPrices      Prices?           @relation(fields: [sessionPricesId], references: [id])
+  verificationId     Int?              @unique
+  verification       Verification?     @relation(fields: [verificationId], references: [id])
 }
 
 model Ethnicity {
@@ -134,15 +135,15 @@ model Verification {
 }
 
 model Subscription {
-  id                Int                 @id @default(autoincrement())
-  expiryDate        DateTime
+  id                Int                   @id @default(autoincrement())
+  expiryDate        DateTime 
   deactivationDate  DateTime
-  firstPause        Json
-  secondPause       Json
-  thirdPause        Json
+  pauseStartDate    DateTime?
+  pauseEndDate      DateTime?
+  availablePauses   Int                   @default(0)
   girlId            Int?
   girl              Girl?
-  payments          SubscriptionPayment[]
+  payments          SubscriptionPayment[]  
 }
 
 

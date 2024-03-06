@@ -41,13 +41,34 @@ async function changeGirlStatus(req) {
   }
 }
 
+async function changeGirlHidenStatus(req) {
+  const { girlId, desiredHidenStatus } = req.body;
+  try {
+    const girl = await prisma.girl.update({
+      where: {
+        id: girlId,
+      },
+      data: {
+        hiden: desiredHidenStatus,
+      },
+    });
+
+    return { status: 200, data: girl };
+  } catch (error) {
+    console.error("Error changing girl hiden status:", error);
+    return { status: 500, data: error.message };
+  }
+}
+
 async function registerPayment(req) {
   const { paymentData, subscriptionData, girlId } = req.body;
   const today = new Date();
   const expiryDate = new Date(subscriptionData.expiryDate);
   const newerDate = today > expiryDate ? today : expiryDate;
   const newExpiryDate = getExpiryDate(newerDate, paymentData.duration);
+  const availablePauses = getAmountOfPauses(paymentData.paymentTier);
   subscriptionData.expiryDate = newExpiryDate;
+  subscriptionData.availablePauses = availablePauses;
   subscriptionData.deactivationDate = addDeactivationMargin(newExpiryDate);
   try {
     const newPayment = await prisma.subscriptionPayment.create({
@@ -86,6 +107,18 @@ function getExpiryDate(currentDate, duration) {
   return newDate;
 }
 
+function getAmountOfPauses(paymentTier) {
+  if (paymentTier === "Especial" || "Premium") {
+    return 3;
+  } else if (paymentTier === "Regular") {
+    return 2;
+  } else if (paymentTier === "Economica") {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 function addDeactivationMargin(expiryDate) {
   const deactivationDate = new Date(expiryDate);
   deactivationDate.setDate(deactivationDate.getDate() + 3);
@@ -120,7 +153,7 @@ async function updateGirlSubscription(req) {
     } else {
       await prisma.girl.update({
         where: {
-          id: girlId,
+          id: parseInt(girlId),
         },
         data: {
           paymentTier: paymentTier,
@@ -128,8 +161,8 @@ async function updateGirlSubscription(req) {
       });
       return { status: 200, data: { shouldActivate: false } };
     }
-  } catch (err) {
-    return { status: 500, data: err };
+  } catch (error) {
+    return { status: 500, data: error };
   }
 }
 
@@ -137,6 +170,11 @@ function differenceInDays(startDate, endDate) {
   const oneDay = 24 * 60 * 60 * 1000; // hours * minutes * seconds * milliseconds
   const diffInMilliseconds = Math.abs(endDate.getTime() - startDate.getTime());
   return Math.round(diffInMilliseconds / oneDay);
+}
+
+function isDateInRange(startDate, endDate) {
+  const today = new Date();
+  return startDate <= today && today <= endDate;
 }
 
 async function registerSubscriptionPause(req) {
@@ -151,52 +189,33 @@ async function registerSubscriptionPause(req) {
       },
     });
     const originalExpiryDate = new Date(subscription.expiryDate);
-    const newExpiryDate = new Date();
-    const newDeactivationDate = new Date();
+    const newExpiryDate = new Date(originalExpiryDate);
     newExpiryDate.setDate(originalExpiryDate.getDate() + pauseLengthInDays);
+    const newDeactivationDate = new Date(newExpiryDate);
     newDeactivationDate.setDate(newExpiryDate.getDate() + 3);
-    if (pauseEndDate > originalExpiryDate) {
+    const updatedSubscriptionData = {
+      pauseEndDate: pauseEndDate,
+      pauseStartDate: pauseStartDate,
+      availablePauses: subscription.availablePauses - 1,
+      expiryDate: newExpiryDate,
+      deactivationDate: newDeactivationDate,
+    };
+
+    if (pauseStartDate > originalExpiryDate) {
       return { status: 500, data: { error: "Pause can not start after current expiry date" } };
     }
-    const firstPauseAvailable = subscription.firstPause.available;
-    const secondPauseAvailable = subscription.secondPause.available;
-    const thirdPauseAvailable = subscription.thirdPause.available;
-    const newPause = { available: false, startDate: pauseStartDate, endDate: pauseEndDate };
-    let updatedSubscription;
-    if (!firstPauseAvailable && !secondPauseAvailable && !thirdPauseAvailable) {
+
+    if (subscription.availablePauses <= 0) {
       return { status: 500, data: { error: "No available pauses for this subscription" } };
-    } else if (firstPauseAvailable) {
-      updatedSubscription = await prisma.subscription.update({
+    } else {
+      const updatedSubscription = await prisma.subscription.update({
         where: {
           id: subscriptionId,
         },
-        data: {
-          firstPause: newPause,
-          expiryDate: newExpiryDate,
-        },
+        data: updatedSubscriptionData,
       });
-    } else if (secondPauseAvailable) {
-      updatedSubscription = await prisma.subscription.update({
-        where: {
-          id: subscriptionId,
-        },
-        data: {
-          secondPause: newPause,
-          expiryDate: newExpiryDate,
-        },
-      });
-    } else if (thirdPauseAvailable) {
-      updatedSubscription = await prisma.subscription.update({
-        where: {
-          id: subscriptionId,
-        },
-        data: {
-          thirdPause: newPause,
-          expiryDate: newExpiryDate,
-        },
-      });
+      return { status: 200, data: updatedSubscription };
     }
-    return { status: 200, data: updatedSubscription };
   } catch (error) {
     return { status: 500, data: error };
   }
@@ -204,20 +223,51 @@ async function registerSubscriptionPause(req) {
 
 async function cancelSubscriptionPause(req) {
   try {
+    const { subscriptionId, girlId } = req.body;
+    const currentSubscription = await prisma.subscription.findUnique({
+      where: {
+        id: parseInt(subscriptionId),
+      },
+    });
     let updatedSubscription;
-    const { pauseNumber, subscriptionId } = req.body;
-    if (pauseNumber === 1) {
+    let isTodayInBetweenPause;
+    if (currentSubscription.pauseStartDate !== undefined || currentSubscription.pauseEndDate !== undefined) {
+      const pauseStartDate = new Date(currentSubscription.pauseStartDate);
+      const pauseEndDate = new Date(currentSubscription.pauseEndDate);
+      isTodayInBetweenPause = isDateInRange(pauseStartDate, pauseEndDate);
+      const currentExpiryDate = new Date(currentSubscription.expiryDate);
+      const newExpiryDate = new Date(currentExpiryDate);
+      const pauseLengthInDays = differenceInDays(pauseStartDate, pauseEndDate);
+      newExpiryDate.setDate(newExpiryDate.getDate() - pauseLengthInDays);
+      const newDeactivationDate = new Date(newExpiryDate);
+      newDeactivationDate.setDate(newDeactivationDate.getDate() + 3);
+      const newAvailablePauses = isTodayInBetweenPause ? currentSubscription.availablePauses : currentSubscription.availablePauses + 1;
       updatedSubscription = await prisma.subscription.update({
         where: {
           id: subscriptionId,
         },
         data: {
-          secondPause: newPause,
+          deactivationDate: newDeactivationDate,
           expiryDate: newExpiryDate,
+          pauseStartDate: null,
+          pauseEndDate: null,
+          availablePauses: newAvailablePauses,
         },
       });
+      if (isTodayInBetweenPause) {
+        await prisma.girl.update({
+          where: {
+            id: parseInt(girlId),
+          },
+          data: {
+            active: true,
+          },
+        });
+      }
     }
+    return { status: 200, data: { subscription: updatedSubscription, girlActivated: isTodayInBetweenPause } };
   } catch (error) {
+    console.error(error);
     return { status: 500, data: error };
   }
 }
@@ -284,6 +334,7 @@ async function getAllPaymentsByTime(req) {} // month, year, currentyear, always 
 
 module.exports = {
   changeGirlStatus,
+  changeGirlHidenStatus,
   updateGirlSubscription,
   registerPayment,
   getAllPaymentsBySubscriptionId,
@@ -291,4 +342,5 @@ module.exports = {
   updatePayment,
   getMostRecentPaymentBySubscriptionId,
   registerSubscriptionPause,
+  cancelSubscriptionPause,
 };

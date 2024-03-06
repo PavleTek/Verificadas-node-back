@@ -10,9 +10,21 @@ router.put("/girlStatus", userService.authenticateAdmin, async (req, res) => {
   res.status(response.status).send(response);
 });
 
+// PUT endpoint for updating a girl active status
+router.put("/girlHidenStatus", userService.authenticate, async (req, res) => {
+  const response = await subscriptionService.changeGirlHidenStatus(req);
+  res.status(response.status).send(response);
+});
+
 // PUT endpoint Registering a pause in a girls subscription
 router.put("/pause", userService.authenticate, async (req, res) => {
   const response = await subscriptionService.registerSubscriptionPause(req);
+  res.status(response.status).send(response);
+});
+
+// PUT endpoint For canceling a pause that was already registered
+router.put("/cancelPause", userService.authenticate, async (req, res) => {
+  const response = await subscriptionService.cancelSubscriptionPause(req);
   res.status(response.status).send(response);
 });
 
@@ -54,5 +66,4 @@ router.put("/payment", userService.authenticateAdmin, async (req, res) => {
   const response = await subscriptionService.updatePayment(req);
   res.status(response.status).send(response);
 });
-
 module.exports = router;
