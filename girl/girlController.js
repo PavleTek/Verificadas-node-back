@@ -6,8 +6,8 @@ const router = express.Router();
 
 // PUT endpoint for updating a girl
 router.put("/girl", userService.authenticate, async (req, res) => {
-  const response = await girlService.updateGirl(req);
-  res.status(response.status).send(response.data);
+  const response = await girlService.updateGirl(req, res);
+  res.status(response.status).send(response);
 });
 
 // POST endpoint to create a client review

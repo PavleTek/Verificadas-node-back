@@ -244,23 +244,36 @@ const updateUser = async (userId, updatedUserData) => {
   }
 };
 
-const getUserFromToken = (req, res, next) => {
+const getUserFromToken = async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).send("No Bearer token provided");
+    return null;
   }
-
   const token = authHeader.split(" ")[1];
-
   jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
-      return res.status(401).send("Invalid token");
+      return null;
     }
-
-    req.user = decoded; // Attach the user data to the request object
-    next();
+    return decoded; // Attach the user data to the request object
   });
+  return null;
 };
+
+async function getUserFromReq(req) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return null;
+  } else {
+    const token = authHeader.split(" ")[1];
+    jwt.verify(token, secretKey, (err, decoded) => {
+      if (err) {
+        return null;
+      } else {
+        return decoded; // Attach the user data to the request object
+      }
+    });
+  }
+}
 
 const getProfile = async (req, res) => {
   const userId = req.user.id;
@@ -289,4 +302,5 @@ module.exports = {
   getProfile,
   getUserFromToken,
   updateUser,
+  getUserFromReq,
 };

@@ -108,22 +108,75 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
   }
 };
 
-const updateGirl = async (req) => {
-  const { id, serviceIds, ...updateData } = req.body; // Extract the 'serviceIds' field
-
+const updateGirl = async (req, res) => {
+  const { id, sessionPricesId, sessionPrices, ...updateData } = req.body; // Extract the 'serviceIds' field
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return { status: 500, data: { message: "Error: invalid credentials" } };
+    }
+    const girlToken = authHeader.split(" ")[1];
+    const decoded = jwt.verify(girlToken, secretKey);
+    const girlId = decoded.girlId;
+    if (girlId !== id) {
+      return { status: 500, data: { message: "Error: trying to update other profile" } };
+    }
+  } catch (error) {
+    return { status: 500, data: error };
+  }
+  delete updateData.verification;
+  delete updateData.verificationId;
+  delete updateData.subscriptionId;
+  delete updateData.specificLocationId;
+  delete updateData.ethnicityId;
+  delete updateData.nationalityId;
+  delete updateData.subscription;
+  delete updateData.verificationId;
+  delete updateData.sessionPricesId;
+  delete updateData.sessionPrices;
   try {
     const girl = await prisma.girl.update({
       where: {
         id,
       },
       data: {
-        ...updateData, // Include other update data
+        ...updateData,
+        city: {
+          connect: {
+            id: updateData.city.id,
+          },
+        },
+        nationality: {
+          connect: {
+            id: updateData.nationality.id,
+          },
+        },
+        ethnicity: {
+          connect: {
+            id: updateData.ethnicity.id,
+          },
+        },
+        specificLocation: {
+          connect: {
+            id: updateData.specificLocation.id,
+          },
+        },
         services: {
-          // Use 'connect' to update the associated serviceIds
-          connect: serviceIds.map((serviceId) => ({
-            id: serviceId,
+          connect: updateData.services.map((service) => ({
+            id: service.id,
           })),
         },
+        paidServices: {
+          connect: updateData.paidServices.map((service) => ({
+            id: service.id,
+          })),
+        },
+      },
+    });
+    const updatedPrices = await prisma.prices.update({
+      where: { id: sessionPricesId },
+      data: {
+        ...sessionPrices,
       },
     });
 
