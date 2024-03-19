@@ -1,6 +1,4 @@
 const prisma = require("../prisma.js");
-const girlService = require("../girl/girlService.js");
-const { Prisma } = require("@prisma/client");
 
 async function changeGirlStatus(req) {
   const { girlId, desiredActiveStatus } = req.body;

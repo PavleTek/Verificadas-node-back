@@ -4,7 +4,8 @@ const cors = require("cors");
 const userController = require("./user/userController");
 const girlController = require("./girl/girlController");
 const adminController = require("./admin/adminController");
-const subscriptionContrller = require("./subscription/subscriptionController");
+const multimediaController = require("./multimedia/multimediaController");
+const subscriptionController = require("./subscription/subscriptionController");
 
 const app = express();
 
@@ -20,7 +21,8 @@ app.use(express.json());
 app.use("/user-api", userController);
 app.use("/girl-api", girlController);
 app.use("/admin-api", adminController);
-app.use("/subscription-api", subscriptionContrller);
+app.use("/subscription-api", subscriptionController);
+app.use("/multimedia-api", multimediaController);
 
 const port = process.env.PORT || 3000; // Fallback to 3000 if process.env.PORT is not defined
 app.listen(port, () => {
