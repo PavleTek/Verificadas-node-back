@@ -5,9 +5,19 @@ const fs = require("fs");
 const path = require("path");
 const prisma = require("../prisma.js");
 const { blurFaces } = require("face-api.js");
+const { request } = require("http");
 
-const imageFolderPath = process.env.IMAGES_FOLDER_PATH;
+const beforeApprovalFolderPath = "../" + process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
+const imagesFolderPath = "../" + process.env.IMAGES_FOLDER_PATH;
 const watermarkPath = process.env.WATERMARK_PATH;
+
+function createimagesObject(request, active, bluredFace) {
+  return {
+    request: request,
+    active: active,
+    blurredFaceActive: bluredFace,
+  };
+}
 
 async function saveImagesRequestToGirl(images, girlId) {
   try {
@@ -19,6 +29,7 @@ async function saveImagesRequestToGirl(images, girlId) {
     });
     const girlOriginalImages = girl.images;
     girlOriginalImages.request = imageFileNames;
+    console.log(girlOriginalImages);
     const updatedGirl = await prisma.girl.update({
       where: {
         id: girlId,
@@ -27,21 +38,20 @@ async function saveImagesRequestToGirl(images, girlId) {
         images: girlOriginalImages,
       },
     });
-    console.log(updatedGirl);
-    return { status: 200 };
+    return { status: 200, data: updatedGirl };
   } catch (error) {
     return { status: 500, data: error };
   }
 }
 
-async function addImageWatermarkCentered(inputImagePath, outputPath) {
+async function addWatermarkToImage(imageFileName) {
   try {
-    const inputFileName = "image_girlId56_1710027795222.jpg";
-    const inputImagePath = path.join(__dirname, imageFolderPath, inputFileName);
-    outputPath = path.join(__dirname, imageFolderPath, `_watermarked${inputFileName}`);
+    const imagePath = path.join(__dirname, beforeApprovalFolderPath, imageFileName);
+    const outputPath = path.join(__dirname, imagesFolderPath, imageFileName);
 
     // Load the input image and get its metadata
-    const inputImage = sharp(inputImagePath);
+    console.log("1");
+    const inputImage = sharp(imagePath);
     const inputMetadata = await inputImage.metadata();
 
     const editedWaterMarkPath = path.join(__dirname, watermarkPath);
@@ -66,13 +76,43 @@ async function addImageWatermarkCentered(inputImagePath, outputPath) {
         },
       ])
       .toFile(outputPath);
-
-    console.log("Watermark added successfully");
-    return { status: 200, data: {} };
+    console.log("done?");
+    return `${imageFileName}`;
   } catch (error) {
-    console.error("Error adding image watermark:", error);
-    return { status: 500, data: error };
+    console.log(error);
+    return "";
   }
 }
 
-module.exports = { saveImagesRequestToGirl, addImageWatermarkCentered };
+async function approveImageRequestForGirl(girlId) {
+  try {
+    const girl = await prisma.girl.findUnique({
+      where: {
+        id: girlId,
+      },
+    });
+    const requestImagesToApprove = girl.images.request;
+    let activeImages = [];
+    console.log("before for loop");
+    for (const image of requestImagesToApprove) {
+      const waterMarkedImage = await addWatermarkToImage(image);
+      if (waterMarkedImage !== "") {
+        activeImages.push(waterMarkedImage);
+      }
+    }
+    const newImagesObject = createimagesObject([], activeImages, []);
+    const updatedImagesGirl = await prisma.girl.update({
+      where: {
+        id: girlId,
+      },
+      data: {
+        images: newImagesObject,
+      },
+    });
+    return { status: 200, data: updatedImagesGirl };
+  } catch (error) {
+    return { status: 500, data: updatedImagesGirl };
+  }
+}
+
+module.exports = { saveImagesRequestToGirl, approveImageRequestForGirl };

@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const userService = require("../user/userService");
 const multimediaService = require("./mutlimediaService");
@@ -5,12 +6,13 @@ const path = require("path");
 const multer = require("multer");
 const router = express.Router();
 
-const imageFolderPath = process.env.IMAGES_FOLDER_PATH;
+const beforeApprovalFolderPath = "../" + process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
+const imagesFolderPath = "../" + process.env.IMAGES_FOLDER_PATH;
 
 // Multer configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, imageFolderPath));
+    cb(null, path.join(__dirname, beforeApprovalFolderPath));
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -32,9 +34,12 @@ router.post("/request/:girlId", userService.authenticate, upload.array("images")
 
 // PUT Route for putting the watermark on the pictures
 
-router.put("/approve", userService.authenticate, async (req, res) => {
-  const response = await multimediaService.addImageWatermarkCentered(req);
-  res.status(response.status).send(response);
+router.put("/approve/:girlId", userService.authenticate, async (req, res) => {
+  try {
+    const girlId = Number(req.params.girlId);
+    const response = await multimediaService.approveImageRequestForGirl(girlId);
+    res.status(response.status).send(response);
+  } catch (error) {}
 });
 
 module.exports = router;

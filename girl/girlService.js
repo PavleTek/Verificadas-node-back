@@ -13,7 +13,7 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
   try {
     const serviceIds = [];
     const multimedia = {
-      verifiedUploaded: [],
+      blurredFaceActive: [],
       active: [],
       request: [],
     };
