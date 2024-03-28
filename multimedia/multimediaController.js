@@ -5,6 +5,7 @@ const multimediaService = require("./mutlimediaService");
 const path = require("path");
 const multer = require("multer");
 const router = express.Router();
+const crypto = require("crypto");
 
 const beforeApprovalFolderPath = "../" + process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
 const imagesFolderPath = "../" + process.env.IMAGES_FOLDER_PATH;
@@ -16,7 +17,8 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    const newName = `image_girlId${req.params.girlId}_${Date.now()}${ext}`;
+    const uniqueSuffix = Date.now() + "-" + crypto.randomBytes(4).toString("hex");
+    const newName = `image_girlId${req.params.girlId}_${uniqueSuffix}${ext}`;
     cb(null, newName);
   },
 });

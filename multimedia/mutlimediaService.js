@@ -27,19 +27,19 @@ async function saveImagesRequestToGirl(images, girlId) {
         id: girlId,
       },
     });
-    const girlOriginalImages = girl.images;
-    girlOriginalImages.request = imageFileNames;
-    console.log(girlOriginalImages);
-    const updatedGirl = await prisma.girl.update({
+    const girlImages = girl.images;
+    girlImages.request = imageFileNames;
+    await prisma.girl.update({
       where: {
         id: girlId,
       },
       data: {
-        images: girlOriginalImages,
+        images: girlImages,
       },
     });
-    return { status: 200, data: updatedGirl };
+    return { status: 200, data: girlImages };
   } catch (error) {
+    console.log(error);
     return { status: 500, data: error };
   }
 }
@@ -50,7 +50,6 @@ async function addWatermarkToImage(imageFileName) {
     const outputPath = path.join(__dirname, imagesFolderPath, imageFileName);
 
     // Load the input image and get its metadata
-    console.log("1");
     const inputImage = sharp(imagePath);
     const inputMetadata = await inputImage.metadata();
 
@@ -76,7 +75,6 @@ async function addWatermarkToImage(imageFileName) {
         },
       ])
       .toFile(outputPath);
-    console.log("done?");
     return `${imageFileName}`;
   } catch (error) {
     console.log(error);
@@ -93,7 +91,6 @@ async function approveImageRequestForGirl(girlId) {
     });
     const requestImagesToApprove = girl.images.request;
     let activeImages = [];
-    console.log("before for loop");
     for (const image of requestImagesToApprove) {
       const waterMarkedImage = await addWatermarkToImage(image);
       if (waterMarkedImage !== "") {
@@ -109,9 +106,10 @@ async function approveImageRequestForGirl(girlId) {
         images: newImagesObject,
       },
     });
-    return { status: 200, data: updatedImagesGirl };
+    console.log("should be returning 200");
+    return { status: 200, data: newImagesObject };
   } catch (error) {
-    return { status: 500, data: updatedImagesGirl };
+    return { status: 500, data: error };
   }
 }
 
