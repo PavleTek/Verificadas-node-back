@@ -34,7 +34,6 @@ model Girl {
   bday               DateTime
   active             Boolean
   hiden              Boolean           @default(false)
-  bluredFace         Boolean
   barbie             Boolean           @default(false)
   cityId             Int
   city               City              @relation(fields: [cityId], references: [id])

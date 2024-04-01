@@ -13,7 +13,6 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
   try {
     const serviceIds = [];
     const multimedia = {
-      blurredFaceActive: [],
       active: [],
       request: [],
     };
@@ -23,7 +22,6 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
         bday,
         active: false,
         hiden: false,
-        bluredFace: false,
         cityId: cityId,
         specificLocationId: undefined,
         phoneNumber: girlPhoneNumber,

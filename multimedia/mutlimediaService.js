@@ -1,21 +1,17 @@
 require("dotenv").config();
-const multer = require("multer");
 const sharp = require("sharp");
-const fs = require("fs");
 const path = require("path");
 const prisma = require("../prisma.js");
-const { blurFaces } = require("face-api.js");
-const { request } = require("http");
+const canvas = require("canvas");
 
 const beforeApprovalFolderPath = "../" + process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
 const imagesFolderPath = "../" + process.env.IMAGES_FOLDER_PATH;
 const watermarkPath = process.env.WATERMARK_PATH;
 
-function createimagesObject(request, active, bluredFace) {
+function createimagesObject(request, active) {
   return {
     request: request,
     active: active,
-    blurredFaceActive: bluredFace,
   };
 }
 
@@ -104,7 +100,7 @@ async function approveImageRequestForGirl(girlId) {
         activeImages.push(waterMarkedImage);
       }
     }
-    const newImagesObject = createimagesObject([], activeImages, []);
+    const newImagesObject = createimagesObject([], activeImages);
     const updatedImagesGirl = await prisma.girl.update({
       where: {
         id: girlId,
