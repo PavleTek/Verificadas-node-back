@@ -60,15 +60,22 @@ async function addWatermarkToImage(imageFileName) {
       .toBuffer();
     const watermarkMetadata = await sharp(watermarkBuffer).metadata();
 
+    // Calculate the proportional size of the watermark
+    const watermarkWidth = Math.round(inputMetadata.width * 0.82); // Adjust the watermark size as necessary (20% of input image width)
+    const watermarkHeight = Math.round((watermarkWidth / watermarkMetadata.width) * watermarkMetadata.height);
+
+    // Resize the watermark image
+    const resizedWatermarkBuffer = await sharp(watermarkBuffer).resize(watermarkWidth, watermarkHeight).toBuffer();
+
     // Calculate the position to center the watermark
-    const left = inputMetadata.width / 2 - watermarkMetadata.width / 2;
-    const top = inputMetadata.height / 2 - watermarkMetadata.height / 2;
+    const left = inputMetadata.width / 2 - watermarkWidth / 2;
+    const top = inputMetadata.height / 2 - watermarkHeight / 2;
 
     // Composite the watermark over the input image at the calculated position
     await inputImage
       .composite([
         {
-          input: watermarkBuffer,
+          input: resizedWatermarkBuffer,
           left: Math.round(left),
           top: Math.round(top),
           blend: "over",
