@@ -35,6 +35,7 @@ model Girl {
   active             Boolean
   hiden              Boolean           @default(false)
   barbie             Boolean           @default(false)
+  bluredFace         Boolean           @default(false)
   cityId             Int
   city               City              @relation(fields: [cityId], references: [id])
   specificLocationId Int?

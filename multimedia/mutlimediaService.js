@@ -3,16 +3,27 @@ const sharp = require("sharp");
 const path = require("path");
 const prisma = require("../prisma.js");
 const canvas = require("canvas");
+const faceapi = require("face-api.js");
+
+// Patching the environment to use face-api.js
+const { Canvas, Image, ImageData } = canvas;
+faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
 
 const beforeApprovalFolderPath = "../" + process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
 const imagesFolderPath = "../" + process.env.IMAGES_FOLDER_PATH;
 const watermarkPath = process.env.WATERMARK_PATH;
 
-function createimagesObject(request, active) {
+function createimagesObject(request, active, bluredFace) {
   return {
     request: request,
     active: active,
+    bluredFace: bluredFace,
   };
+}
+
+async function loadModels() {
+  const modelsPath = path.join(__dirname, "..", "..", "face_models"); // Adjust the path to where you've stored the models
+  await faceapi.nets.ssdMobilenetv1.loadFromDisk(modelsPath);
 }
 
 async function saveImagesRequestToGirl(images, girlId) {
@@ -57,7 +68,7 @@ async function addWatermarkToImage(imageFileName) {
     const watermarkMetadata = await sharp(watermarkBuffer).metadata();
 
     // Calculate the proportional size of the watermark
-    const watermarkWidth = Math.round(inputMetadata.width * 0.82); // Adjust the watermark size as necessary (20% of input image width)
+    const watermarkWidth = Math.round(inputMetadata.width); // Adjust the watermark size as necessary (20% of input image width)
     const watermarkHeight = Math.round((watermarkWidth / watermarkMetadata.width) * watermarkMetadata.height);
 
     // Resize the watermark image
@@ -85,6 +96,59 @@ async function addWatermarkToImage(imageFileName) {
   }
 }
 
+async function blurFaces(imageFileName) {
+  try {
+    //get image path and final path
+    const imagePath = path.join(__dirname, imagesFolderPath, imageFileName);
+    const outputPath = path.join(__dirname, imagesFolderPath, `blured_${imageFileName}`);
+    // load models for face detection
+    await loadModels();
+
+    const inputImageBuffer = await canvas.loadImage(imagePath);
+    const imageCanvas = canvas.createCanvas(inputImageBuffer.width, inputImageBuffer.height);
+    const ctx = imageCanvas.getContext("2d");
+    ctx.drawImage(inputImageBuffer, 0, 0);
+
+    // Detect faces
+    const detections = await faceapi.detectAllFaces(imageCanvas); // Adjusted to just detect faces without landmarks or descriptors
+    detections.forEach((det) => {
+      const { _x: x, _y: y, _width: width, _height: height } = det._box;
+      const startX = parseInt(x);
+      const startY = parseInt(y);
+      const widthInt = parseInt(width);
+      const heightInt = parseInt(height);
+      sharp(imagePath)
+        .toBuffer()
+        .then((originalBuffer) => {
+          // Blur the extracted region
+          sharp(originalBuffer)
+            .extract({ left: startX, top: startY, width: widthInt, height: heightInt })
+            .blur(7)
+            .toBuffer()
+            .then((blurredRegionBuffer) => {
+              // Composite the blurred region onto the original image
+              sharp(originalBuffer)
+                .composite([{ input: blurredRegionBuffer, left: startX, top: startY }])
+                .toFile(outputPath);
+            })
+            .catch((err) => {
+              // Handle errors
+              console.error(err);
+            });
+        })
+        .catch((err) => {
+          // Handle errors
+          console.error(err);
+        });
+    });
+
+    return `blured_${imageFileName}`;
+  } catch (error) {
+    console.log(error);
+    return "";
+  }
+}
+
 async function approveImageRequestForGirl(girlId) {
   try {
     const girl = await prisma.girl.findUnique({
@@ -94,13 +158,18 @@ async function approveImageRequestForGirl(girlId) {
     });
     const requestImagesToApprove = girl.images.request;
     let activeImages = [];
+    let bluredFaceImages = [];
     for (const image of requestImagesToApprove) {
-      const waterMarkedImage = await addWatermarkToImage(image);
-      if (waterMarkedImage !== "") {
-        activeImages.push(waterMarkedImage);
+      const watermarkedImage = await addWatermarkToImage(image);
+      const bluredFaceImage = await blurFaces(image);
+      if (bluredFaceImage !== "") {
+        bluredFaceImages.push(bluredFaceImage);
+      }
+      if (watermarkedImage !== "") {
+        activeImages.push(watermarkedImage);
       }
     }
-    const newImagesObject = createimagesObject([], activeImages);
+    const newImagesObject = createimagesObject([], activeImages, bluredFaceImages);
     const updatedImagesGirl = await prisma.girl.update({
       where: {
         id: girlId,
@@ -109,7 +178,6 @@ async function approveImageRequestForGirl(girlId) {
         images: newImagesObject,
       },
     });
-    console.log("should be returning 200");
     return { status: 200, data: newImagesObject };
   } catch (error) {
     return { status: 500, data: error };

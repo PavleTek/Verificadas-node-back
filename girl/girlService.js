@@ -15,6 +15,7 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
     const multimedia = {
       active: [],
       request: [],
+      bluredFace: [],
     };
     const girl = await prisma.girl.create({
       data: {
