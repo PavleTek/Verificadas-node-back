@@ -51,6 +51,55 @@ const deleteCity = async (cityId) => {
   }
 };
 
+const updateAllCities = async (cities) => {
+  try {
+    // Fetch all cities from the database
+    const existingCities = await prisma.city.findMany();
+
+    // Iterate through the provided cities array
+    for (const city of cities) {
+      const { id, name } = city;
+
+      // Check if the city exists in the database
+      const existingCity = existingCities.find((n) => n.id === id);
+
+      if (existingCity) {
+        // Update the existing city
+        const updatedCity = await prisma.city.update({
+          where: {
+            id: existingCity.id,
+          },
+          data: {
+            name: capitalizeFirstLetter(name),
+          },
+        });
+      } else {
+        await prisma.city.create({
+          data: {
+            name: capitalizeFirstLetter(name),
+          },
+        });
+      }
+    }
+
+    // Delete cities that are not present in the new array
+    const newCityIds = cities.map((n) => n.id);
+    const citiesToDelete = existingCities.filter((n) => !newCityIds.includes(n.id));
+    for (const cityToDelete of citiesToDelete) {
+      await prisma.city.delete({
+        where: {
+          id: cityToDelete.id,
+        },
+      });
+    }
+
+    return { status: 200, message: "Cities updated successfully" };
+  } catch (error) {
+    console.error("Error updating cities:", error);
+    return { status: 500, message: "Internal server error" };
+  }
+};
+
 // Verification update
 const updateVerification = async (req) => {
   const { girlId, verificationId, verificationData, girlData, adminData } = req.body;
@@ -444,6 +493,57 @@ const deleteService = async (serviceId) => {
   }
 };
 
+const updateAllServices = async (services) => {
+  try {
+    // Fetch all services from the database
+    const existingServices = await prisma.service.findMany();
+
+    // Iterate through the provided services array
+    for (const service of services) {
+      const { id, name, description } = service;
+
+      // Check if the service exists in the database
+      const existingService = existingServices.find((n) => n.id === id);
+
+      if (existingService) {
+        // Update the existing service
+        await prisma.service.update({
+          where: {
+            id: existingService.id,
+          },
+          data: {
+            name: capitalizeFirstLetter(name),
+            description: capitalizeFirstLetterOnly(description),
+          },
+        });
+      } else {
+        await prisma.service.create({
+          data: {
+            name: capitalizeFirstLetter(name),
+            description: capitalizeFirstLetterOnly(description),
+          },
+        });
+      }
+    }
+
+    // Delete services that are not present in the new array
+    const newServiceIds = services.map((n) => n.id);
+    const servicesToDelete = existingServices.filter((n) => !newServiceIds.includes(n.id));
+    for (const serviceToDelete of servicesToDelete) {
+      await prisma.service.delete({
+        where: {
+          id: serviceToDelete.id,
+        },
+      });
+    }
+
+    return { status: 200, message: "Services updated successfully" };
+  } catch (error) {
+    console.error("Error updating services:", error);
+    return { status: 500, message: "Internal server error" };
+  }
+};
+
 // Specific Location logic part
 const createSpecificLocation = async (req) => {
   const { name } = req.body;
@@ -490,6 +590,55 @@ const deleteSpecificLocation = async (specificLocationId) => {
   } catch (error) {
     console.error("Error deleting specific location:", error);
     return { status: 500, data: error };
+  }
+};
+
+const updateAllSpecificLocations = async (specificLocations) => {
+  try {
+    // Fetch all specific locations from the database
+    const existingSpecificLocations = await prisma.specificLocation.findMany();
+
+    // Iterate through the provided specific locations array
+    for (const specificLocation of specificLocations) {
+      const { id, name } = specificLocation;
+
+      // Check if the specific Location exists in the database
+      const existingSpecificLocation = existingSpecificLocations.find((n) => n.id === id);
+
+      if (existingSpecificLocation) {
+        // Update the existing specific Location
+        await prisma.specificLocation.update({
+          where: {
+            id: existingSpecificLocation.id,
+          },
+          data: {
+            name: capitalizeFirstLetter(name),
+          },
+        });
+      } else {
+        await prisma.specificLocation.create({
+          data: {
+            name: capitalizeFirstLetter(name),
+          },
+        });
+      }
+    }
+
+    // Delete specific locations that are not present in the new array
+    const newSpecificLocationIds = specificLocations.map((n) => n.id);
+    const specificLocationsToDelete = existingSpecificLocations.filter((n) => !newSpecificLocationIds.includes(n.id));
+    for (const specificLocationToDelete of specificLocationsToDelete) {
+      await prisma.specificLocation.delete({
+        where: {
+          id: specificLocationToDelete.id,
+        },
+      });
+    }
+
+    return { status: 200, message: "specific locations updated successfully" };
+  } catch (error) {
+    console.error("Error updating specific locations:", error);
+    return { status: 500, message: "Internal server error" };
   }
 };
 
@@ -542,6 +691,55 @@ const deleteEthnicity = async (ethnicityId) => {
   }
 };
 
+const updateAllEthnicities = async (ethnicities) => {
+  try {
+    // Fetch all ethnicities from the database
+    const existingEthnicities = await prisma.ethnicity.findMany();
+
+    // Iterate through the provided ethnicities array
+    for (const ethnicity of ethnicities) {
+      const { id, name } = ethnicity;
+
+      // Check if the ethnicity exists in the database
+      const existingEthnicity = existingEthnicities.find((n) => n.id === id);
+
+      if (existingEthnicity) {
+        // Update the existing ethnicity
+        await prisma.ethnicity.update({
+          where: {
+            id: existingEthnicity.id,
+          },
+          data: {
+            name: capitalizeFirstLetter(name),
+          },
+        });
+      } else {
+        await prisma.ethnicity.create({
+          data: {
+            name: capitalizeFirstLetter(name),
+          },
+        });
+      }
+    }
+
+    // Delete ethnicities that are not present in the new array
+    const newEthnicityIds = ethnicities.map((n) => n.id);
+    const ethnicitiesToDelete = existingEthnicities.filter((n) => !newEthnicityIds.includes(n.id));
+    for (const ethnicityToDelete of ethnicitiesToDelete) {
+      await prisma.ethnicity.delete({
+        where: {
+          id: ethnicityToDelete.id,
+        },
+      });
+    }
+
+    return { status: 200, message: "Ethnicities updated successfully" };
+  } catch (error) {
+    console.error("Error updating Ethnicities:", error);
+    return { status: 500, message: "Internal server error" };
+  }
+};
+
 // Nationality logic part
 const createNationality = async (req) => {
   const { name } = req.body;
@@ -591,6 +789,89 @@ const deleteNationality = async (nationalityId) => {
   }
 };
 
+const updateAllNationalities = async (nationalities) => {
+  try {
+    // Fetch all nationalities from the database
+    const existingNationalities = await prisma.nationality.findMany();
+
+    // Iterate through the provided nationalities array
+    for (const nationality of nationalities) {
+      const { id, name } = nationality;
+
+      // Check if the nationality exists in the database
+      const existingNationality = existingNationalities.find((n) => n.id === id);
+
+      if (existingNationality) {
+        // Update the existing nationality
+        await prisma.nationality.update({
+          where: {
+            id: existingNationality.id,
+          },
+          data: {
+            name: capitalizeFirstLetter(name),
+          },
+        });
+      } else {
+        // Create a new nationality
+        await prisma.nationality.create({
+          data: {
+            name: capitalizeFirstLetter(name),
+          },
+        });
+      }
+    }
+
+    // Delete nationalities that are not present in the new array
+    const newNationalityIds = nationalities.map((n) => n.id);
+    const nationalitiesToDelete = existingNationalities.filter((n) => !newNationalityIds.includes(n.id));
+    for (const nationalityToDelete of nationalitiesToDelete) {
+      await prisma.nationality.delete({
+        where: {
+          id: nationalityToDelete.id,
+        },
+      });
+    }
+
+    return { status: 200, message: "Nationalities updated successfully" };
+  } catch (error) {
+    console.error("Error updating nationalities:", error);
+    return { status: 500, message: "Internal server error" };
+  }
+};
+
+const bulkUpdateCENSS = async (req) => {
+  try {
+    const { type, data } = req.body;
+    if (type === "city") {
+      const response = await updateAllCities(data);
+      return response;
+    } else if (type === "nationality") {
+      const response = await updateAllNationalities(data);
+      return response;
+    } else if (type === "specificLocation") {
+      const response = await updateAllSpecificLocations(data);
+      return response;
+    } else if (type === "ethnicity") {
+      const response = await updateAllEthnicities(data);
+      return response;
+    } else if (type === "service") {
+      const response = await updateAllServices(data);
+      return response;
+    }
+  } catch (error) {
+    return { status: 500, data: error };
+  }
+};
+
+const capitalizeFirstLetter = (str) => {
+  return str.replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+const capitalizeFirstLetterOnly = (str) => {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 module.exports = {
   createCity,
   updateCityName,
@@ -617,4 +898,5 @@ module.exports = {
   createNationality,
   updateNationality,
   deleteNationality,
+  bulkUpdateCENSS,
 };

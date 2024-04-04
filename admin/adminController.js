@@ -175,4 +175,11 @@ router.delete("/service/:serviceId", userService.authenticateAdmin, async (req, 
   res.status(response.status).send(response);
 });
 
+// CENSS = City, ethnicity, nationality, service, specific Location
+// POST endpoint for bulk updating CENSS - Admin only
+router.post("/bulkUpdateCENSS", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.bulkUpdateCENSS(req);
+  res.status(response.status).send(response);
+});
+
 module.exports = router;
