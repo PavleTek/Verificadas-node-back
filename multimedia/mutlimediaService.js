@@ -4,13 +4,14 @@ const path = require("path");
 const prisma = require("../prisma.js");
 const canvas = require("canvas");
 const faceapi = require("face-api.js");
+const fs = require("fs").promises;
 
 // Patching the environment to use face-api.js
 const { Canvas, Image, ImageData } = canvas;
 faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
 
-const beforeApprovalFolderPath = "../" + process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
-const imagesFolderPath = "../" + process.env.IMAGES_FOLDER_PATH;
+const beforeApprovalFolderPath = process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
+const imagesFolderPath = process.env.IMAGES_FOLDER_PATH;
 const watermarkPath = process.env.WATERMARK_PATH;
 
 function createimagesObject(request, active, bluredFace) {
@@ -53,8 +54,8 @@ async function saveImagesRequestToGirl(images, girlId) {
 
 async function addWatermarkToImage(imageFileName) {
   try {
-    const imagePath = path.join(__dirname, beforeApprovalFolderPath, imageFileName);
-    const outputPath = path.join(__dirname, imagesFolderPath, imageFileName);
+    const imagePath = path.join(__dirname, "..", beforeApprovalFolderPath, imageFileName);
+    const outputPath = path.join(__dirname, "..", imagesFolderPath, imageFileName);
 
     // Load the input image and get its metadata
     const inputImage = sharp(imagePath);
@@ -99,8 +100,8 @@ async function addWatermarkToImage(imageFileName) {
 async function blurFaces(imageFileName) {
   try {
     //get image path and final path
-    const imagePath = path.join(__dirname, imagesFolderPath, imageFileName);
-    const outputPath = path.join(__dirname, imagesFolderPath, `blured_${imageFileName}`);
+    const imagePath = path.join(__dirname, "..", imagesFolderPath, imageFileName);
+    const outputPath = path.join(__dirname, "..", imagesFolderPath, `blured_${imageFileName}`);
     // load models for face detection
     await loadModels();
 
@@ -111,41 +112,51 @@ async function blurFaces(imageFileName) {
 
     // Detect faces
     const detections = await faceapi.detectAllFaces(imageCanvas); // Adjusted to just detect faces without landmarks or descriptors
-    detections.forEach((det) => {
+    if (detections.length > 0) {
+      const det = detections[0]; // Get the first detection
+
       const { _x: x, _y: y, _width: width, _height: height } = det._box;
       const startX = parseInt(x);
       const startY = parseInt(y);
       const widthInt = parseInt(width);
       const heightInt = parseInt(height);
-      sharp(imagePath)
-        .toBuffer()
-        .then((originalBuffer) => {
-          // Blur the extracted region
-          sharp(originalBuffer)
-            .extract({ left: startX, top: startY, width: widthInt, height: heightInt })
-            .blur(7)
-            .toBuffer()
-            .then((blurredRegionBuffer) => {
-              // Composite the blurred region onto the original image
-              sharp(originalBuffer)
-                .composite([{ input: blurredRegionBuffer, left: startX, top: startY }])
-                .toFile(outputPath);
-            })
-            .catch((err) => {
-              // Handle errors
-              console.error(err);
-            });
-        })
-        .catch((err) => {
-          // Handle errors
-          console.error(err);
-        });
-    });
+
+      try {
+        const originalBuffer = await sharp(imagePath).toBuffer();
+
+        // Blur the extracted region
+        const blurredRegionBuffer = await sharp(originalBuffer).extract({ left: startX, top: startY, width: widthInt, height: heightInt }).blur(7).toBuffer();
+
+        // Composite the blurred region onto the original image
+        await sharp(originalBuffer)
+          .composite([{ input: blurredRegionBuffer, left: startX, top: startY }])
+          .toFile(outputPath);
+      } catch (err) {
+        // Handle errors
+        console.error(err);
+      }
+    }
 
     return `blured_${imageFileName}`;
   } catch (error) {
     console.log(error);
     return "";
+  }
+}
+
+async function deleteImage(imageFileName, type) {
+  try {
+    const imagePath = path.join(__dirname, "..", imagesFolderPath, imageFileName);
+    const fileExists = await fs
+      .access(imagePath)
+      .then(() => true)
+      .catch(() => false);
+    if (fileExists) {
+      await fs.unlink(imagePath);
+    }
+  } catch (error) {
+    console.error(`Error deleting image ${imageFileName}:`, error);
+    return false;
   }
 }
 
@@ -157,6 +168,10 @@ async function approveImageRequestForGirl(girlId) {
       },
     });
     const requestImagesToApprove = girl.images.request;
+    const activeImagestToDelete = girl.images.active;
+    const blurredFaceImagestoDelete = girl.images.bluredFace;
+    const allImagesToDelete = activeImagestToDelete.concat(blurredFaceImagestoDelete);
+
     let activeImages = [];
     let bluredFaceImages = [];
     for (const image of requestImagesToApprove) {
@@ -168,6 +183,9 @@ async function approveImageRequestForGirl(girlId) {
       if (watermarkedImage !== "") {
         activeImages.push(watermarkedImage);
       }
+    }
+    for (const image of allImagesToDelete) {
+      await deleteImage(image, "active");
     }
     const newImagesObject = createimagesObject([], activeImages, bluredFaceImages);
     const updatedImagesGirl = await prisma.girl.update({

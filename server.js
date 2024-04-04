@@ -6,8 +6,12 @@ const girlController = require("./girl/girlController");
 const adminController = require("./admin/adminController");
 const multimediaController = require("./multimedia/multimediaController");
 const subscriptionController = require("./subscription/subscriptionController");
+const path = require("path");
 
 const app = express();
+
+const beforeApprovalFolderPath = process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
+const imagesFolderPath = process.env.IMAGES_FOLDER_PATH;
 
 const corsOptions = {
   origin: "http://localhost:4200", // Replace with the actual URL of your Angular app
@@ -23,6 +27,10 @@ app.use("/girl-api", girlController);
 app.use("/admin-api", adminController);
 app.use("/subscription-api", subscriptionController);
 app.use("/multimedia-api", multimediaController);
+
+// multimedia
+app.use("/images", express.static(path.join(__dirname, imagesFolderPath)));
+app.use("/pending-images", express.static(path.join(__dirname, beforeApprovalFolderPath)));
 
 const port = process.env.PORT || 3000; // Fallback to 3000 if process.env.PORT is not defined
 app.listen(port, () => {

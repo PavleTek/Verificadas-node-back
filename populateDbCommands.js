@@ -1,5 +1,8 @@
+require("dotenv").config();
 const userService = require("./user/userService.js");
+const fs = require("fs").promises;
 const girlService = require("./girl/girlService.js");
+const path = require("path");
 const prisma = require("./prisma.js");
 const adminService = require("./admin/adminService.js");
 const { all } = require("./user/userController.js");
@@ -100,5 +103,26 @@ async function deleteAllGirls() {
   }
 }
 
+const beforeApprovalFolderPath = process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
+
+async function deleteImage(imageFileName) {
+  try {
+    imagePath = path.join(__dirname, beforeApprovalFolderPath, imageFileName);
+    console.log("imagePath", imagePath);
+    const fileExists = await fs
+      .access(imagePath)
+      .then(() => true)
+      .catch(() => false);
+    if (fileExists) {
+      console.log("file exists");
+      await fs.unlink(imagePath);
+    }
+  } catch (error) {
+    console.error(`Error deleting image ${imageFileName}:`, error);
+    return false;
+  }
+}
+
 // deleteAllGirls();
-createGirlAndAdminUser();
+// createGirlAndAdminUser();
+deleteImage("image_girlId67_1712175954402-8f4e80ea.jpg");
