@@ -55,7 +55,7 @@ router.put("/change-password/:userId", async (req, res) => {
   const { userId } = req.params;
   const { oldPassword, newPassword } = req.body;
   const response = await userService.changePassword(userId, oldPassword, newPassword);
-  res.status(response.success ? 200 : 400).send(response.message);
+  res.status(response.status).send(response);
 });
 
 // PUT endpoint to update a user - Admin only ---need to make that only account owner or admin can change stuff

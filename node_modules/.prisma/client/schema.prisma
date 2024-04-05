@@ -110,13 +110,15 @@ model Service {
 }
 
 model User {
-  id              Int      @id @default(autoincrement())
-  email           String   @unique
-  password        String
-  role            UserRole
-  girlId          Int?     @unique
-  welcomeMessage  String?  @db.VarChar(550)
-  welcomeSent     Boolean  @default(false)
+  id                    Int           @id @default(autoincrement())
+  email                 String        @unique
+  password              String
+  role                  UserRole
+  girlId                Int?          @unique
+  welcomeMessage        String?       @db.VarChar(550)
+  changePasswordMessage String?       @db.VarChar(550)
+  welcomeSent           Boolean       @default(false)
+  changePasswordSent    Boolean       @default(true)
 }
 
 model Verification {

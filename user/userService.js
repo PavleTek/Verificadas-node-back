@@ -139,40 +139,67 @@ const verifyTokenGirl = async (token) => {
 async function changePassword(userId, oldPassword, newPassword) {
   try {
     // Find the user by ID
-    const user = await prisma.User.findUnique({
+    const user = await prisma.user.findUnique({
       where: {
-        id: userId,
+        id: parseInt(userId),
       },
     });
 
     if (!user) {
-      return { success: false, message: "User not found" };
+      return { status: 500, message: "User not found" };
     }
 
     // Check if the old password is valid
     const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
 
     if (!isPasswordValid) {
-      return { success: false, message: "Invalid old password" };
+      return { status: 500, message: "Invalid old password" };
     }
 
     // Hash the new password
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
     // Update the user's password
-    await prisma.User.update({
+    await prisma.user.update({
       where: {
-        id: userId,
+        id: parseInt(userId),
       },
       data: {
         password: hashedNewPassword,
       },
     });
 
-    return { success: true, message: "Password updated successfully" };
+    return { status: 200, message: "Password updated successfully" };
   } catch (error) {
-    console.error(error); // Log the error for debugging
-    return { success: false, message: "An error occurred" };
+    return { status: 500, message: "An error occurred", error: error };
+  }
+}
+
+async function changePasswordByAdmin(userId, newPassword) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: parseInt(userId),
+      },
+    });
+    if (!user) {
+      return { status: 500, data: "User not found" };
+    }
+    const changePasswordMessage = `Su nueva contraseña temporal es:\n\n${newPassword}\n\n Le recomendamos cambiarla una vez que acceda a su cuenta. Puede hacerlo accediendo a "Suscripción" en el menú lateral de la página.`;
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: parseInt(userId),
+      },
+      data: {
+        password: hashedNewPassword,
+        changePasswordMessage: changePasswordMessage,
+        changePasswordSent: false,
+      },
+    });
+    return { status: 200, data: changePasswordMessage };
+  } catch (error) {
+    return { status: 500, data: error };
   }
 }
 
@@ -297,6 +324,7 @@ module.exports = {
   verifyTokenGirl,
   login,
   changePassword,
+  changePasswordByAdmin,
   authenticate,
   authenticateAdmin,
   getProfile,

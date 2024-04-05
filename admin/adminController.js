@@ -51,10 +51,25 @@ router.put("/girl", userService.authenticateAdmin, async (req, res) => {
   res.status(response.status).send(response);
 });
 
+// PUT endpoint to update a girl object
+router.put("/change-password/:userId", userService.authenticateAdmin, async (req, res) => {
+  const { userId } = req.params;
+  const { newPassword } = req.body;
+  const response = await userService.changePasswordByAdmin(userId, newPassword);
+  res.status(response.status).send(response);
+});
+
 // PUT endpoint to update a a girl welcome message sent
 router.put("/welcomeSent/:userId", userService.authenticateAdmin, async (req, res) => {
   const { userId } = req.params;
   const response = await adminService.setUserWelcomeSentTrue(userId);
+  res.status(response.status).send(response);
+});
+
+// PUT endpoint to update a a girl passwordChange sent to true
+router.put("/changePasswordSent/:userId", userService.authenticateAdmin, async (req, res) => {
+  const { userId } = req.params;
+  const response = await adminService.setPasswordChangeSentTrue(userId);
   res.status(response.status).send(response);
 });
 

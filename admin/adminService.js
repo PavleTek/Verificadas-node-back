@@ -299,6 +299,20 @@ async function setUserWelcomeSentTrue(userId) {
   }
 }
 
+async function setPasswordChangeSentTrue(userId) {
+  try {
+    await prisma.user.update({
+      where: { id: parseInt(userId) },
+      data: {
+        changePasswordSent: true,
+      },
+    });
+    return { status: 200 };
+  } catch (error) {
+    return { status: 500, data: error };
+  }
+}
+
 async function updateGirl(req) {
   const { id, sessionPricesId, sessionPrices, ...updateData } = req.body; // Extract the 'serviceIds' field
 
@@ -893,6 +907,7 @@ module.exports = {
   deleteSpecificLocation,
   createEthnicity,
   setUserWelcomeSentTrue,
+  setPasswordChangeSentTrue,
   updateEthnicityName,
   deleteEthnicity,
   createNationality,
