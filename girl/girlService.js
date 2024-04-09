@@ -438,6 +438,15 @@ const getGirlsByCityId = async (cityId) => {
       where: {
         cityId: Number(cityId),
         active: true, // Only fetch active girls
+        hiden: false,
+      },
+      include: {
+        nationality: true,
+        ethnicity: true,
+        specificLocation: true,
+        services: true,
+        paidServices: true,
+        sessionPrices: true,
       },
     });
     return { status: 200, data: girls };
@@ -457,10 +466,12 @@ const getGirlById = async (girlId) => {
         id: girlId,
       },
       include: {
-        city: true, // Include city details
-        services: true, // Include services
-        verification: true, // Include verification details
-        sessionPrices: true, // Include Prices
+        nationality: true,
+        ethnicity: true,
+        specificLocation: true,
+        services: true,
+        paidServices: true,
+        sessionPrices: true,
       },
     });
 

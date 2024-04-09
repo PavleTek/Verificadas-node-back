@@ -107,7 +107,7 @@ router.get("/girls/city/:cityId", async (req, res) => {
 router.get("/girl/:girlId", async (req, res) => {
   const { girlId } = req.params;
   const response = await girlService.getGirlById(girlId);
-  res.status(response.status).send(response.data);
+  res.status(response.status).send(response);
 });
 
 // GET endpoint for fetching all the data bout a girl by ID

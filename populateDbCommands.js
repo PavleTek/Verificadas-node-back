@@ -124,5 +124,5 @@ async function deleteImage(imageFileName) {
 }
 
 // deleteAllGirls();
-// createGirlAndAdminUser();
-deleteImage("image_girlId67_1712175954402-8f4e80ea.jpg");
+createGirlAndAdminUser();
+// deleteImage("image_girlId67_1712175954402-8f4e80ea.jpg");

@@ -14,7 +14,7 @@ const beforeApprovalFolderPath = process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
 const imagesFolderPath = process.env.IMAGES_FOLDER_PATH;
 
 const corsOptions = {
-  origin: "http://localhost:4200", // Replace with the actual URL of your Angular app
+  origin: "*", // Replace with the actual URL of your Angular app
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true, // Enable credentials (cookies, authorization headers) if needed
 };
