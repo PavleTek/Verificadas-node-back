@@ -56,30 +56,30 @@ async function addWatermarkToImage(imageFileName) {
   try {
     const imagePath = path.join(__dirname, "..", beforeApprovalFolderPath, imageFileName);
     const outputPath = path.join(__dirname, "..", imagesFolderPath, imageFileName);
+    const completeWaterMarkPath = path.join(__dirname, watermarkPath);
 
     // Load the input image and get its metadata
     const inputImage = sharp(imagePath);
     const inputMetadata = await inputImage.metadata();
 
-    const editedWaterMarkPath = path.join(__dirname, watermarkPath);
-    // Load the watermark image, resize it if necessary, and get its metadata
-    const watermarkBuffer = await sharp(editedWaterMarkPath)
-      .resize(200) // Optional: Resize watermark. Adjust or remove as necessary.
-      .toBuffer();
-    const watermarkMetadata = await sharp(watermarkBuffer).metadata();
+    // First, ensure the watermark is resized correctly
+    const watermarkResizeOptions = {
+      width: parseInt(inputMetadata.width * 0.98),
+      // Remove the height property to allow proportional resizing based solely on width
+      fit: sharp.fit.inside, // Ensures the watermark is scaled down to fit within the input image dimensions, maintaining aspect ratio
+    };
 
-    // Calculate the proportional size of the watermark
-    const watermarkWidth = Math.round(inputMetadata.width); // Adjust the watermark size as necessary (20% of input image width)
-    const watermarkHeight = Math.round((watermarkWidth / watermarkMetadata.width) * watermarkMetadata.height);
-
-    // Resize the watermark image
-    const resizedWatermarkBuffer = await sharp(watermarkBuffer).resize(watermarkWidth, watermarkHeight).toBuffer();
+    // Resize the watermark
+    const resizedWatermark = sharp(completeWaterMarkPath).resize(watermarkResizeOptions);
+    const resizedWatermarkBuffer = await resizedWatermark.toBuffer();
+    const watermarkMetadata = await sharp(resizedWatermarkBuffer).metadata();
 
     // Calculate the position to center the watermark
-    const left = inputMetadata.width / 2 - watermarkWidth / 2;
-    const top = inputMetadata.height / 2 - watermarkHeight / 2;
+    const left = (inputMetadata.width - watermarkMetadata.width) / 2;
+    const top = (inputMetadata.height - watermarkMetadata.height) / 2;
 
-    // Composite the watermark over the input image at the calculated position
+    console.log(`Input Image Dimensions: ${inputMetadata.width}x${inputMetadata.height}`);
+    console.log(`Watermark Dimensions: ${watermarkMetadata.width}x${watermarkMetadata.height}`);
     await inputImage
       .composite([
         {
@@ -90,9 +90,10 @@ async function addWatermarkToImage(imageFileName) {
         },
       ])
       .toFile(outputPath);
+
     return `${imageFileName}`;
   } catch (error) {
-    console.log(error);
+    console.log("Adding Watermark Error", error);
     return "";
   }
 }
@@ -139,7 +140,7 @@ async function blurFaces(imageFileName) {
 
     return `blured_${imageFileName}`;
   } catch (error) {
-    console.log(error);
+    console.log("Bluring Faces Error", error);
     return "";
   }
 }

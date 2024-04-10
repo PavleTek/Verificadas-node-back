@@ -553,7 +553,7 @@ const getAllSpecificLocations = async () => {
     return { status: 200, data: locations };
   } catch (error) {
     console.error("Error fetching specific locations:", error);
-    throw error; // Or handle error as needed
+    return { status: 500, data: error };
   }
 };
 
