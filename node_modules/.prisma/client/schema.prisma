@@ -175,6 +175,21 @@ model Client {
   clientReviews ClientReview[]
 }
 
+model PricingPlan {
+  id              Int       @id @default(autoincrement())
+  name            String    @unique
+  price           Float
+  discount        Int
+  discountMessage String
+}
+
+model Banner {
+  id          Int       @id @default(autoincrement())
+  title       String    
+  message     String
+  showBanner  Boolean   @default(false)
+}
+
 enum VerificationStatus {
   Pending
   Scheduled

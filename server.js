@@ -6,6 +6,7 @@ const girlController = require("./girl/girlController");
 const adminController = require("./admin/adminController");
 const multimediaController = require("./multimedia/multimediaController");
 const subscriptionController = require("./subscription/subscriptionController");
+const { initializeBanner } = require("./admin/adminService");
 const path = require("path");
 
 const app = express();
@@ -33,6 +34,12 @@ app.use("/images", express.static(path.join(__dirname, imagesFolderPath)));
 app.use("/pending-images", express.static(path.join(__dirname, beforeApprovalFolderPath)));
 
 const port = process.env.PORT || 3000; // Fallback to 3000 if process.env.PORT is not defined
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+initializeBanner()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Error initializing banner:", error);
+  });

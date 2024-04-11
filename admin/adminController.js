@@ -113,6 +113,12 @@ router.post("/nationality", userService.authenticateAdmin, async (req, res) => {
   res.status(response.status).send(response);
 });
 
+// POST endpoint for creating a pricing plan - Admin only
+router.post("/pricingPlan", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.createPricingPlan(req);
+  res.status(response.status).send(response);
+});
+
 // PUT endpoint for updating a city name - Admin only
 router.put("/city", userService.authenticateAdmin, async (req, res) => {
   const response = await adminService.updateCityName(req);
@@ -134,6 +140,24 @@ router.put("/ethnicity", userService.authenticateAdmin, async (req, res) => {
 // PUT endpoint for updating a nationality name - Admin only
 router.put("/nationality", userService.authenticateAdmin, async (req, res) => {
   const response = await adminService.updateNationality(req);
+  res.status(response.status).send(response);
+});
+
+// PUT endpoint for updating a pricing plan - Admin only
+router.put("/pricingPlan", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.updatePricingPlan(req);
+  res.status(response.status).send(response);
+});
+
+// PUT endpoint for updating a banner show value - Admin only
+router.put("/bannerShow", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.updateShowBannerValue(req);
+  res.status(response.status).send(response);
+});
+
+// PUT endpoint for updating a banner Message - Admin only
+router.put("/banner", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.updateBanner(req);
   res.status(response.status).send(response);
 });
 
@@ -162,6 +186,13 @@ router.delete("/ethnicity/:ethnicityId", userService.authenticateAdmin, async (r
 router.delete("/nationality/:nationalityId", userService.authenticateAdmin, async (req, res) => {
   const nationalityId = Number(req.params.nationalityId);
   const response = await adminService.deleteNationality(nationalityId);
+  res.status(response.status).send(response);
+});
+
+// DELETE endpoint for deleting a pricing plan - Admin only
+router.delete("/pricingPlan/:pricingPlanId", userService.authenticateAdmin, async (req, res) => {
+  const pricingPlanId = Number(req.params.pricingPlanId);
+  const response = await adminService.deletePricingPlan(pricingPlanId);
   res.status(response.status).send(response);
 });
 

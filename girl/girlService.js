@@ -585,6 +585,30 @@ const getAllNationalities = async () => {
   }
 };
 
+const getAllPricingPlans = async () => {
+  try {
+    const pricingPlans = await prisma.pricingPlan.findMany({
+      orderBy: {
+        name: "asc",
+      },
+    });
+    return { status: 200, data: pricingPlans };
+  } catch (error) {
+    console.error("Error fetching pricing Plans", error);
+    return { status: 500, data: error };
+  }
+};
+
+const getBanner = async () => {
+  try {
+    const banner = await prisma.banner.findFirst();
+    return { status: 200, data: banner };
+  } catch (error) {
+    console.error("Error fetching pricing Banner", error);
+    return { status: 500, data: error };
+  }
+};
+
 module.exports = {
   createGirl,
   updateGirl,
@@ -605,4 +629,6 @@ module.exports = {
   getAllNationalities,
   updateReviewById,
   getCompleteGirlUserById,
+  getAllPricingPlans,
+  getBanner,
 };

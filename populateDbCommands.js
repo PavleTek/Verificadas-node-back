@@ -123,6 +123,15 @@ async function deleteImage(imageFileName) {
   }
 }
 
+async function deleteBanner() {
+  try {
+    await prisma.banner.deleteMany();
+    console.log("banner deleted succesfully");
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 // deleteAllGirls();
-createGirlAndAdminUser();
-// deleteImage("image_girlId67_1712175954402-8f4e80ea.jpg");
+// createGirlAndAdminUser();
+// deleteBanner();

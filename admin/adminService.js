@@ -886,6 +886,131 @@ const capitalizeFirstLetterOnly = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+// Pricing Plan logic
+async function createPricingPlan(req) {
+  try {
+    const { name, price, discount, discountMessage } = req.body;
+    const pricingPlan = await prisma.pricingPlan.create({
+      data: {
+        name,
+        price,
+        discount,
+        discountMessage,
+      },
+    });
+    return { status: 200, data: pricingPlan };
+  } catch (error) {
+    console.error("Error creating pricing plan", error);
+    return { status: 500, data: error };
+  }
+}
+
+async function updatePricingPlan(req) {
+  console.log("updating pricing plan");
+  try {
+    const { id, name, price, discount, discountMessage } = req.body;
+    const pricingPlan = await prisma.pricingPlan.update({
+      where: {
+        id: id,
+      },
+      data: {
+        name: name,
+        price: price,
+        discount: discount,
+        discountMessage: discountMessage,
+      },
+    });
+    return { status: 200, data: pricingPlan };
+  } catch (error) {
+    console.error("Error updating PricingPlan", error);
+    return { status: 500, data: error };
+  }
+  F;
+}
+
+async function deletePricingPlan(pricingPlanId) {
+  try {
+    await prisma.pricingPlan.delete({
+      where: {
+        id: pricingPlanId,
+      },
+    });
+    return { status: 200, data: `pricingPlan with ID ${pricingPlanId} has been deleted` };
+  } catch (error) {
+    console.error("Error deleting service:", error);
+    return { status: 500, data: error };
+  }
+}
+
+// banner logic
+async function updateBanner(req) {
+  try {
+    const { bannerMessage, title } = req.body;
+    const firstBanner = await prisma.banner.findFirst();
+    if (firstBanner) {
+      const banner = await prisma.banner.update({
+        where: {
+          id: firstBanner.id,
+        },
+        data: {
+          title: title,
+          message: bannerMessage,
+        },
+      });
+      return { status: 200, data: banner };
+    } else {
+      return { status: 200, data: { message: "No banner was found" } };
+    }
+  } catch (error) {
+    console.error("Error updating banner Message:", error);
+    return { status: 200, data: error };
+  }
+}
+
+async function updateShowBannerValue(req) {
+  try {
+    const { showBannerValue } = req.body;
+    const firstBanner = await prisma.banner.findFirst();
+    if (firstBanner) {
+      const banner = await prisma.banner.update({
+        where: {
+          id: firstBanner.id,
+        },
+        data: {
+          showBanner: showBannerValue,
+        },
+      });
+      return { status: 200, data: banner };
+    } else {
+      return { status: 200, data: { message: "No banner was found" } };
+    }
+  } catch (error) {
+    console.error("Error updating banner Show value:", error);
+    return { status: 200, data: error };
+  }
+}
+
+async function initializeBanner() {
+  try {
+    // Check if a banner exists
+    const existingBanner = await prisma.banner.findFirst();
+
+    // If no banner exists, create one with default values
+    if (!existingBanner) {
+      await prisma.banner.create({
+        data: {
+          message: "",
+          showBanner: false,
+          title: "",
+        },
+      });
+      console.log("Default banner created.");
+    }
+  } catch (error) {
+    console.error("Error initializing banner:", error);
+  }
+}
+
 module.exports = {
   createCity,
   updateCityName,
@@ -914,4 +1039,10 @@ module.exports = {
   updateNationality,
   deleteNationality,
   bulkUpdateCENSS,
+  createPricingPlan,
+  updatePricingPlan,
+  deletePricingPlan,
+  updateBanner,
+  updateShowBannerValue,
+  initializeBanner,
 };

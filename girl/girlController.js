@@ -157,11 +157,31 @@ router.get("/ethnicity", async (req, res) => {
   }
 });
 
-// GET endpoint for fetching all Ethnicities
+// GET endpoint for fetching all Nationalities
 router.get("/nationality", async (req, res) => {
   try {
     const nationalities = await girlService.getAllNationalities();
     res.json(nationalities);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET endpoint for fetching all pricing plans
+router.get("/pricingPlan", async (req, res) => {
+  try {
+    const response = await girlService.getAllPricingPlans();
+    res.status(response.status).send(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET endpoint for fetching all pricing plans
+router.get("/banner", async (req, res) => {
+  try {
+    const response = await girlService.getBanner();
+    res.status(response.status).send(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
