@@ -221,11 +221,11 @@ async function getUserById(userId) {
 }
 
 const registerGirlUser = async (req) => {
-  const { email, phoneNumber, password, bday, cityId, welcomeMessage } = req.body;
+  const { email, name, phoneNumber, password, bday, cityId, welcomeMessage, paymentTier, anounceRequestId } = req.body;
 
   try {
     // Step 1: Create a verification
-    const verificationResult = await girlService.createVerification(bday);
+    const verificationResult = await girlService.createVerification(bday, name);
     const verificationId = verificationResult.verificationId;
 
     // Step 2: Create a prices object for the girl
@@ -237,7 +237,7 @@ const registerGirlUser = async (req) => {
     const subscriptionId = subscription.subscriptionId;
 
     // Step 4: Create a girl with the verification ID
-    const girlResult = await girlService.createGirl(bday, phoneNumber, cityId, verificationId, pricesObjectId, subscriptionId);
+    const girlResult = await girlService.createGirl(bday, phoneNumber, cityId, verificationId, pricesObjectId, subscriptionId, paymentTier);
     const girlId = girlResult.data.id;
 
     // update verification, prices, and subscription to add girl id
@@ -277,6 +277,20 @@ const registerGirlUser = async (req) => {
         welcomeMessage: welcomeMessage,
       },
     });
+
+    if (anounceRequestId !== 0) {
+      // Delete the user
+      await prisma.notification.deleteMany({
+        where: {
+          searchId: anounceRequestId,
+        },
+      });
+      await prisma.anounceRequest.delete({
+        where: {
+          id: anounceRequestId,
+        },
+      });
+    }
 
     return { status: 200, data: user };
   } catch (error) {
@@ -1011,6 +1025,54 @@ async function initializeBanner() {
   }
 }
 
+async function getAnounceRequestById(anounceRequestId) {
+  try {
+    const anounceRequest = await prisma.anounceRequest.findUnique({ where: { id: anounceRequestId } });
+    return { status: 200, data: anounceRequest };
+  } catch (error) {
+    console.error(error);
+    return { status: 500, data: error };
+  }
+}
+
+async function deleteAnounceRequest(anounceRequestId) {
+  try {
+    await prisma.anounceRequest.delete({
+      where: {
+        id: anounceRequestId,
+      },
+    });
+    return { status: 200 };
+  } catch (error) {
+    console.error(error);
+    return { status: 500, data: error };
+  }
+}
+
+async function getAllNotifications() {
+  try {
+    const notifications = await prisma.notification.findMany();
+    return { status: 200, data: notifications };
+  } catch (error) {
+    console.error(error);
+    return { status: 500, data: error };
+  }
+}
+
+async function deleteNotification(notificationId) {
+  try {
+    await prisma.notification.delete({
+      where: {
+        id: notificationId,
+      },
+    });
+    return { status: 200 };
+  } catch (error) {
+    console.error(error);
+    return { status: 500, data: error };
+  }
+}
+
 module.exports = {
   createCity,
   updateCityName,
@@ -1045,4 +1107,8 @@ module.exports = {
   updateBanner,
   updateShowBannerValue,
   initializeBanner,
+  getAnounceRequestById,
+  deleteAnounceRequest,
+  getAllNotifications,
+  deleteNotification,
 };

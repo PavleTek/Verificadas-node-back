@@ -29,10 +29,16 @@ async function loadModels() {
 
 async function saveImagesRequestToGirl(images, girlId) {
   try {
+    const now = new Date();
     const imageFileNames = images.map((imageFile) => imageFile.filename);
     const girl = await prisma.girl.findUnique({
       where: {
         id: girlId,
+      },
+    });
+    const girlUser = await prisma.user.findUnique({
+      where: {
+        girlId: girlId,
       },
     });
     const girlImages = girl.images;
@@ -45,7 +51,97 @@ async function saveImagesRequestToGirl(images, girlId) {
         images: girlImages,
       },
     });
+    if (girlUser !== undefined) {
+      await prisma.notification.create({
+        data: {
+          type: "MultimediaRequest",
+          fromUserId: girlUser.id,
+          date: now,
+          searchId: girlUser.id,
+        },
+      });
+    }
     return { status: 200, data: girlImages };
+  } catch (error) {
+    console.log(error);
+    return { status: 500, data: error };
+  }
+}
+
+async function saveProfilePictureRequestToGirl(images, girlId) {
+  try {
+    const now = new Date();
+    const imageFileNames = images.map((imageFile) => imageFile.filename);
+    const profilePictureRequestName = imageFileNames[0];
+    const girlUser = await prisma.user.findUnique({
+      where: {
+        girlId: girlId,
+      },
+    });
+    await prisma.girl.update({
+      where: {
+        id: girlId,
+      },
+      data: {
+        requestProfilePicture: profilePictureRequestName,
+      },
+    });
+    if (girlUser !== undefined) {
+      await prisma.notification.create({
+        data: {
+          type: "MultimediaRequest",
+          fromUserId: girlUser.id,
+          date: now,
+          searchId: girlUser.id,
+        },
+      });
+    }
+    return { status: 200, data: profilePictureRequestName };
+  } catch (error) {
+    console.log(error);
+    return { status: 500, data: error };
+  }
+}
+
+async function approveProfilePictureForGirl(girlId) {
+  try {
+    const girl = await prisma.girl.findUnique({
+      where: {
+        id: girlId,
+      },
+    });
+    const approvedProfilePicture = girl.requestProfilePicture;
+    if (approvedProfilePicture) {
+      const imagePath = path.join(__dirname, "..", beforeApprovalFolderPath, approvedProfilePicture);
+      const outputPath = path.join(__dirname, "..", imagesFolderPath, approvedProfilePicture);
+      const readStream = await fs.readFile(imagePath);
+      await fs.writeFile(outputPath, readStream);
+      if (girl.profilePicture !== "") {
+        await deleteImage(girl.profilePicture);
+      }
+      const girlUser = await prisma.user.findUnique({
+        where: {
+          girlId: girlId,
+        },
+      });
+      await prisma.girl.update({
+        where: {
+          id: girlId,
+        },
+        data: {
+          profilePicture: approvedProfilePicture,
+          requestProfilePicture: null,
+        },
+      });
+      await prisma.notification.deleteMany({
+        where: {
+          fromUserId: girlUser.id,
+        },
+      });
+      return { status: 200, data: approvedProfilePicture };
+    } else {
+      return { status: 500, data: "There was no profile picture to approve" };
+    }
   } catch (error) {
     console.log(error);
     return { status: 500, data: error };
@@ -168,6 +264,11 @@ async function approveImageRequestForGirl(girlId) {
         id: girlId,
       },
     });
+    const girlUser = await prisma.user.findFirst({
+      where: {
+        girlId: girlId,
+      },
+    });
     const requestImagesToApprove = girl.images.request;
     const activeImagestToDelete = girl.images.active;
     const blurredFaceImagestoDelete = girl.images.bluredFace;
@@ -197,10 +298,16 @@ async function approveImageRequestForGirl(girlId) {
         images: newImagesObject,
       },
     });
+    await prisma.notification.deleteMany({
+      where: {
+        fromUserId: girlUser.id,
+      },
+    });
     return { status: 200, data: newImagesObject };
   } catch (error) {
+    console.error("Error approving images", error);
     return { status: 500, data: error };
   }
 }
 
-module.exports = { saveImagesRequestToGirl, approveImageRequestForGirl };
+module.exports = { saveImagesRequestToGirl, approveImageRequestForGirl, saveProfilePictureRequestToGirl, approveProfilePictureForGirl };

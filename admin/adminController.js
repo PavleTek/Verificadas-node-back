@@ -14,6 +14,19 @@ router.get("/users", userService.authenticateAdmin, async (req, res) => {
   }
 });
 
+// GET endpoint to retrieve all Anounce Requests - Admin only
+router.get("/anounceRequest/:id", userService.authenticateAdmin, async (req, res) => {
+  const anounceRequestId = Number(req.params.id);
+  const response = await adminService.getAnounceRequestById(anounceRequestId);
+  res.status(response.status).send(response);
+});
+
+// GET endpoint to retrieve all Notifications - Admin only
+router.get("/notification", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.getAllNotifications();
+  res.status(200).send(response);
+});
+
 // POST endpoint to create a girl user - Admin only
 router.post("/users", userService.authenticateAdmin, async (req, res) => {
   try {
@@ -193,6 +206,20 @@ router.delete("/nationality/:nationalityId", userService.authenticateAdmin, asyn
 router.delete("/pricingPlan/:pricingPlanId", userService.authenticateAdmin, async (req, res) => {
   const pricingPlanId = Number(req.params.pricingPlanId);
   const response = await adminService.deletePricingPlan(pricingPlanId);
+  res.status(response.status).send(response);
+});
+
+// DELETE endpoint for deleting an anounce request - Admin only
+router.delete("/anounceRequest/:id", userService.authenticateAdmin, async (req, res) => {
+  const anounceRequestId = Number(req.params.id);
+  const response = await adminService.deleteAnounceRequest(anounceRequestId);
+  res.status(response.status).send(response);
+});
+
+// DELETE endpoint for deleting a notification - Admin only
+router.delete("/notification/:id", userService.authenticateAdmin, async (req, res) => {
+  const notificationId = Number(req.params.id);
+  const response = await adminService.deleteNotification(notificationId);
   res.status(response.status).send(response);
 });
 

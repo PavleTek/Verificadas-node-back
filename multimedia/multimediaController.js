@@ -34,12 +34,38 @@ router.post("/request/:girlId", userService.authenticate, upload.array("images")
   } catch (error) {}
 });
 
-// PUT Route for putting the watermark on the pictures
+// POST route for uploading a profile picture request
+router.post("/profilePictureRequest/:girlId", userService.authenticate, upload.array("images"), async (req, res) => {
+  try {
+    const girlId = Number(req.params.girlId);
+    const response = await multimediaService.saveProfilePictureRequestToGirl(req.files, girlId);
+    res.status(response.status).send(response);
+  } catch (error) {}
+});
 
+// POST route for uploading an image request
+router.post("/videoRequest/:girlId", userService.authenticate, upload.array("images"), async (req, res) => {
+  try {
+    const girlId = Number(req.params.girlId);
+    const response = await multimediaService.saveImagesRequestToGirl(req.files, girlId);
+    res.status(response.status).send(response);
+  } catch (error) {}
+});
+
+// PUT Route for putting the watermark on the pictures
 router.put("/approve/:girlId", userService.authenticate, async (req, res) => {
   try {
     const girlId = Number(req.params.girlId);
     const response = await multimediaService.approveImageRequestForGirl(girlId);
+    res.status(response.status).send(response);
+  } catch (error) {}
+});
+
+// PUT Route for putting the watermark on the pictures
+router.put("/approveProfilePicture/:girlId", userService.authenticate, async (req, res) => {
+  try {
+    const girlId = Number(req.params.girlId);
+    const response = await multimediaService.approveProfilePictureForGirl(girlId);
     res.status(response.status).send(response);
   } catch (error) {}
 });

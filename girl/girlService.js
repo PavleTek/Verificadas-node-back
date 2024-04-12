@@ -5,7 +5,7 @@ const secretKey = process.env.JWT_SECRET_KEY;
 
 // This function will only be called through function CreateGirlUser
 // Will never be called independently through api
-const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjectId, subscriptionId) => {
+const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjectId, subscriptionId, paymentTier = "Premium") => {
   let girlPhoneNumber = "";
   if (phoneNumber) {
     girlPhoneNumber = phoneNumber;
@@ -96,7 +96,7 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
         categories: [],
         sessionPricesId: pricesObjectId,
         verificationId: verificationId,
-        paymentTier: "Premium",
+        paymentTier: paymentTier,
         subscriptionId: subscriptionId,
       },
     });
@@ -188,14 +188,14 @@ const updateGirl = async (req, res) => {
 
 // This function will only be called through function CreateGirlUser
 // Will never be called independently through api
-const createVerification = async (bday) => {
+const createVerification = async (bday, name = "") => {
   try {
     const verification = await prisma.verification.create({
       data: {
         carnetFrontal: "",
         carnetAtras: "",
         status: "Pending",
-        name: "",
+        name: name,
         lastname: "",
         bday: bday,
         rut: undefined,
@@ -609,6 +609,34 @@ const getBanner = async () => {
   }
 };
 
+const createAnounceRequest = async (req) => {
+  try {
+    const { name, email, phoneNumber, paymentTier, message } = req.body;
+    const now = new Date();
+    const anounceRequest = await prisma.anounceRequest.create({
+      data: {
+        name,
+        email,
+        phoneNumber,
+        paymentTier,
+        message,
+      },
+    });
+    await prisma.notification.create({
+      data: {
+        type: "AnounceRequest",
+        fromUserId: 0,
+        date: now,
+        searchId: anounceRequest.id,
+      },
+    });
+    return { status: 200 };
+  } catch (error) {
+    console.error(error);
+    return { status: 500, data: error };
+  }
+};
+
 module.exports = {
   createGirl,
   updateGirl,
@@ -631,4 +659,5 @@ module.exports = {
   getCompleteGirlUserById,
   getAllPricingPlans,
   getBanner,
+  createAnounceRequest,
 };

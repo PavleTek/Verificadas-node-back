@@ -10,6 +10,12 @@ router.put("/girl", userService.authenticate, async (req, res) => {
   res.status(response.status).send(response);
 });
 
+// PUT endpoint for creating an anounce request
+router.put("/anounceRequest", async (req, res) => {
+  const response = await girlService.createAnounceRequest(req, res);
+  res.status(response.status).send(response);
+});
+
 // POST endpoint to create a client review
 router.post("/clientReview", userService.authenticate, async (req, res) => {
   try {
