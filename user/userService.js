@@ -70,6 +70,7 @@ const registerGirlUser = async (req) => {
 };
 
 const login = async (req, res) => {
+  console.log("trying to login, wtf");
   const { email, password } = req.body;
 
   try {

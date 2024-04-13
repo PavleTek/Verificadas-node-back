@@ -449,7 +449,8 @@ const getGirlsByCityId = async (cityId) => {
         sessionPrices: true,
       },
     });
-    return { status: 200, data: girls };
+    const shuffledGirls = girls.sort(() => 0.5 - Math.random());
+    return { status: 200, data: shuffledGirls };
   } catch (error) {
     console.error("Error fetching active girls by city ID:", error);
     return { status: 500, data: error };

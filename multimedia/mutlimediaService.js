@@ -68,6 +68,44 @@ async function saveImagesRequestToGirl(images, girlId) {
   }
 }
 
+async function setMainActiveImage(req) {
+  try {
+    const { mainImageIndex, girlId } = req.body;
+    const girl = await prisma.girl.findUnique({
+      where: {
+        id: girlId,
+      },
+    });
+    console.log(girl.images.active);
+    console.log(mainImageIndex);
+    const request = [...girl.images.request];
+    const active = [...girl.images.active];
+    const bluredFace = [...girl.images.bluredFace];
+    if (mainImageIndex >= 0 && mainImageIndex < active.length) {
+      const item = active.splice(mainImageIndex, 1)[0];
+      console.log(item);
+      active.unshift(item);
+    }
+    if (mainImageIndex >= 0 && mainImageIndex < bluredFace.length) {
+      const item = bluredFace.splice(mainImageIndex, 1)[0];
+      bluredFace.unshift(item);
+    }
+    const updatedImages = createimagesObject(request, active, bluredFace);
+    await prisma.girl.update({
+      where: {
+        id: girlId,
+      },
+      data: {
+        images: updatedImages,
+      },
+    });
+    return { status: 200, data: updatedImages };
+  } catch (error) {
+    console.error("Error setting girl main image");
+    return { status: 500, data: error };
+  }
+}
+
 async function saveProfilePictureRequestToGirl(images, girlId) {
   try {
     const now = new Date();
@@ -222,7 +260,7 @@ async function blurFaces(imageFileName) {
         const originalBuffer = await sharp(imagePath).toBuffer();
 
         // Blur the extracted region
-        const blurredRegionBuffer = await sharp(originalBuffer).extract({ left: startX, top: startY, width: widthInt, height: heightInt }).blur(7).toBuffer();
+        const blurredRegionBuffer = await sharp(originalBuffer).extract({ left: startX, top: startY, width: widthInt, height: heightInt }).blur(9).toBuffer();
 
         // Composite the blurred region onto the original image
         await sharp(originalBuffer)
@@ -310,4 +348,4 @@ async function approveImageRequestForGirl(girlId) {
   }
 }
 
-module.exports = { saveImagesRequestToGirl, approveImageRequestForGirl, saveProfilePictureRequestToGirl, approveProfilePictureForGirl };
+module.exports = { saveImagesRequestToGirl, approveImageRequestForGirl, saveProfilePictureRequestToGirl, approveProfilePictureForGirl, setMainActiveImage };

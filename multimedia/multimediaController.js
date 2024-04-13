@@ -53,7 +53,7 @@ router.post("/videoRequest/:girlId", userService.authenticate, upload.array("ima
 });
 
 // PUT Route for putting the watermark on the pictures
-router.put("/approve/:girlId", userService.authenticate, async (req, res) => {
+router.put("/approve/:girlId", userService.authenticateAdmin, async (req, res) => {
   try {
     const girlId = Number(req.params.girlId);
     const response = await multimediaService.approveImageRequestForGirl(girlId);
@@ -62,10 +62,18 @@ router.put("/approve/:girlId", userService.authenticate, async (req, res) => {
 });
 
 // PUT Route for putting the watermark on the pictures
-router.put("/approveProfilePicture/:girlId", userService.authenticate, async (req, res) => {
+router.put("/approveProfilePicture/:girlId", userService.authenticateAdmin, async (req, res) => {
   try {
     const girlId = Number(req.params.girlId);
     const response = await multimediaService.approveProfilePictureForGirl(girlId);
+    res.status(response.status).send(response);
+  } catch (error) {}
+});
+
+// PUT Route for putting the watermark on the pictures
+router.put("/setMainImage", userService.authenticate, async (req, res) => {
+  try {
+    const response = await multimediaService.setMainActiveImage(req);
     res.status(response.status).send(response);
   } catch (error) {}
 });

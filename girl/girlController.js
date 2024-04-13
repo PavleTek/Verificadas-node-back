@@ -120,7 +120,7 @@ router.get("/girl/:girlId", async (req, res) => {
 router.get("/girlUser/:userId", userService.authenticate, async (req, res) => {
   const { userId } = req.params;
   const response = await girlService.getCompleteGirlUserById(userId);
-  res.status(response.status).send(response.data);
+  res.status(response.status).send(response);
 });
 
 // GET endpoint for fetching all Services

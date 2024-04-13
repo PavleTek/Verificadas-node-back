@@ -33,6 +33,7 @@ app.use("/multimedia-api", multimediaController);
 app.use("/images", express.static(path.join(__dirname, imagesFolderPath)));
 app.use("/pending-images", express.static(path.join(__dirname, beforeApprovalFolderPath)));
 
+const hostName = "192.168.1.44";
 const port = process.env.PORT || 3000; // Fallback to 3000 if process.env.PORT is not defined
 initializeBanner()
   .then(() => {

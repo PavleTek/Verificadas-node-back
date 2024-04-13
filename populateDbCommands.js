@@ -103,6 +103,20 @@ async function deleteAllGirls() {
   }
 }
 
+async function fixUser() {
+  const id = 107;
+  const user = await prisma.user.findUnique({ where: { id } });
+  const girlId = user.girlId;
+  await prisma.girl.update({
+    where: {
+      id: girlId,
+    },
+    data: {
+      images: { active: [], request: [], bluredFace: [] },
+    },
+  });
+}
+
 const beforeApprovalFolderPath = process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
 
 async function deleteImage(imageFileName) {
@@ -135,3 +149,4 @@ async function deleteBanner() {
 // deleteAllGirls();
 // createGirlAndAdminUser();
 // deleteBanner();
+fixUser();
