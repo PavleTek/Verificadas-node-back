@@ -78,4 +78,12 @@ router.put("/setMainImage", userService.authenticate, async (req, res) => {
   } catch (error) {}
 });
 
+// PUT Route for putting the watermark on the pictures
+router.put("/cleanMultimedia", userService.authenticateAdmin, async (req, res) => {
+  try {
+    const response = await multimediaService.cleanMultimediaData();
+    res.status(response.status).send(response);
+  } catch (error) {}
+});
+
 module.exports = router;

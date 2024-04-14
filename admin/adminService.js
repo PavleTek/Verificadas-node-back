@@ -102,7 +102,7 @@ const updateAllCities = async (cities) => {
 
 // Verification update
 const updateVerification = async (req) => {
-  const { girlId, verificationId, verificationData, girlData, adminData } = req.body;
+  const { girlId, verificationId, verificationData, girlData, adminData, scheduleLink } = req.body;
   try {
     const verificationStatus = verificationData.status;
     if (verificationStatus === "Verified") {
@@ -920,7 +920,6 @@ async function createPricingPlan(req) {
 }
 
 async function updatePricingPlan(req) {
-  console.log("updating pricing plan");
   try {
     const { id, name, price, discount, discountMessage } = req.body;
     const pricingPlan = await prisma.pricingPlan.update({
@@ -1018,7 +1017,6 @@ async function initializeBanner() {
           title: "",
         },
       });
-      console.log("Default banner created.");
     }
   } catch (error) {
     console.error("Error initializing banner:", error);

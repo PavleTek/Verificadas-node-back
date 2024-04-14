@@ -130,6 +130,7 @@ model Verification {
   name             String
   lastname         String
   bday             DateTime
+  scheduledLink    String?
   rut              String?
   verificationDate DateTime?
   verifiedBy       Int?               

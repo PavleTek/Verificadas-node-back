@@ -14,6 +14,30 @@ const beforeApprovalFolderPath = process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
 const imagesFolderPath = process.env.IMAGES_FOLDER_PATH;
 const watermarkPath = process.env.WATERMARK_PATH;
 
+async function getAllFileNamesFromFolder(folder) {
+  try {
+    const folderPath = path.join(__dirname, "..", folder);
+    const filesAndDirectories = await fs.readdir(folderPath);
+
+    // Optionally, if you want to include only files and exclude directories,
+    // you can further filter the result using fs.stat (this step is optional)
+    const filesOnly = [];
+    for (const item of filesAndDirectories) {
+      const fullPath = `${folderPath}/${item}`;
+      const stat = await fs.stat(fullPath);
+      if (stat.isFile()) {
+        filesOnly.push(item);
+      }
+    }
+
+    // Return the array of filenames
+    return filesOnly;
+  } catch (error) {
+    console.error("Failed to read folder or process files:", error);
+    throw error; // or return an empty array, depending on how you want to handle errors
+  }
+}
+
 function createimagesObject(request, active, bluredFace) {
   return {
     request: request,
@@ -76,14 +100,11 @@ async function setMainActiveImage(req) {
         id: girlId,
       },
     });
-    console.log(girl.images.active);
-    console.log(mainImageIndex);
     const request = [...girl.images.request];
     const active = [...girl.images.active];
     const bluredFace = [...girl.images.bluredFace];
     if (mainImageIndex >= 0 && mainImageIndex < active.length) {
       const item = active.splice(mainImageIndex, 1)[0];
-      console.log(item);
       active.unshift(item);
     }
     if (mainImageIndex >= 0 && mainImageIndex < bluredFace.length) {
@@ -212,8 +233,6 @@ async function addWatermarkToImage(imageFileName) {
     const left = (inputMetadata.width - watermarkMetadata.width) / 2;
     const top = (inputMetadata.height - watermarkMetadata.height) / 2;
 
-    console.log(`Input Image Dimensions: ${inputMetadata.width}x${inputMetadata.height}`);
-    console.log(`Watermark Dimensions: ${watermarkMetadata.width}x${watermarkMetadata.height}`);
     await inputImage
       .composite([
         {
@@ -295,6 +314,22 @@ async function deleteImage(imageFileName, type) {
   }
 }
 
+async function deleteRequestImage(imageFileName, type) {
+  try {
+    const imagePath = path.join(__dirname, "..", beforeApprovalFolderPath, imageFileName);
+    const fileExists = await fs
+      .access(imagePath)
+      .then(() => true)
+      .catch(() => false);
+    if (fileExists) {
+      await fs.unlink(imagePath);
+    }
+  } catch (error) {
+    console.error(`Error deleting image ${imageFileName}:`, error);
+    return false;
+  }
+}
+
 async function approveImageRequestForGirl(girlId) {
   try {
     const girl = await prisma.girl.findUnique({
@@ -348,4 +383,40 @@ async function approveImageRequestForGirl(girlId) {
   }
 }
 
-module.exports = { saveImagesRequestToGirl, approveImageRequestForGirl, saveProfilePictureRequestToGirl, approveProfilePictureForGirl, setMainActiveImage };
+async function cleanMultimediaData() {
+  try {
+    const allGirls = await prisma.girl.findMany();
+    let imagesToKeep = [];
+    // let videosToKeep = [];
+    const allRequestImages = await getAllFileNamesFromFolder(beforeApprovalFolderPath);
+    // const alLRequestVideos = await getAllFileNamesFromFolder(beforeApproveVideoFolderPath);
+    allGirls.forEach((girl) => {
+      if (girl.requestProfilePicture) {
+        imagesToKeep.push(girl.requestProfilePicture);
+      }
+      imagesToKeep = imagesToKeep.concat(girl.images.request);
+      // videosToKeep = videosToKeep.concat(girl.videos.request);
+    });
+    const imagesToDelete = allRequestImages.filter((element) => !imagesToKeep.includes(element));
+    imagesToDelete.forEach(async (image) => {
+      await deleteRequestImage(image);
+    });
+    // // const videosToDelete = array1.filter((element) => !array2.includes(element));
+    // videosToDelete.forEach(async image => {
+    //   await deleteImage(image)
+    // });
+    return { status: 200 };
+  } catch (error) {
+    console.error("Error trying to clean multimedia", error);
+    return { status: 200, data: error };
+  }
+}
+
+module.exports = {
+  saveImagesRequestToGirl,
+  approveImageRequestForGirl,
+  saveProfilePictureRequestToGirl,
+  approveProfilePictureForGirl,
+  setMainActiveImage,
+  cleanMultimediaData,
+};

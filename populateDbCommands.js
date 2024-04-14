@@ -122,13 +122,11 @@ const beforeApprovalFolderPath = process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
 async function deleteImage(imageFileName) {
   try {
     imagePath = path.join(__dirname, beforeApprovalFolderPath, imageFileName);
-    console.log("imagePath", imagePath);
     const fileExists = await fs
       .access(imagePath)
       .then(() => true)
       .catch(() => false);
     if (fileExists) {
-      console.log("file exists");
       await fs.unlink(imagePath);
     }
   } catch (error) {
