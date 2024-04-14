@@ -93,7 +93,7 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
         profilePicture: "",
         editLevel: "Nulo",
         countryOfOrigin: undefined,
-        categories: [],
+        categories: ["Gold"],
         sessionPricesId: pricesObjectId,
         verificationId: verificationId,
         paymentTier: paymentTier,
