@@ -1,4 +1,5 @@
 require("dotenv").config();
+require("./schedulerService");
 const express = require("express");
 const cors = require("cors");
 const userController = require("./user/userController");
@@ -39,6 +40,7 @@ initializeBanner()
   .then(() => {
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
+      console.log('hello wtf?')
     });
   })
   .catch((error) => {

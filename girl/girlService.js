@@ -445,6 +445,7 @@ const getGirlsByCityId = async (cityId) => {
         ethnicity: true,
         specificLocation: true,
         services: true,
+        city: true,
         paidServices: true,
         sessionPrices: true,
       },
@@ -469,6 +470,7 @@ const getGirlById = async (girlId) => {
       include: {
         nationality: true,
         ethnicity: true,
+        city: true,
         specificLocation: true,
         services: true,
         paidServices: true,

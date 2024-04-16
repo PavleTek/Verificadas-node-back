@@ -286,9 +286,11 @@ async function blurFaces(imageFileName) {
           .composite([{ input: blurredRegionBuffer, left: startX, top: startY }])
           .toFile(outputPath);
       } catch (err) {
-        // Handle errors
         console.error(err);
       }
+    } else {
+      const originalBuffer = await sharp(imagePath).toBuffer();
+      await sharp(originalBuffer).toFile(outputPath);
     }
 
     return `blured_${imageFileName}`;
