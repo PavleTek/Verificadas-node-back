@@ -34,7 +34,7 @@ app.use("/multimedia-api", multimediaController);
 app.use("/images", express.static(path.join(__dirname, imagesFolderPath)));
 app.use("/pending-images", express.static(path.join(__dirname, beforeApprovalFolderPath)));
 
-const hostName = "api.verificadas.cl";
+const hostName = "127.0.0.1";
 const port = process.env.PORT || 3000; // Fallback to 3000 if process.env.PORT is not defined
 initializeBanner()
   .then(() => {
