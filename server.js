@@ -38,7 +38,7 @@ const hostName = "api.verificadas.cl";
 const port = process.env.PORT || 3000; // Fallback to 3000 if process.env.PORT is not defined
 initializeBanner()
   .then(() => {
-    app.listen(port, () => {
+    app.listen(port, hostName, () => {
       console.log(`Server is running on port ${port}`);
     });
   })
