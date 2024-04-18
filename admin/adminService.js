@@ -278,7 +278,7 @@ const registerGirlUser = async (req) => {
       },
     });
 
-    if (anounceRequestId !== 0) {
+    if (anounceRequestId && anounceRequestId !== 0) {
       // Delete the user
       await prisma.notification.deleteMany({
         where: {

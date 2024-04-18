@@ -34,11 +34,11 @@ app.use("/multimedia-api", multimediaController);
 app.use("/images", express.static(path.join(__dirname, "..", multimediaImageFolder)));
 app.use("/pending-images", express.static(path.join(__dirname, "..", pendingImagesFolder)));
 
-const hostName = "192.168.1.44";
+const hostName = "127.0.0.1";
 const port = process.env.PORT || 3000; // Fallback to 3000 if process.env.PORT is not defined
 initializeBanner()
   .then(() => {
-    app.listen(port, () => {
+    app.listen(port, hostName, () => {
       console.log(`Server is running on port ${port}`);
     });
   })
