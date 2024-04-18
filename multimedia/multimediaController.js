@@ -7,13 +7,13 @@ const multer = require("multer");
 const router = express.Router();
 const crypto = require("crypto");
 
-const beforeApprovalFolderPath = "../" + process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
-const imagesFolderPath = "../" + process.env.IMAGES_FOLDER_PATH;
+const pendingMultimediaImagesFolder = process.env.PENDING_MULTIMEDIA_IMAGES_FOLDER;
+const pendingMultimediaVideosFolder = process.env.PENDING_MULTIMEDIA_VIDEOS_FOLDER;
 
 // Multer configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, beforeApprovalFolderPath));
+    cb(null, path.join(__dirname, "..", pendingMultimediaImagesFolder));
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);

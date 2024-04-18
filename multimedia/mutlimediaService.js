@@ -10,13 +10,18 @@ const fs = require("fs").promises;
 const { Canvas, Image, ImageData } = canvas;
 faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
 
-const beforeApprovalFolderPath = process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
-const imagesFolderPath = process.env.IMAGES_FOLDER_PATH;
 const watermarkPath = process.env.WATERMARK_PATH;
+
+const imagesFolder = process.env.IMAGES_FOLDER_PATH;
+const pendingImagesFolder = process.env.PENDING_MULTIMEDIA_IMAGES_FOLDER;
+const videosFolder = process.env.MULTIMEDIA_VIDEOS_FOLDER;
+const pendingVideosFolder = process.env.PENDING_MULTIMEDIA_VIDEOS_FOLDER;
+const faceModelsFolder = process.env.FACE_MODELS_FOLDER;
+const watermarkFileName = process.env.WATERMARK_FILENAME;
 
 async function getAllFileNamesFromFolder(folder) {
   try {
-    const folderPath = path.join(__dirname, "..", folder);
+    const folderPath = path.join(__dirname, "..", "..", folder);
     const filesAndDirectories = await fs.readdir(folderPath);
 
     // Optionally, if you want to include only files and exclude directories,
@@ -47,7 +52,7 @@ function createimagesObject(request, active, bluredFace) {
 }
 
 async function loadModels() {
-  const modelsPath = path.join(__dirname, "..", "..", "face_models"); // Adjust the path to where you've stored the models
+  const modelsPath = path.join(__dirname, "..", "..", faceModelsFolder); // Adjust the path to where you've stored the models
   await faceapi.nets.ssdMobilenetv1.loadFromDisk(modelsPath);
 }
 
@@ -171,8 +176,8 @@ async function approveProfilePictureForGirl(girlId) {
     });
     const approvedProfilePicture = girl.requestProfilePicture;
     if (approvedProfilePicture) {
-      const imagePath = path.join(__dirname, "..", beforeApprovalFolderPath, approvedProfilePicture);
-      const outputPath = path.join(__dirname, "..", imagesFolderPath, approvedProfilePicture);
+      const imagePath = path.join(__dirname, "..", "..", pendingImagesFolder, approvedProfilePicture);
+      const outputPath = path.join(__dirname, "..", "..", imagesFolder, approvedProfilePicture);
       const readStream = await fs.readFile(imagePath);
       await fs.writeFile(outputPath, readStream);
       if (girl.profilePicture !== "") {
@@ -209,9 +214,9 @@ async function approveProfilePictureForGirl(girlId) {
 
 async function addWatermarkToImage(imageFileName) {
   try {
-    const imagePath = path.join(__dirname, "..", beforeApprovalFolderPath, imageFileName);
-    const outputPath = path.join(__dirname, "..", imagesFolderPath, imageFileName);
-    const completeWaterMarkPath = path.join(__dirname, watermarkPath);
+    const imagePath = path.join(__dirname, "..", "..", pendingImagesFolder, imageFileName);
+    const outputPath = path.join(__dirname, "..", "..", imagesFolder, imageFileName);
+    const completeWaterMarkPath = path.join(__dirname, "..", "..", watermarkFileName);
 
     // Load the input image and get its metadata
     const inputImage = sharp(imagePath);
@@ -254,8 +259,8 @@ async function addWatermarkToImage(imageFileName) {
 async function blurFaces(imageFileName) {
   try {
     //get image path and final path
-    const imagePath = path.join(__dirname, "..", imagesFolderPath, imageFileName);
-    const outputPath = path.join(__dirname, "..", imagesFolderPath, `blured_${imageFileName}`);
+    const imagePath = path.join(__dirname, "..", "..", imagesFolder, imageFileName);
+    const outputPath = path.join(__dirname, "..", "..", imagesFolder, `blured_${imageFileName}`);
     // load models for face detection
     await loadModels();
 
@@ -302,7 +307,7 @@ async function blurFaces(imageFileName) {
 
 async function deleteImage(imageFileName, type) {
   try {
-    const imagePath = path.join(__dirname, "..", imagesFolderPath, imageFileName);
+    const imagePath = path.join(__dirname, "..", "..", imagesFolder, imageFileName);
     const fileExists = await fs
       .access(imagePath)
       .then(() => true)
@@ -318,7 +323,7 @@ async function deleteImage(imageFileName, type) {
 
 async function deleteRequestImage(imageFileName, type) {
   try {
-    const imagePath = path.join(__dirname, "..", beforeApprovalFolderPath, imageFileName);
+    const imagePath = path.join(__dirname, "..", "..", pendingImagesFolder, imageFileName);
     const fileExists = await fs
       .access(imagePath)
       .then(() => true)
@@ -390,7 +395,7 @@ async function cleanMultimediaData() {
     const allGirls = await prisma.girl.findMany();
     let imagesToKeep = [];
     // let videosToKeep = [];
-    const allRequestImages = await getAllFileNamesFromFolder(beforeApprovalFolderPath);
+    const allRequestImages = await getAllFileNamesFromFolder(pendingImagesFolder);
     // const alLRequestVideos = await getAllFileNamesFromFolder(beforeApproveVideoFolderPath);
     allGirls.forEach((girl) => {
       if (girl.requestProfilePicture) {
