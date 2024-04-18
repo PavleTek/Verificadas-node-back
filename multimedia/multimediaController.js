@@ -13,7 +13,7 @@ const pendingMultimediaVideosFolder = process.env.PENDING_MULTIMEDIA_VIDEOS_FOLD
 // Multer configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "..", pendingMultimediaImagesFolder));
+    cb(null, path.join(__dirname, "..", "..", pendingMultimediaImagesFolder));
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
