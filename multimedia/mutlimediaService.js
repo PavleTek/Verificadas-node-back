@@ -12,7 +12,7 @@ faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
 
 const watermarkPath = process.env.WATERMARK_PATH;
 
-const imagesFolder = process.env.IMAGES_FOLDER_PATH;
+const imagesFolder = process.env.MULTIMEDIA_IMAGES_FOLDER;
 const pendingImagesFolder = process.env.PENDING_MULTIMEDIA_IMAGES_FOLDER;
 const videosFolder = process.env.MULTIMEDIA_VIDEOS_FOLDER;
 const pendingVideosFolder = process.env.PENDING_MULTIMEDIA_VIDEOS_FOLDER;
