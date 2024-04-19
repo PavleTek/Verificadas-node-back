@@ -94,11 +94,12 @@ router.put("/girlPhysicalVerification", userService.authenticateAdmin, async (re
 // DELETE endpoint to delete a user by ID - Admin only
 router.delete("/user/:userId", userService.authenticateAdmin, async (req, res) => {
   try {
-    const { userId } = req.params;
+    let { userId } = req.params;
+    userId = parseInt(userId);
     const response = await adminService.deleteUserById(userId);
-    res.status(response.success ? 200 : 400).send(response.message);
+    res.status(response.status).send(response);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.status(500).send({ status: 500, data: error });
   }
 });
 

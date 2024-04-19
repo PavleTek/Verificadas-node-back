@@ -452,7 +452,7 @@ async function deleteUserById(userId) {
     });
 
     if (!user) {
-      throw new Error(`User with ID ${userId} not found`);
+      return { status: 500, message: "No user found, no user deleted" };
     }
 
     // Delete the user
@@ -462,10 +462,10 @@ async function deleteUserById(userId) {
       },
     });
 
-    return { success: true, message: `User with ID ${userId} has been deleted` };
+    return { status: 200, message: `User with ID ${userId} has been deleted` };
   } catch (error) {
     console.error(error); // Log the error for debugging
-    return { success: false, message: "An error occurred while deleting the user" };
+    return { status: 500, message: "An error occurred while deleting the user" };
   }
 }
 
