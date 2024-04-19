@@ -12,8 +12,8 @@ const path = require("path");
 
 const app = express();
 
-const beforeApprovalFolderPath = process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
-const imagesFolderPath = process.env.IMAGES_FOLDER_PATH;
+const multimediaImageFolder = process.env.MULTIMEDIA_IMAGES_FOLDER;
+const pendingMultimediaImageFolder = process.env.PENDING_MULTIMEDIA_IMAGES_FOLDER;
 
 const corsOptions = {
   origin: "*", // Replace with the actual URL of your Angular app
@@ -31,14 +31,14 @@ app.use("/subscription-api", subscriptionController);
 app.use("/multimedia-api", multimediaController);
 
 // multimedia
-app.use("/images", express.static(path.join(__dirname, imagesFolderPath)));
-app.use("/pending-images", express.static(path.join(__dirname, beforeApprovalFolderPath)));
+app.use("/images", express.static(path.join(__dirname, "..", multimediaImageFolder)));
+app.use("/pending-images", express.static(path.join(__dirname, "..", pendingMultimediaImageFolder)));
 
-const hostName = "192.168.1.44";
+const hostName = "127.0.0.1";
 const port = process.env.PORT || 3000; // Fallback to 3000 if process.env.PORT is not defined
 initializeBanner()
   .then(() => {
-    app.listen(port, () => {
+    app.listen(port, hostName, () => {
       console.log(`Server is running on port ${port}`);
     });
   })

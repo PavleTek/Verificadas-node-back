@@ -58,22 +58,34 @@ async function logAllUsers() {
 }
 
 async function createGirl() {
-  const req = {
-    body: {
-      email: "zxcv",
-      phoneNumber: "56976681508",
-      password: "zxcv",
-      bday: new Date(2001, 2, 2),
-      cityId: 1,
-      wellcomeMessage: "hello this is your message ASDASDASDASDSAD",
-    },
-  };
-  await adminService.registerGirlUser(req);
+  const city = await prisma.city.findFirst()
+  if (city) {
+    const req = {
+      body: {
+        email: "zxcv",
+        phoneNumber: "56976681508",
+        password: "zxcv",
+        bday: new Date(2001, 2, 2),
+        cityId: city.id,
+        wellcomeMessage: "hello this is your message ASDASDASDASDSAD",
+      },
+    };
+    await adminService.registerGirlUser(req);
+  }
 }
 
 async function createGirlAndAdminUser() {
+  await createCity();
   await createGirl();
   await createAdmin(adminUser2);
+}
+
+async function createCity() {
+  const city = await prisma.city.create({
+    data: {
+      name: "Santiago",
+    },
+  });
 }
 
 async function getAllUsers() {
@@ -145,6 +157,6 @@ async function deleteBanner() {
 }
 
 // deleteAllGirls();
-// createGirlAndAdminUser();
+createGirlAndAdminUser();
 // deleteBanner();
-fixUser();
+// fixUser();
