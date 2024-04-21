@@ -455,6 +455,35 @@ async function deleteUserById(userId) {
       return { status: 500, message: "No user found, no user deleted" };
     }
 
+    const girlId = user.girlId;
+    if (girlId) {
+      try {
+        const deletedGirl = await prisma.girl.delete({
+          where: {
+            id: girlId,
+          },
+        });
+        const pricesId = deletedGirl.sessionPricesId;
+        const verificationId = deletedGirl.verificationId;
+        const subscriptionId = deletedGirl.subscriptionId;
+        console.log(pricesId, verificationId, subscriptionId);
+        await prisma.prices.delete({
+          where: {
+            id: pricesId,
+          },
+        });
+        await prisma.verification.delete({
+          where: {
+            id: verificationId,
+          },
+        });
+        await prisma.subscription.delete({
+          where: {
+            id: subscriptionId,
+          },
+        });
+      } catch (error) {}
+    }
     // Delete the user
     await prisma.user.delete({
       where: {
