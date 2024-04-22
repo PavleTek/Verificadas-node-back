@@ -80,7 +80,7 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
           eyes: "",
           chestSize: "",
           bottomSize: "",
-          shaving: "",
+          shaving: "Depilación de rebaje",
           attentionAtHotels: true,
           attentionAtGirlPlace: true,
           attentionAtClientPlace: true,
