@@ -90,7 +90,7 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role, girlId: user.girlId }, secretKey, {
-      expiresIn: "4h",
+      expiresIn: "30d",
     });
 
     res.send({ token, role: user.role });
