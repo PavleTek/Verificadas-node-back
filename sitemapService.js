@@ -18,6 +18,7 @@ const baseSitemap = `<?xml version="1.0" encoding="UTF-8"?>
         <lastmod>2024-05-07</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
+    </url>
     <!-- Individual escort profiles, assume dynamic -->
 
     INSER_DYNAMIC_HERE
