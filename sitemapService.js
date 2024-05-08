@@ -10,21 +10,14 @@ const baseSitemap = `<?xml version="1.0" encoding="UTF-8"?>
         <loc>https://verificadas.cl/</loc>
         <lastmod>2024-05-07</lastmod>
         <changefreq>daily</changefreq>
-        <priority>1.0</priority>
+        <priority>0.0</priority>
     </url>
     <!-- Dynamic listings of escorts, potentially changes frequently -->
     <url>
         <loc>https://verificadas.cl/escorts</loc>
         <lastmod>2024-05-07</lastmod>
         <changefreq>daily</changefreq>
-        <priority>0.9</priority>
-    </url>
-        <url>
-        <loc>https://verificadas.cl/escorts/santiago</loc>
-        <lastmod>2024-05-07</lastmod>
-        <changefreq>daily</changefreq>
-        <priority>0.9</priority>
-    </url>
+        <priority>1.0</priority>
     <!-- Individual escort profiles, assume dynamic -->
 
     INSER_DYNAMIC_HERE
