@@ -1,5 +1,6 @@
 const cron = require("node-cron");
 const prisma = require("./prisma.js");
+const sitemapService = require("./sitemapService.js");
 
 function isDateTodayOrBefore(dateString) {
   const date = new Date(dateString);
@@ -150,5 +151,5 @@ async function updateActiveStatusForAllUsers() {
   });
 }
 
-// Schedule the function to run every 5 minutes (for example)
-cron.schedule("01 00 * * *", updateActiveStatusForAllUsers); // Runs every 5 minutes
+cron.schedule("01 00 * * *", updateActiveStatusForAllUsers);
+cron.schedule("15 1 * * *", sitemapService.generateSitemap);
