@@ -14,7 +14,7 @@ const baseSitemap = `<?xml version="1.0" encoding="UTF-8"?>
     </url>
     <!-- Dynamic listings of escorts, potentially changes frequently -->
     <url>
-        <loc>https://verificadas.cl/escorts</loc>
+        <loc>https://verificadas.cl/escorts/</loc>
         <lastmod>2024-05-07</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
@@ -24,44 +24,44 @@ const baseSitemap = `<?xml version="1.0" encoding="UTF-8"?>
     INSER_DYNAMIC_HERE
 
     <url>
-        <loc>https://verificadas.cl/prices</loc>
+        <loc>https://verificadas.cl/prices/</loc>
         <lastmod>2024-05-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://verificadas.cl/about</loc>
+        <loc>https://verificadas.cl/about/</loc>
         <lastmod>2024-05-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
     <url>
-        <loc>https://verificadas.cl/contact</loc>
+        <loc>https://verificadas.cl/contact/</loc>
         <lastmod>2024-05-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
     <!-- Blog entries -->
     <url>
-        <loc>https://verificadas.cl/blog</loc>
+        <loc>https://verificadas.cl/blog/</loc>
         <lastmod>2024-05-06</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://verificadas.cl/primer-encuentro-con-una-escort-de-lujo</loc>
+        <loc>https://verificadas.cl/primer-encuentro-con-una-escort-de-lujo/</loc>
         <lastmod>2024-05-06</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://verificadas.cl/escorts-en-santiago-oriente</loc>
+        <loc>https://verificadas.cl/escorts-en-santiago-oriente/</loc>
         <lastmod>2024-05-06</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://verificadas.cl/seguridad-y-verificadas-santiago</loc>
+        <loc>https://verificadas.cl/seguridad-y-verificadas-santiago/</loc>
         <lastmod>2024-05-06</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
