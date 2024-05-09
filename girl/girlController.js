@@ -109,6 +109,12 @@ router.get("/girls/city/:cityId", async (req, res) => {
   res.status(response.status).send(response.data);
 });
 
+// GET endpoint for fetching girls routes for SSR
+router.get("/girlsRoutes", async (req, res) => {
+  const response = await girlService.getAllGirlDataForRoutes();
+  res.status(response.status).send(response.data);
+});
+
 // GET endpoint for fetching a girl by ID
 router.get("/girl/:girlId", async (req, res) => {
   const { girlId } = req.params;

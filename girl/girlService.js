@@ -458,6 +458,25 @@ const getGirlsByCityId = async (cityId) => {
   }
 };
 
+const getAllGirlDataForRoutes = async () => {
+  try {
+    const girls = await prisma.girl.findMany({
+      where: {
+        active: true, // Only fetch active girls
+        hiden: false,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+    return { status: 200, data: girls };
+  } catch (error) {
+    console.error("Error fetching girls for routes", error);
+    return { status: 500, data: error };
+  }
+};
+
 const getGirlById = async (girlId) => {
   if (girlId !== undefined) {
     girlId = Number(girlId);
@@ -663,4 +682,5 @@ module.exports = {
   getAllPricingPlans,
   getBanner,
   createAnounceRequest,
+  getAllGirlDataForRoutes,
 };
