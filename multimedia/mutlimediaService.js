@@ -97,6 +97,21 @@ async function saveImagesRequestToGirl(images, girlId) {
   }
 }
 
+async function compressImageToTargetSize(imageBuffer, targetSize) {
+  let quality = 90;
+  let compressedImage = await sharp(imageBuffer).jpeg({ quality }).toBuffer();
+  let imageSize = compressedImage.length;
+
+  // Reduce quality to get to the target size
+  while (imageSize > targetSize && quality > 10) {
+    quality -= 5;  // Reduce quality by 5 percent
+    compressedImage = await sharp(imageBuffer).jpeg({ quality }).toBuffer();
+    imageSize = compressedImage.length;
+  }
+
+  return compressedImage;
+}
+
 async function setMainActiveImage(req) {
   try {
     const { mainImageIndex, girlId } = req.body;
@@ -178,16 +193,26 @@ async function approveProfilePictureForGirl(girlId) {
     if (approvedProfilePicture) {
       const imagePath = path.join(__dirname, "..", "..", pendingImagesFolder, approvedProfilePicture);
       const outputPath = path.join(__dirname, "..", "..", imagesFolder, approvedProfilePicture);
-      const readStream = await fs.readFile(imagePath);
-      await fs.writeFile(outputPath, readStream);
+      const imageBuffer = await fs.readFile(imagePath);
+
+      // Target maximum file size in bytes
+      const MAX_SIZE = 10 * 1024; // 10KB
+      let compressedImage = await compressImageToTargetSize(imageBuffer, MAX_SIZE);
+
+      // Write the compressed image to the output path
+      await fs.writeFile(outputPath, compressedImage);
+
+      // Update database after image processing
       if (girl.profilePicture !== "") {
-        await deleteImage(girl.profilePicture);
+        await deleteImage(girl.profilePicture);  // Ensure deleteImage function is implemented
       }
+
       const girlUser = await prisma.user.findUnique({
         where: {
           girlId: girlId,
         },
       });
+
       await prisma.girl.update({
         where: {
           id: girlId,
@@ -197,11 +222,13 @@ async function approveProfilePictureForGirl(girlId) {
           requestProfilePicture: null,
         },
       });
+
       await prisma.notification.deleteMany({
         where: {
           fromUserId: girlUser.id,
         },
       });
+
       return { status: 200, data: approvedProfilePicture };
     } else {
       return { status: 500, data: "There was no profile picture to approve" };
