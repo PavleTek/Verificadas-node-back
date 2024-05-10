@@ -55,7 +55,7 @@ app.use("/admin-api", adminController);
 app.use("/multimedia-api", multimediaController);
 
 // multimedia
-app.use("/images", compressImages, express.static(path.join(__dirname, "..", multimediaImageFolder)));
+app.use("/images", express.static(path.join(__dirname, "..", multimediaImageFolder)));
 app.use("/pending-images", express.static(path.join(__dirname, "..", pendingMultimediaImageFolder)));
 
 const hostName = "127.0.0.1";
