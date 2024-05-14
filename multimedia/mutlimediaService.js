@@ -97,15 +97,20 @@ async function saveImagesRequestToGirl(images, girlId) {
   }
 }
 
-async function compressImageToTargetSize(imageBuffer, targetSize) {
+async function compressAndResizeImage(imageBuffer, targetSize, width, height) {
   let quality = 90;
-  let compressedImage = await sharp(imageBuffer).jpeg({ quality }).toBuffer();
+  let compressedImage = await sharp(imageBuffer)
+    .resize(width, height)
+    .jpeg({ quality })
+    .toBuffer();
   let imageSize = compressedImage.length;
 
-  // Reduce quality to get to the target size
   while (imageSize > targetSize && quality > 10) {
-    quality -= 5;  // Reduce quality by 5 percent
-    compressedImage = await sharp(imageBuffer).jpeg({ quality }).toBuffer();
+    quality -= 5;
+    compressedImage = await sharp(imageBuffer)
+      .resize(width, height)
+      .jpeg({ quality })
+      .toBuffer();
     imageSize = compressedImage.length;
   }
 
