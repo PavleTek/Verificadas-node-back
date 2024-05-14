@@ -108,7 +108,7 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
 };
 
 const updateGirl = async (req, res) => {
-  const { id, sessionPricesId, sessionPrices, ...updateData } = req.body; // Extract the 'serviceIds' field
+  const { id, sessionPricesId, sessionPrices, services, paidServices, ...updateData } = req.body;
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -123,6 +123,7 @@ const updateGirl = async (req, res) => {
   } catch (error) {
     return { status: 500, data: error };
   }
+
   delete updateData.verification;
   delete updateData.verificationId;
   delete updateData.subscriptionId;
@@ -133,45 +134,45 @@ const updateGirl = async (req, res) => {
   delete updateData.verificationId;
   delete updateData.sessionPricesId;
   delete updateData.sessionPrices;
+
   try {
-    const girl = await prisma.girl.update({
-      where: {
-        id,
+    // Fetch the current girl's services to determine which to disconnect
+    const currentGirl = await prisma.girl.findUnique({
+      where: { id },
+      include: {
+        services: true,
+        paidServices: true,
       },
+    });
+
+    const currentServiceIds = currentGirl.services.map((service) => service.id);
+    const currentPaidServiceIds = currentGirl.paidServices.map((service) => service.id);
+
+    const newServiceIds = services.map((service) => service.id);
+    const newPaidServiceIds = paidServices.map((service) => service.id);
+
+    const disconnectServices = currentServiceIds.filter((id) => !newServiceIds.includes(id)).map((id) => ({ id }));
+    const disconnectPaidServices = currentPaidServiceIds.filter((id) => !newPaidServiceIds.includes(id)).map((id) => ({ id }));
+
+    const girl = await prisma.girl.update({
+      where: { id },
       data: {
         ...updateData,
-        city: {
-          connect: {
-            id: updateData.city.id,
-          },
-        },
-        nationality: {
-          connect: {
-            id: updateData.nationality.id,
-          },
-        },
-        ethnicity: {
-          connect: {
-            id: updateData.ethnicity.id,
-          },
-        },
-        specificLocation: {
-          connect: {
-            id: updateData.specificLocation.id,
-          },
-        },
+        city: { connect: { id: updateData.city.id } },
+        nationality: { connect: { id: updateData.nationality.id } },
+        ethnicity: { connect: { id: updateData.ethnicity.id } },
+        specificLocation: { connect: { id: updateData.specificLocation.id } },
         services: {
-          connect: updateData.services.map((service) => ({
-            id: service.id,
-          })),
+          connect: newServiceIds.map((id) => ({ id })),
+          disconnect: disconnectServices,
         },
         paidServices: {
-          connect: updateData.paidServices.map((service) => ({
-            id: service.id,
-          })),
+          connect: newPaidServiceIds.map((id) => ({ id })),
+          disconnect: disconnectPaidServices,
         },
       },
     });
+
     const updatedPrices = await prisma.prices.update({
       where: { id: sessionPricesId },
       data: {
