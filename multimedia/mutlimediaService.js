@@ -202,7 +202,7 @@ async function approveProfilePictureForGirl(girlId) {
 
       // Target maximum file size in bytes
       const MAX_SIZE = 10 * 1024; // 10KB
-      let compressedImage = await compressImageToTargetSize(imageBuffer, MAX_SIZE);
+      let compressedImage = await compressAndResizeImage(imageBuffer, MAX_SIZE, 500, 500);
 
       // Write the compressed image to the output path
       await fs.writeFile(outputPath, compressedImage);
