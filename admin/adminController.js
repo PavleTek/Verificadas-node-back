@@ -37,6 +37,34 @@ router.post("/users", userService.authenticateAdmin, async (req, res) => {
   }
 });
 
+// POST endpoint to create a Blog Article - Amdmin only
+router.post("/blogs", userService.authenticateAdmin, async (req, res) => {
+  try {
+    const blogs = await adminService.createBlog(req);
+    res.send(blogs);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// PUT endpoint to update a blog article
+router.put("/blogs", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.updateBlog(req);
+  res.status(response.status).send(response);
+});
+
+// DELETE endpoint to delete a blog by ID - Admin only
+router.delete("/blogs/:blogId", userService.authenticateAdmin, async (req, res) => {
+  try {
+    let { blogId } = req.params;
+    blogId = parseInt(blogId);
+    const response = await adminService.deleteBlogById(blogId);
+    res.status(response.status).send(response);
+  } catch (error) {
+    res.status(500).send({ status: 500, data: error });
+  }
+});
+
 // GET endpoint to retrieve all girl users with all their data - Admin only
 router.get("/users/complete", userService.authenticateAdmin, async (req, res) => {
   try {
@@ -64,7 +92,7 @@ router.put("/girl", userService.authenticateAdmin, async (req, res) => {
   res.status(response.status).send(response);
 });
 
-// PUT endpoint to update a girl object
+// PUT endpoint to update a girl password
 router.put("/change-password/:userId", userService.authenticateAdmin, async (req, res) => {
   const { userId } = req.params;
   const { newPassword } = req.body;

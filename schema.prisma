@@ -26,7 +26,7 @@ model GirlClickStats {
   date             DateTime @default(now())
   clicksToProfile  Int      @default(0)
   clciksToWhatsapp Int      @default(0)
-}schema.prisma
+}
 
 model Girl {
   id                        Int               @id @default(autoincrement())
@@ -65,6 +65,8 @@ model Girl {
   editLevel                 EditLevel
   categories                Json
   requestProfilePicture     String?
+  title                     String?
+  metaDescription           String?
   sessionPricesId           Int?              @unique
   sessionPrices             Prices?           @relation(fields: [sessionPricesId], references: [id])
   verificationId            Int?              @unique
@@ -84,9 +86,22 @@ model Nationality {
 }
 
 model SpecificLocation {
-  id    Int    @id @default(autoincrement())
-  name  String
-  girls Girl[]
+  id                Int     @id @default(autoincrement())
+  name              String
+  title             String?
+  metaDescription   String?
+  girls             Girl[]
+}
+
+model Blog {
+  id                 Int      @id @default(autoincrement())
+  title              String
+  content            String   @db.LongText
+  category           String?
+  shortDescription   String
+  metaTitle          String?
+  metaDescription    String?
+  createdAt          DateTime @default(now())
 }
 
 model Prices {

@@ -538,6 +538,41 @@ const getCompleteGirlUserById = async (userId) => {
   }
 };
 
+const getAllBlogs = async () => {
+  try {
+    const blogs = await prisma.blog.findMany({
+      select: {
+        id: true,
+        title: true,
+        shortDescription: true,
+        category: true,
+      },
+    });
+    return { status: 200, data: blogs };
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
+    throw error;
+  }
+};
+
+const getBlogById = async (blogId) => {
+  try {
+    const integerId = parseInt(blogId);
+    const blog = await prisma.blog.findUnique({
+      where: {
+        id: integerId,
+      },
+    });
+    if (!blog) {
+      return { status: 404, data: "Blog not found" };
+    }
+    return { status: 200, data: blog };
+  } catch (error) {
+    console.error("Error fetching blog:", error);
+    throw error;
+  }
+};
+
 const getAllServices = async () => {
   try {
     const services = await prisma.service.findMany({
@@ -684,4 +719,6 @@ module.exports = {
   getBanner,
   createAnounceRequest,
   getAllGirlDataForRoutes,
+  getAllBlogs,
+  getBlogById,
 };

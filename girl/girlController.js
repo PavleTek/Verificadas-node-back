@@ -1,6 +1,7 @@
 const express = require("express");
 const girlService = require("./girlService");
 const userService = require("../user/userService");
+const { blog } = require("../prisma");
 
 const router = express.Router();
 
@@ -122,6 +123,13 @@ router.get("/girl/:girlId", async (req, res) => {
   res.status(response.status).send(response);
 });
 
+// GET endpoint for fetching a blog by id
+router.get("/blogs/:blogId", async (req, res) => {
+  const { blogId } = req.params;
+  const response = await girlService.getBlogById(blogId);
+  res.status(response.status).send(response);
+});
+
 // GET endpoint for fetching all the data bout a girl by ID
 router.get("/girlUser/:userId", userService.authenticate, async (req, res) => {
   const { userId } = req.params;
@@ -134,6 +142,16 @@ router.get("/services", async (req, res) => {
   try {
     const services = await girlService.getAllServices();
     res.json(services);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET endpoint for fetching all Blogs
+router.get("/blogs", async (req, res) => {
+  try {
+    const response = await girlService.getAllBlogs();
+    res.status(response.status).send(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -100,6 +100,66 @@ const updateAllCities = async (cities) => {
   }
 };
 
+// Blog Logic Part
+const createBlog = async (req) => {
+  const { title, content, shortDescription, metaTitle, metaDescription, category } = req.body;
+  try {
+    const blog = await prisma.blog.create({
+      data: {
+        title,
+        content,
+        category,
+        shortDescription,
+        metaTitle,
+        metaDescription,
+      },
+    });
+    return { status: 200, data: blog };
+  } catch (error) {
+    console.error("Error creating blog:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const updateBlog = async (req) => {
+  const { id, title, content, category, shortDescription, metaTitle, metaDescription } = req.body;
+
+  try {
+    const blog = await prisma.blog.update({
+      where: {
+        id: id,
+      },
+      data: {
+        title: title,
+        category: category,
+        content: content,
+        shortDescription: shortDescription,
+        shortDescription: shortDescription,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
+      },
+    });
+    return { status: 200, data: blog };
+  } catch (error) {
+    console.error("Error updating Blog Article:", error);
+    return { status: 500, data: error };
+  }
+};
+
+const deleteBlogById = async (blogId) => {
+  try {
+    await prisma.blog.delete({
+      where: {
+        id: blogId,
+      },
+    });
+    return { status: 200, message: `Blog with ID ${blogId} has been deleted` };
+  } catch (error) {
+    console.error("Error deleting blog:", error);
+    return { status: 500, data: error };
+  }
+};
+
 // Verification update
 const updateVerification = async (req) => {
   const { girlId, verificationId, verificationData, girlData, adminData, scheduleLink } = req.body;
@@ -1104,6 +1164,9 @@ module.exports = {
   createCity,
   updateCityName,
   deleteCity,
+  createBlog,
+  updateBlog,
+  deleteBlogById,
   updateVerification,
   updateGirlPhysicalVerification,
   registerAdminUser,
