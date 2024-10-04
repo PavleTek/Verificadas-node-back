@@ -4,11 +4,13 @@ const girlService = require("../girl/girlService.js");
 
 // City logic part
 const createCity = async (req) => {
-  const { name } = req.body;
+  const { name, metaTitle, metaDescription } = req.body;
   try {
     const city = await prisma.city.create({
       data: {
         name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: city };
@@ -19,7 +21,7 @@ const createCity = async (req) => {
 };
 
 const updateCityName = async (req) => {
-  const { id, name } = req.body;
+  const { id, name, metaTitle, metaDescription } = req.body;
 
   try {
     const city = await prisma.city.update({
@@ -28,6 +30,8 @@ const updateCityName = async (req) => {
       },
       data: {
         name: name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: city };
@@ -58,7 +62,7 @@ const updateAllCities = async (cities) => {
 
     // Iterate through the provided cities array
     for (const city of cities) {
-      const { id, name } = city;
+      const { id, name, metaTitle, metaDescription } = city;
 
       // Check if the city exists in the database
       const existingCity = existingCities.find((n) => n.id === id);
@@ -71,12 +75,16 @@ const updateAllCities = async (cities) => {
           },
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       } else {
         await prisma.city.create({
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       }
@@ -560,13 +568,15 @@ async function deleteUserById(userId) {
 
 // Service logic part
 const createService = async (req) => {
-  const { name, description } = req.body;
+  const { name, description, metaTitle, metaDescription } = req.body;
 
   try {
     const service = await prisma.service.create({
       data: {
         name,
         description,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: service };
@@ -577,7 +587,7 @@ const createService = async (req) => {
 };
 
 const updateService = async (req) => {
-  const { id, name, description } = req.body;
+  const { id, name, description, metaTitle, metaDescription } = req.body;
 
   try {
     const service = await prisma.service.update({
@@ -587,6 +597,8 @@ const updateService = async (req) => {
       data: {
         name,
         description,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: service };
@@ -617,7 +629,7 @@ const updateAllServices = async (services) => {
 
     // Iterate through the provided services array
     for (const service of services) {
-      const { id, name, description } = service;
+      const { id, name, description, metaTitle, metaDescription } = service;
 
       // Check if the service exists in the database
       const existingService = existingServices.find((n) => n.id === id);
@@ -631,6 +643,8 @@ const updateAllServices = async (services) => {
           data: {
             name: capitalizeFirstLetter(name),
             description: capitalizeFirstLetterOnly(description),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       } else {
@@ -638,6 +652,8 @@ const updateAllServices = async (services) => {
           data: {
             name: capitalizeFirstLetter(name),
             description: capitalizeFirstLetterOnly(description),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       }
@@ -663,11 +679,13 @@ const updateAllServices = async (services) => {
 
 // Specific Location logic part
 const createSpecificLocation = async (req) => {
-  const { name } = req.body;
+  const { name, metaTitle, metaDescription } = req.body;
   try {
     const specificLocation = await prisma.specificLocation.create({
       data: {
         name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: specificLocation };
@@ -678,7 +696,7 @@ const createSpecificLocation = async (req) => {
 };
 
 const updateSpecificLocationName = async (req) => {
-  const { id, name } = req.body;
+  const { id, name, metaTitle, metaDescription } = req.body;
 
   try {
     const specificLocation = await prisma.specificLocation.update({
@@ -687,6 +705,8 @@ const updateSpecificLocationName = async (req) => {
       },
       data: {
         name: name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: specificLocation };
@@ -717,7 +737,7 @@ const updateAllSpecificLocations = async (specificLocations) => {
 
     // Iterate through the provided specific locations array
     for (const specificLocation of specificLocations) {
-      const { id, name } = specificLocation;
+      const { id, name, metaTitle, metaDescription } = specificLocation;
 
       // Check if the specific Location exists in the database
       const existingSpecificLocation = existingSpecificLocations.find((n) => n.id === id);
@@ -730,12 +750,16 @@ const updateAllSpecificLocations = async (specificLocations) => {
           },
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       } else {
         await prisma.specificLocation.create({
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       }
@@ -761,11 +785,13 @@ const updateAllSpecificLocations = async (specificLocations) => {
 
 // Ethnicity Location logic part
 const createEthnicity = async (req) => {
-  const { name } = req.body;
+  const { name, metaTitle, metaDescription } = req.body;
   try {
     const ethnicity = await prisma.ethnicity.create({
       data: {
         name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: ethnicity };
@@ -776,7 +802,7 @@ const createEthnicity = async (req) => {
 };
 
 const updateEthnicityName = async (req) => {
-  const { id, name } = req.body;
+  const { id, name, metaTitle, metaDescription } = req.body;
 
   try {
     const ethnicity = await prisma.ethnicity.update({
@@ -785,6 +811,8 @@ const updateEthnicityName = async (req) => {
       },
       data: {
         name: name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: ethnicity };
@@ -815,7 +843,7 @@ const updateAllEthnicities = async (ethnicities) => {
 
     // Iterate through the provided ethnicities array
     for (const ethnicity of ethnicities) {
-      const { id, name } = ethnicity;
+      const { id, name, metaTitle, metaDescription } = ethnicity;
 
       // Check if the ethnicity exists in the database
       const existingEthnicity = existingEthnicities.find((n) => n.id === id);
@@ -828,12 +856,16 @@ const updateAllEthnicities = async (ethnicities) => {
           },
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       } else {
         await prisma.ethnicity.create({
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       }
@@ -859,11 +891,13 @@ const updateAllEthnicities = async (ethnicities) => {
 
 // Nationality logic part
 const createNationality = async (req) => {
-  const { name } = req.body;
+  const { name, metaTitle, metaDescription } = req.body;
   try {
     const nationality = await prisma.nationality.create({
       data: {
         name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: nationality };
@@ -874,7 +908,7 @@ const createNationality = async (req) => {
 };
 
 const updateNationality = async (req) => {
-  const { id, name } = req.body;
+  const { id, name, metaTitle, metaDescription } = req.body;
 
   try {
     const nationality = await prisma.nationality.update({
@@ -883,6 +917,8 @@ const updateNationality = async (req) => {
       },
       data: {
         name: name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: nationality };
@@ -913,7 +949,7 @@ const updateAllNationalities = async (nationalities) => {
 
     // Iterate through the provided nationalities array
     for (const nationality of nationalities) {
-      const { id, name } = nationality;
+      const { id, name, metaTitle, metaDescription } = nationality;
 
       // Check if the nationality exists in the database
       const existingNationality = existingNationalities.find((n) => n.id === id);
@@ -926,6 +962,8 @@ const updateAllNationalities = async (nationalities) => {
           },
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       } else {
@@ -933,6 +971,8 @@ const updateAllNationalities = async (nationalities) => {
         await prisma.nationality.create({
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       }
@@ -956,6 +996,8 @@ const updateAllNationalities = async (nationalities) => {
   }
 };
 
+// CENSS = City, ethnicity, nationality, service, specific Location
+// This function is for when using the excel upload method
 const bulkUpdateCENSS = async (req) => {
   try {
     const { type, data } = req.body;

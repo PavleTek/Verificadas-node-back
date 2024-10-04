@@ -8,9 +8,11 @@ generator client {
 }
 
 model City {
-  id    Int    @id @default(autoincrement())
-  name  String
-  girls Girl[]
+  id                Int    @id @default(autoincrement())
+  name              String
+  metaTitle         String?
+  metaDescription   String?
+  girls             Girl[]
 }
 
 model ClickStats {
@@ -74,14 +76,18 @@ model Girl {
 }
 
 model Ethnicity {
-  id    Int    @id @default(autoincrement())
-  name  String
-  girls Girl[]
+  id                Int    @id @default(autoincrement())
+  name              String
+  metaTitle         String?
+  metaDescription   String?
+  girls             Girl[]
 }
 
 model Nationality {
   id    Int    @id @default(autoincrement())
   name  String
+  metaTitle         String?
+  metaDescription   String?
   girls Girl[]
 }
 
@@ -89,6 +95,7 @@ model SpecificLocation {
   id                Int     @id @default(autoincrement())
   name              String
   title             String?
+  metaTitle         String?
   metaDescription   String?
   girls             Girl[]
 }
@@ -118,11 +125,13 @@ model Prices {
 }
 
 model Service {
-  id          Int    @id @default(autoincrement())
-  name        String
-  description String
-  girls       Girl[] @relation("GirlServices")
-  paidGirls   Girl[] @relation("GirlPaidServices")
+  id                Int    @id @default(autoincrement())
+  name              String
+  description       String
+  metaTitle         String?
+  metaDescription   String?
+  girls             Girl[] @relation("GirlServices")
+  paidGirls         Girl[] @relation("GirlPaidServices")
 }
 
 model User {
