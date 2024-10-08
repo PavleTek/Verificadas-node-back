@@ -284,4 +284,28 @@ router.post("/bulkUpdateCENSS", userService.authenticateAdmin, async (req, res) 
   res.status(response.status).send(response);
 });
 
+//Category Logic
+// POST endpoint for creating a category for Seo
+router.post("category", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.createCategorySeo(req);
+  res.status(response.status).send(response);
+});
+
+// Put endpoint for updating a category for Seo
+router.put("category", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.updateCategorySeo(req);
+  res.status(response.status).send(response);
+});
+
+router.delete("/category/:categoryId", userService.authenticateAdmin, async (req, res) => {
+  try {
+    let { categoryId } = req.params;
+    categoryId = parseInt(categoryId);
+    const response = await adminService.deleteCategorySeoById(categoryId);
+    res.status(response.status).send(response);
+  } catch (error) {
+    res.status(500).send({ status: 500, data: error });
+  }
+});
+
 module.exports = router;

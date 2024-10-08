@@ -1079,9 +1079,63 @@ async function deletePricingPlan(pricingPlanId) {
         id: pricingPlanId,
       },
     });
-    return { status: 200, data: `pricingPlan with ID ${pricingPlanId} has been deleted` };
+    return { status: 200, data: `pricing Plan with ID ${pricingPlanId} has been deleted` };
   } catch (error) {
-    console.error("Error deleting service:", error);
+    console.error("Error deleting Pricing Plan:", error);
+    return { status: 500, data: error };
+  }
+}
+
+// category SEO Logic
+
+async function createCategorySeo(req) {
+  try {
+    const { name, metaTitle, metaDescription } = req.body;
+    const seoCategory = await prisma.seoCategory.create({
+      data: {
+        name,
+        metaTitle,
+        metaDescription,
+      },
+    });
+    return { status: 200, data: seoCategory };
+  } catch (error) {
+    console.error("Error creating category for SEO", error);
+    return { status: 500, data: error };
+  }
+}
+
+async function updateCategorySeo(req) {
+  try {
+    const { id, name, metaTitle, metaDescription } = req.body;
+    const seoCategory = await prisma.seoCategory.update({
+      where: {
+        id: id,
+      },
+      data: {
+        name: name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
+      },
+    });
+    return { status: 200, data: seoCategory };
+  } catch (error) {
+    console.error("Error updating SEO Category", error);
+    return { status: 500, data: error };
+  }
+  F;
+}
+
+async function deleteCategorySeoById(categoryId) {
+  try {
+    await prisma.seoCategory.delete({
+      where: {
+        id: categoryId,
+      },
+    });
+    return { status: 200, data: `Seo Category with ID ${categoryId} has been deleted` };
+  } catch (error) {
+    console.error("Error deleting Category:", error);
     return { status: 500, data: error };
   }
 }
@@ -1243,4 +1297,7 @@ module.exports = {
   deleteAnounceRequest,
   getAllNotifications,
   deleteNotification,
+  createCategorySeo,
+  updateCategorySeo,
+  deleteCategorySeoById,
 };

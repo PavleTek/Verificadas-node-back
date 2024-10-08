@@ -209,6 +209,13 @@ model PricingPlan {
   discountMessage String
 }
 
+model SeoCategory {
+  id              Int       @id @default(autoincrement())
+  name            String    @unique
+  metaTitle       String
+  metaDescription String
+}
+
 model Banner {
   id          Int       @id @default(autoincrement())
   title       String    
