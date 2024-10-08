@@ -657,6 +657,20 @@ const getAllPricingPlans = async () => {
   }
 };
 
+const getAllSeoCategories = async () => {
+  try {
+    const seoCategories = await prisma.seoCategory.findMany({
+      orderBy: {
+        name: "asc",
+      },
+    });
+    return { status: 200, data: seoCategories };
+  } catch (error) {
+    console.error("Error fetching Seo Categories", error);
+    return { status: 500, data: error };
+  }
+};
+
 const getBanner = async () => {
   try {
     const banner = await prisma.banner.findFirst();
@@ -721,4 +735,5 @@ module.exports = {
   getAllGirlDataForRoutes,
   getAllBlogs,
   getBlogById,
+  getAllSeoCategories,
 };

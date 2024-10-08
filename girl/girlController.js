@@ -207,6 +207,16 @@ router.get("/pricingPlan", async (req, res) => {
   }
 });
 
+// GET endpoint for fetching all Seo Categories
+router.get("/category", async (req, res) => {
+  try {
+    const response = await girlService.getAllSeoCategories();
+    res.status(response.status).send(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET endpoint for fetching all pricing plans
 router.get("/banner", async (req, res) => {
   try {

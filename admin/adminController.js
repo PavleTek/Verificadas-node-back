@@ -286,13 +286,13 @@ router.post("/bulkUpdateCENSS", userService.authenticateAdmin, async (req, res) 
 
 //Category Logic
 // POST endpoint for creating a category for Seo
-router.post("category", userService.authenticateAdmin, async (req, res) => {
+router.post("/category", userService.authenticateAdmin, async (req, res) => {
   const response = await adminService.createCategorySeo(req);
   res.status(response.status).send(response);
 });
 
 // Put endpoint for updating a category for Seo
-router.put("category", userService.authenticateAdmin, async (req, res) => {
+router.put("/category", userService.authenticateAdmin, async (req, res) => {
   const response = await adminService.updateCategorySeo(req);
   res.status(response.status).send(response);
 });
