@@ -362,7 +362,7 @@ const registerGirlUser = async (req) => {
 
     return { status: 200, data: user };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return { status: 500, data: error };
   }
 };
@@ -411,44 +411,43 @@ async function updateGirl(req) {
   delete updateData.sessionPrices;
 
   try {
-    const girl = await prisma.girl.update({
-      where: {
-        id,
+    // Fetch the current girl's services to determine which to disconnect
+    const currentGirl = await prisma.girl.findUnique({
+      where: { id },
+      include: {
+        services: true,
+        paidServices: true,
       },
+    });
+
+    const currentServiceIds = currentGirl.services.map((service) => service.id);
+    const currentPaidServiceIds = currentGirl.paidServices.map((service) => service.id);
+
+    const newServiceIds = services.map((service) => service.id);
+    const newPaidServiceIds = paidServices.map((service) => service.id);
+
+    const disconnectServices = currentServiceIds.filter((id) => !newServiceIds.includes(id)).map((id) => ({ id }));
+    const disconnectPaidServices = currentPaidServiceIds.filter((id) => !newPaidServiceIds.includes(id)).map((id) => ({ id }));
+
+    const girl = await prisma.girl.update({
+      where: { id },
       data: {
         ...updateData,
-        city: {
-          connect: {
-            id: updateData.city.id,
-          },
-        },
-        nationality: {
-          connect: {
-            id: updateData.nationality.id,
-          },
-        },
-        ethnicity: {
-          connect: {
-            id: updateData.ethnicity.id,
-          },
-        },
-        specificLocation: {
-          connect: {
-            id: updateData.specificLocation.id,
-          },
-        },
+        city: { connect: { id: updateData.city.id } },
+        nationality: { connect: { id: updateData.nationality.id } },
+        ethnicity: { connect: { id: updateData.ethnicity.id } },
+        specificLocation: { connect: { id: updateData.specificLocation.id } },
         services: {
-          connect: updateData.services.map((service) => ({
-            id: service.id,
-          })),
+          connect: newServiceIds.map((id) => ({ id })),
+          disconnect: disconnectServices,
         },
         paidServices: {
-          connect: updateData.paidServices.map((service) => ({
-            id: service.id,
-          })),
+          connect: newPaidServiceIds.map((id) => ({ id })),
+          disconnect: disconnectPaidServices,
         },
       },
     });
+
     const updatedPrices = await prisma.prices.update({
       where: { id: sessionPricesId },
       data: {
@@ -456,7 +455,7 @@ async function updateGirl(req) {
       },
     });
 
-    return { status: 200, data: { girl, sessionPrices } };
+    return { status: 200, data: girl };
   } catch (error) {
     console.error("Error updating girl:", error);
     return { status: 500, data: error };
@@ -534,7 +533,6 @@ async function deleteUserById(userId) {
         const pricesId = deletedGirl.sessionPricesId;
         const verificationId = deletedGirl.verificationId;
         const subscriptionId = deletedGirl.subscriptionId;
-        console.log(pricesId, verificationId, subscriptionId);
         await prisma.prices.delete({
           where: {
             id: pricesId,

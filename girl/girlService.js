@@ -107,6 +107,7 @@ const createGirl = async (bday, phoneNumber, cityId, verificationId, pricesObjec
   }
 };
 
+// This function must now call the token to get the id, either here or on the controler
 const updateGirl = async (req, res) => {
   const { id, sessionPricesId, sessionPrices, services, paidServices, ...updateData } = req.body;
   try {
@@ -459,6 +460,43 @@ const getGirlsByCityId = async (cityId) => {
   }
 };
 
+const getGirlsBySpecificLocation = async (locationName) => {
+  try {
+    // Get the ID of the specific location by name
+    const location = await prisma.specificLocation.findUnique({
+      where: { name: locationName },
+    });
+
+    if (!location) {
+      return { status: 404, data: { message: "Location not found" } };
+    }
+
+    // Fetch girls associated with the specific location ID
+    const girls = await prisma.girl.findMany({
+      where: {
+        specificLocationId: location.id,
+        active: true, // Only fetch active girls
+        hiden: false,
+      },
+      include: {
+        nationality: true,
+        ethnicity: true,
+        specificLocation: true,
+        services: true,
+        city: true,
+        paidServices: true,
+        sessionPrices: true,
+      },
+    });
+
+    const shuffledGirls = girls.sort(() => 0.5 - Math.random());
+    return { status: 200, data: shuffledGirls };
+  } catch (error) {
+    console.error("Error fetching active girls by location name:", error);
+    return { status: 500, data: error };
+  }
+};
+
 const getAllGirlDataForRoutes = async () => {
   try {
     const girls = await prisma.girl.findMany({
@@ -736,4 +774,5 @@ module.exports = {
   getAllBlogs,
   getBlogById,
   getAllSeoCategories,
+  getGirlsBySpecificLocation,
 };

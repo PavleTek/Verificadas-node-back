@@ -110,6 +110,13 @@ router.get("/girls/city/:cityId", async (req, res) => {
   res.status(response.status).send(response.data);
 });
 
+// GET endpoint for fetching girls by city and optional category
+router.get("/girls/specificLocation/:locationName", async (req, res) => {
+  const { locationName } = req.params;
+  const response = await girlService.getGirlsBySpecificLocation(locationName);
+  res.status(response.status).send(response.data);
+});
+
 // GET endpoint for fetching girls routes for SSR
 router.get("/girlsRoutes", async (req, res) => {
   const response = await girlService.getAllGirlDataForRoutes();

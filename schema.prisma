@@ -93,13 +93,12 @@ model Nationality {
 
 model SpecificLocation {
   id                Int     @id @default(autoincrement())
-  name              String
+  name              String  @unique
   title             String?
   metaTitle         String?
   metaDescription   String?
   girls             Girl[]
 }
-
 model Blog {
   id                 Int      @id @default(autoincrement())
   title              String

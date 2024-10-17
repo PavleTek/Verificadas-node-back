@@ -6,6 +6,7 @@ const path = require("path");
 const prisma = require("./prisma.js");
 const adminService = require("./admin/adminService.js");
 const { all } = require("./user/userController.js");
+const { Prisma, PrismaClient } = require("@prisma/client");
 
 const adminUser = {
   email: "mpavle134@gmail.com",
@@ -58,7 +59,7 @@ async function logAllUsers() {
 }
 
 async function createGirl() {
-  const city = await prisma.city.findFirst()
+  const city = await prisma.city.findFirst();
   if (city) {
     const req = {
       body: {
@@ -129,6 +130,15 @@ async function fixUser() {
   });
 }
 
+async function fixGirl() {
+  const girl = await prisma.girl.findFirst();
+  const newCategories = ["Gold", "Barbie", "Masajistas"];
+  await prisma.girl.update({
+    where: { id: girl.id },
+    data: { categories: newCategories },
+  });
+}
+
 const beforeApprovalFolderPath = process.env.BEFORE_APPROVAL_IMAGES_FOLDER_PATH;
 
 async function deleteImage(imageFileName) {
@@ -150,13 +160,13 @@ async function deleteImage(imageFileName) {
 async function deleteBanner() {
   try {
     await prisma.banner.deleteMany();
-    console.log("banner deleted succesfully");
   } catch (error) {
     console.error(error);
   }
 }
 
 // deleteAllGirls();
-createGirlAndAdminUser();
+// createGirlAndAdminUser();
 // deleteBanner();
 // fixUser();
+fixGirl();
