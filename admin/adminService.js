@@ -396,7 +396,7 @@ async function setPasswordChangeSentTrue(userId) {
 }
 
 async function updateGirl(req) {
-  const { id, sessionPricesId, sessionPrices, ...updateData } = req.body; // Extract the 'serviceIds' field
+  const { id, sessionPricesId, sessionPrices, services, paidServices, ...updateData } = req.body;
 
   // Exclude the 'verification' field from the updateData object
   delete updateData.verification;
