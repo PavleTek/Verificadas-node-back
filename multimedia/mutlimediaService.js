@@ -8,7 +8,6 @@ const fs = require("fs").promises;
 require("dotenv").config();
 const secretKey = process.env.JWT_SECRET_KEY;
 
-
 // Patching the environment to use face-api.js
 const { Canvas, Image, ImageData } = canvas;
 faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
@@ -172,7 +171,30 @@ async function setMainActiveImage(req) {
   }
 }
 
-async function saveProfilePictureRequestToGirl(images, girlId) {
+async function saveProfilePictureRequestToGirl(images, girlId, req) {
+  try {
+    let userIsAdmin = false;
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return { status: 500, data: { message: "Error: invalid credentials" } };
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, secretKey);
+
+    // Check if the user is an admin
+    if (decoded.role === "admin") {
+      userIsAdmin = true;
+    }
+
+    // Check if the user is trying to update their own profile
+    if (!userIsAdmin && decoded.girlId !== girlId) {
+      return { status: 500, data: { message: "Error: trying to update other profile" } };
+    }
+  } catch (error) {
+    return { status: 500, data: error };
+  }
   try {
     const now = new Date();
     const imageFileNames = images.map((imageFile) => imageFile.filename);
