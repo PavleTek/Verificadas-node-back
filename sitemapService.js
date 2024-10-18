@@ -225,7 +225,7 @@ async function generateSitemap() {
 }
 
 async function generateRouteText() {
-  const routeFile = path.join(__dirname, "routes-ssr.txt");
+  const routeFile = path.join(__dirname, "..", "routes-ssr.txt");
   let routes = baseRoutes;
   const girls = await prisma.girl.findMany({
     select: {
