@@ -1,10 +1,12 @@
-require("dotenv").config();
 const sharp = require("sharp");
 const path = require("path");
 const prisma = require("../prisma.js");
+const jwt = require("jsonwebtoken");
 const canvas = require("canvas");
 const faceapi = require("face-api.js");
 const fs = require("fs").promises;
+require("dotenv").config();
+const secretKey = process.env.JWT_SECRET_KEY;
 
 // Patching the environment to use face-api.js
 const { Canvas, Image, ImageData } = canvas;
@@ -56,7 +58,30 @@ async function loadModels() {
   await faceapi.nets.ssdMobilenetv1.loadFromDisk(modelsPath);
 }
 
-async function saveImagesRequestToGirl(images, girlId) {
+async function saveImagesRequestToGirl(images, girlId, req) {
+  try {
+    let userIsAdmin = false;
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return { status: 500, data: { message: "Error: invalid credentials" } };
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, secretKey);
+
+    // Check if the user is an admin
+    if (decoded.role === "admin") {
+      userIsAdmin = true;
+    }
+
+    // Check if the user is trying to update their own profile
+    if (!userIsAdmin && decoded.girlId !== girlId) {
+      return { status: 500, data: { message: "Error: trying to update other profile" } };
+    }
+  } catch (error) {
+    return { status: 500, data: error };
+  }
   try {
     const now = new Date();
     const imageFileNames = images.map((imageFile) => imageFile.filename);
@@ -92,25 +117,19 @@ async function saveImagesRequestToGirl(images, girlId) {
     }
     return { status: 200, data: girlImages };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return { status: 500, data: error };
   }
 }
 
 async function compressAndResizeImage(imageBuffer, targetSize, width, height) {
   let quality = 90;
-  let compressedImage = await sharp(imageBuffer)
-    .resize(width, height)
-    .jpeg({ quality })
-    .toBuffer();
+  let compressedImage = await sharp(imageBuffer).resize(width, height).jpeg({ quality }).toBuffer();
   let imageSize = compressedImage.length;
 
   while (imageSize > targetSize && quality > 10) {
     quality -= 5;
-    compressedImage = await sharp(imageBuffer)
-      .resize(width, height)
-      .jpeg({ quality })
-      .toBuffer();
+    compressedImage = await sharp(imageBuffer).resize(width, height).jpeg({ quality }).toBuffer();
     imageSize = compressedImage.length;
   }
 
@@ -152,7 +171,30 @@ async function setMainActiveImage(req) {
   }
 }
 
-async function saveProfilePictureRequestToGirl(images, girlId) {
+async function saveProfilePictureRequestToGirl(images, girlId, req) {
+  try {
+    let userIsAdmin = false;
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return { status: 500, data: { message: "Error: invalid credentials" } };
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, secretKey);
+
+    // Check if the user is an admin
+    if (decoded.role === "admin") {
+      userIsAdmin = true;
+    }
+
+    // Check if the user is trying to update their own profile
+    if (!userIsAdmin && decoded.girlId !== girlId) {
+      return { status: 500, data: { message: "Error: trying to update other profile" } };
+    }
+  } catch (error) {
+    return { status: 500, data: error };
+  }
   try {
     const now = new Date();
     const imageFileNames = images.map((imageFile) => imageFile.filename);
@@ -182,7 +224,7 @@ async function saveProfilePictureRequestToGirl(images, girlId) {
     }
     return { status: 200, data: profilePictureRequestName };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return { status: 500, data: error };
   }
 }
@@ -209,7 +251,7 @@ async function approveProfilePictureForGirl(girlId) {
 
       // Update database after image processing
       if (girl.profilePicture !== "") {
-        await deleteImage(girl.profilePicture);  // Ensure deleteImage function is implemented
+        await deleteImage(girl.profilePicture); // Ensure deleteImage function is implemented
       }
 
       const girlUser = await prisma.user.findUnique({
@@ -239,7 +281,7 @@ async function approveProfilePictureForGirl(girlId) {
       return { status: 500, data: "There was no profile picture to approve" };
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return { status: 500, data: error };
   }
 }
@@ -283,7 +325,7 @@ async function addWatermarkToImage(imageFileName) {
 
     return `${imageFileName}`;
   } catch (error) {
-    console.log("Adding Watermark Error", error);
+    console.error("Adding Watermark Error", error);
     return "";
   }
 }
@@ -332,7 +374,7 @@ async function blurFaces(imageFileName) {
 
     return `blured_${imageFileName}`;
   } catch (error) {
-    console.log("Bluring Faces Error", error);
+    console.error("Bluring Faces Error", error);
     return "";
   }
 }

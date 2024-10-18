@@ -113,7 +113,7 @@ const verifyTokenAdmin = async (token) => {
       return { status: 401, data: { message: "Not an administrator" } };
     }
   } catch (error) {
-    console.log(error, "ERROR");
+    console.error(error, "ERROR");
     // Token is invalid or has expired, user is not logged in
     return { status: 401, data: {} };
   }
@@ -130,7 +130,7 @@ const verifyTokenGirl = async (token) => {
     // If the token is valid, the user is logged in
     return { status: 200, data: decoded };
   } catch (error) {
-    console.log(error, "ERROR");
+    console.error(error, "ERROR");
     // Token is invalid or has expired, user is not logged in
     return { status: 401, data: {} };
   }

@@ -8,9 +8,11 @@ generator client {
 }
 
 model City {
-  id    Int    @id @default(autoincrement())
-  name  String
-  girls Girl[]
+  id                Int    @id @default(autoincrement())
+  name              String
+  metaTitle         String?
+  metaDescription   String?
+  girls             Girl[]
 }
 
 model ClickStats {
@@ -74,25 +76,29 @@ model Girl {
 }
 
 model Ethnicity {
-  id    Int    @id @default(autoincrement())
-  name  String
-  girls Girl[]
+  id                Int    @id @default(autoincrement())
+  name              String
+  metaTitle         String?
+  metaDescription   String?
+  girls             Girl[]
 }
 
 model Nationality {
   id    Int    @id @default(autoincrement())
   name  String
+  metaTitle         String?
+  metaDescription   String?
   girls Girl[]
 }
 
 model SpecificLocation {
   id                Int     @id @default(autoincrement())
-  name              String
+  name              String  @unique
   title             String?
+  metaTitle         String?
   metaDescription   String?
   girls             Girl[]
 }
-
 model Blog {
   id                 Int      @id @default(autoincrement())
   title              String
@@ -118,11 +124,13 @@ model Prices {
 }
 
 model Service {
-  id          Int    @id @default(autoincrement())
-  name        String
-  description String
-  girls       Girl[] @relation("GirlServices")
-  paidGirls   Girl[] @relation("GirlPaidServices")
+  id                Int    @id @default(autoincrement())
+  name              String
+  description       String
+  metaTitle         String?
+  metaDescription   String?
+  girls             Girl[] @relation("GirlServices")
+  paidGirls         Girl[] @relation("GirlPaidServices")
 }
 
 model User {
@@ -198,6 +206,13 @@ model PricingPlan {
   price           Float
   discount        Int
   discountMessage String
+}
+
+model SeoCategory {
+  id              Int       @id @default(autoincrement())
+  name            String    @unique
+  metaTitle       String
+  metaDescription String
 }
 
 model Banner {

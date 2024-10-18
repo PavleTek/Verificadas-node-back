@@ -4,11 +4,13 @@ const girlService = require("../girl/girlService.js");
 
 // City logic part
 const createCity = async (req) => {
-  const { name } = req.body;
+  const { name, metaTitle, metaDescription } = req.body;
   try {
     const city = await prisma.city.create({
       data: {
         name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: city };
@@ -19,7 +21,7 @@ const createCity = async (req) => {
 };
 
 const updateCityName = async (req) => {
-  const { id, name } = req.body;
+  const { id, name, metaTitle, metaDescription } = req.body;
 
   try {
     const city = await prisma.city.update({
@@ -28,6 +30,8 @@ const updateCityName = async (req) => {
       },
       data: {
         name: name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: city };
@@ -58,7 +62,7 @@ const updateAllCities = async (cities) => {
 
     // Iterate through the provided cities array
     for (const city of cities) {
-      const { id, name } = city;
+      const { id, name, metaTitle, metaDescription } = city;
 
       // Check if the city exists in the database
       const existingCity = existingCities.find((n) => n.id === id);
@@ -71,12 +75,16 @@ const updateAllCities = async (cities) => {
           },
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       } else {
         await prisma.city.create({
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       }
@@ -354,7 +362,7 @@ const registerGirlUser = async (req) => {
 
     return { status: 200, data: user };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return { status: 500, data: error };
   }
 };
@@ -388,7 +396,7 @@ async function setPasswordChangeSentTrue(userId) {
 }
 
 async function updateGirl(req) {
-  const { id, sessionPricesId, sessionPrices, ...updateData } = req.body; // Extract the 'serviceIds' field
+  const { id, sessionPricesId, sessionPrices, services, paidServices, ...updateData } = req.body;
 
   // Exclude the 'verification' field from the updateData object
   delete updateData.verification;
@@ -403,44 +411,43 @@ async function updateGirl(req) {
   delete updateData.sessionPrices;
 
   try {
-    const girl = await prisma.girl.update({
-      where: {
-        id,
+    // Fetch the current girl's services to determine which to disconnect
+    const currentGirl = await prisma.girl.findUnique({
+      where: { id },
+      include: {
+        services: true,
+        paidServices: true,
       },
+    });
+
+    const currentServiceIds = currentGirl.services.map((service) => service.id);
+    const currentPaidServiceIds = currentGirl.paidServices.map((service) => service.id);
+
+    const newServiceIds = services.map((service) => service.id);
+    const newPaidServiceIds = paidServices.map((service) => service.id);
+
+    const disconnectServices = currentServiceIds.filter((id) => !newServiceIds.includes(id)).map((id) => ({ id }));
+    const disconnectPaidServices = currentPaidServiceIds.filter((id) => !newPaidServiceIds.includes(id)).map((id) => ({ id }));
+
+    const girl = await prisma.girl.update({
+      where: { id },
       data: {
         ...updateData,
-        city: {
-          connect: {
-            id: updateData.city.id,
-          },
-        },
-        nationality: {
-          connect: {
-            id: updateData.nationality.id,
-          },
-        },
-        ethnicity: {
-          connect: {
-            id: updateData.ethnicity.id,
-          },
-        },
-        specificLocation: {
-          connect: {
-            id: updateData.specificLocation.id,
-          },
-        },
+        city: { connect: { id: updateData.city.id } },
+        nationality: { connect: { id: updateData.nationality.id } },
+        ethnicity: { connect: { id: updateData.ethnicity.id } },
+        specificLocation: { connect: { id: updateData.specificLocation.id } },
         services: {
-          connect: updateData.services.map((service) => ({
-            id: service.id,
-          })),
+          connect: newServiceIds.map((id) => ({ id })),
+          disconnect: disconnectServices,
         },
         paidServices: {
-          connect: updateData.paidServices.map((service) => ({
-            id: service.id,
-          })),
+          connect: newPaidServiceIds.map((id) => ({ id })),
+          disconnect: disconnectPaidServices,
         },
       },
     });
+
     const updatedPrices = await prisma.prices.update({
       where: { id: sessionPricesId },
       data: {
@@ -448,7 +455,7 @@ async function updateGirl(req) {
       },
     });
 
-    return { status: 200, data: { girl, sessionPrices } };
+    return { status: 200, data: girl };
   } catch (error) {
     console.error("Error updating girl:", error);
     return { status: 500, data: error };
@@ -526,7 +533,6 @@ async function deleteUserById(userId) {
         const pricesId = deletedGirl.sessionPricesId;
         const verificationId = deletedGirl.verificationId;
         const subscriptionId = deletedGirl.subscriptionId;
-        console.log(pricesId, verificationId, subscriptionId);
         await prisma.prices.delete({
           where: {
             id: pricesId,
@@ -560,13 +566,15 @@ async function deleteUserById(userId) {
 
 // Service logic part
 const createService = async (req) => {
-  const { name, description } = req.body;
+  const { name, description, metaTitle, metaDescription } = req.body;
 
   try {
     const service = await prisma.service.create({
       data: {
         name,
         description,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: service };
@@ -577,7 +585,7 @@ const createService = async (req) => {
 };
 
 const updateService = async (req) => {
-  const { id, name, description } = req.body;
+  const { id, name, description, metaTitle, metaDescription } = req.body;
 
   try {
     const service = await prisma.service.update({
@@ -587,6 +595,8 @@ const updateService = async (req) => {
       data: {
         name,
         description,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: service };
@@ -617,7 +627,7 @@ const updateAllServices = async (services) => {
 
     // Iterate through the provided services array
     for (const service of services) {
-      const { id, name, description } = service;
+      const { id, name, description, metaTitle, metaDescription } = service;
 
       // Check if the service exists in the database
       const existingService = existingServices.find((n) => n.id === id);
@@ -631,6 +641,8 @@ const updateAllServices = async (services) => {
           data: {
             name: capitalizeFirstLetter(name),
             description: capitalizeFirstLetterOnly(description),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       } else {
@@ -638,6 +650,8 @@ const updateAllServices = async (services) => {
           data: {
             name: capitalizeFirstLetter(name),
             description: capitalizeFirstLetterOnly(description),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       }
@@ -663,11 +677,13 @@ const updateAllServices = async (services) => {
 
 // Specific Location logic part
 const createSpecificLocation = async (req) => {
-  const { name } = req.body;
+  const { name, metaTitle, metaDescription } = req.body;
   try {
     const specificLocation = await prisma.specificLocation.create({
       data: {
         name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: specificLocation };
@@ -678,7 +694,7 @@ const createSpecificLocation = async (req) => {
 };
 
 const updateSpecificLocationName = async (req) => {
-  const { id, name } = req.body;
+  const { id, name, metaTitle, metaDescription } = req.body;
 
   try {
     const specificLocation = await prisma.specificLocation.update({
@@ -687,6 +703,8 @@ const updateSpecificLocationName = async (req) => {
       },
       data: {
         name: name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: specificLocation };
@@ -717,7 +735,7 @@ const updateAllSpecificLocations = async (specificLocations) => {
 
     // Iterate through the provided specific locations array
     for (const specificLocation of specificLocations) {
-      const { id, name } = specificLocation;
+      const { id, name, metaTitle, metaDescription } = specificLocation;
 
       // Check if the specific Location exists in the database
       const existingSpecificLocation = existingSpecificLocations.find((n) => n.id === id);
@@ -730,12 +748,16 @@ const updateAllSpecificLocations = async (specificLocations) => {
           },
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       } else {
         await prisma.specificLocation.create({
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       }
@@ -761,11 +783,13 @@ const updateAllSpecificLocations = async (specificLocations) => {
 
 // Ethnicity Location logic part
 const createEthnicity = async (req) => {
-  const { name } = req.body;
+  const { name, metaTitle, metaDescription } = req.body;
   try {
     const ethnicity = await prisma.ethnicity.create({
       data: {
         name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: ethnicity };
@@ -776,7 +800,7 @@ const createEthnicity = async (req) => {
 };
 
 const updateEthnicityName = async (req) => {
-  const { id, name } = req.body;
+  const { id, name, metaTitle, metaDescription } = req.body;
 
   try {
     const ethnicity = await prisma.ethnicity.update({
@@ -785,6 +809,8 @@ const updateEthnicityName = async (req) => {
       },
       data: {
         name: name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: ethnicity };
@@ -815,7 +841,7 @@ const updateAllEthnicities = async (ethnicities) => {
 
     // Iterate through the provided ethnicities array
     for (const ethnicity of ethnicities) {
-      const { id, name } = ethnicity;
+      const { id, name, metaTitle, metaDescription } = ethnicity;
 
       // Check if the ethnicity exists in the database
       const existingEthnicity = existingEthnicities.find((n) => n.id === id);
@@ -828,12 +854,16 @@ const updateAllEthnicities = async (ethnicities) => {
           },
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       } else {
         await prisma.ethnicity.create({
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       }
@@ -859,11 +889,13 @@ const updateAllEthnicities = async (ethnicities) => {
 
 // Nationality logic part
 const createNationality = async (req) => {
-  const { name } = req.body;
+  const { name, metaTitle, metaDescription } = req.body;
   try {
     const nationality = await prisma.nationality.create({
       data: {
         name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: nationality };
@@ -874,7 +906,7 @@ const createNationality = async (req) => {
 };
 
 const updateNationality = async (req) => {
-  const { id, name } = req.body;
+  const { id, name, metaTitle, metaDescription } = req.body;
 
   try {
     const nationality = await prisma.nationality.update({
@@ -883,6 +915,8 @@ const updateNationality = async (req) => {
       },
       data: {
         name: name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
       },
     });
     return { status: 200, data: nationality };
@@ -913,7 +947,7 @@ const updateAllNationalities = async (nationalities) => {
 
     // Iterate through the provided nationalities array
     for (const nationality of nationalities) {
-      const { id, name } = nationality;
+      const { id, name, metaTitle, metaDescription } = nationality;
 
       // Check if the nationality exists in the database
       const existingNationality = existingNationalities.find((n) => n.id === id);
@@ -926,6 +960,8 @@ const updateAllNationalities = async (nationalities) => {
           },
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       } else {
@@ -933,6 +969,8 @@ const updateAllNationalities = async (nationalities) => {
         await prisma.nationality.create({
           data: {
             name: capitalizeFirstLetter(name),
+            metaTitle: capitalizeFirstLetterOnly(metaTitle),
+            metaDescription: capitalizeFirstLetterOnly(metaDescription),
           },
         });
       }
@@ -956,6 +994,8 @@ const updateAllNationalities = async (nationalities) => {
   }
 };
 
+// CENSS = City, ethnicity, nationality, service, specific Location
+// This function is for when using the excel upload method
 const bulkUpdateCENSS = async (req) => {
   try {
     const { type, data } = req.body;
@@ -1037,9 +1077,63 @@ async function deletePricingPlan(pricingPlanId) {
         id: pricingPlanId,
       },
     });
-    return { status: 200, data: `pricingPlan with ID ${pricingPlanId} has been deleted` };
+    return { status: 200, data: `pricing Plan with ID ${pricingPlanId} has been deleted` };
   } catch (error) {
-    console.error("Error deleting service:", error);
+    console.error("Error deleting Pricing Plan:", error);
+    return { status: 500, data: error };
+  }
+}
+
+// category SEO Logic
+
+async function createCategorySeo(req) {
+  try {
+    const { name, metaTitle, metaDescription } = req.body;
+    const seoCategory = await prisma.seoCategory.create({
+      data: {
+        name,
+        metaTitle,
+        metaDescription,
+      },
+    });
+    return { status: 200, data: seoCategory };
+  } catch (error) {
+    console.error("Error creating category for SEO", error);
+    return { status: 500, data: error };
+  }
+}
+
+async function updateCategorySeo(req) {
+  try {
+    const { id, name, metaTitle, metaDescription } = req.body;
+    const seoCategory = await prisma.seoCategory.update({
+      where: {
+        id: id,
+      },
+      data: {
+        name: name,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
+      },
+    });
+    return { status: 200, data: seoCategory };
+  } catch (error) {
+    console.error("Error updating SEO Category", error);
+    return { status: 500, data: error };
+  }
+  F;
+}
+
+async function deleteCategorySeoById(categoryId) {
+  try {
+    await prisma.seoCategory.delete({
+      where: {
+        id: categoryId,
+      },
+    });
+    return { status: 200, data: `Seo Category with ID ${categoryId} has been deleted` };
+  } catch (error) {
+    console.error("Error deleting Category:", error);
     return { status: 500, data: error };
   }
 }
@@ -1201,4 +1295,7 @@ module.exports = {
   deleteAnounceRequest,
   getAllNotifications,
   deleteNotification,
+  createCategorySeo,
+  updateCategorySeo,
+  deleteCategorySeoById,
 };

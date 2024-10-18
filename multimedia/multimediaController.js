@@ -29,7 +29,7 @@ const upload = multer({ storage: storage });
 router.post("/request/:girlId", userService.authenticate, upload.array("images"), async (req, res) => {
   try {
     const girlId = Number(req.params.girlId);
-    const response = await multimediaService.saveImagesRequestToGirl(req.files, girlId);
+    const response = await multimediaService.saveImagesRequestToGirl(req.files, girlId, req);
     res.status(response.status).send(response);
   } catch (error) {}
 });
@@ -38,7 +38,7 @@ router.post("/request/:girlId", userService.authenticate, upload.array("images")
 router.post("/profilePictureRequest/:girlId", userService.authenticate, upload.array("images"), async (req, res) => {
   try {
     const girlId = Number(req.params.girlId);
-    const response = await multimediaService.saveProfilePictureRequestToGirl(req.files, girlId);
+    const response = await multimediaService.saveProfilePictureRequestToGirl(req.files, girlId, req);
     res.status(response.status).send(response);
   } catch (error) {}
 });
@@ -47,7 +47,7 @@ router.post("/profilePictureRequest/:girlId", userService.authenticate, upload.a
 router.post("/videoRequest/:girlId", userService.authenticate, upload.array("images"), async (req, res) => {
   try {
     const girlId = Number(req.params.girlId);
-    const response = await multimediaService.saveImagesRequestToGirl(req.files, girlId);
+    const response = await multimediaService.saveImagesRequestToGirl(req.files, girlId, req);
     res.status(response.status).send(response);
   } catch (error) {}
 });

@@ -110,6 +110,13 @@ router.get("/girls/city/:cityId", async (req, res) => {
   res.status(response.status).send(response.data);
 });
 
+// GET endpoint for fetching girls by city and optional category
+router.get("/girls/specificLocation/:locationName", async (req, res) => {
+  const { locationName } = req.params;
+  const response = await girlService.getGirlsBySpecificLocation(locationName);
+  res.status(response.status).send(response.data);
+});
+
 // GET endpoint for fetching girls routes for SSR
 router.get("/girlsRoutes", async (req, res) => {
   const response = await girlService.getAllGirlDataForRoutes();
@@ -201,6 +208,16 @@ router.get("/nationality", async (req, res) => {
 router.get("/pricingPlan", async (req, res) => {
   try {
     const response = await girlService.getAllPricingPlans();
+    res.status(response.status).send(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET endpoint for fetching all Seo Categories
+router.get("/category", async (req, res) => {
+  try {
+    const response = await girlService.getAllSeoCategories();
     res.status(response.status).send(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
