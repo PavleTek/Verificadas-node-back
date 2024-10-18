@@ -136,17 +136,22 @@ async function generateDynamicSiteMapEntriesForLocations() {
   const today = new Date().toISOString().split("T")[0]; // Gets today's date in YYYY-MM-DD format
   return locations
     .map((location) => {
-      const sanitizedCityName = location.city.name.replace(/\s+/g, "-");
-      const sanitizedLocationName = location.name.replace(/\s+/g, "-");
-      return `
-        <url>
-            <loc>https://verificadas.cl/escorts/${sanitizedCityName}/ubicacion/${sanitizedLocationName}</loc>
-            <lastmod>${today}</lastmod>
-            <changefreq>Daily</changefreq>
-            <priority>0.9</priority>
-        </url>
-      `;
+      if (location.city) {
+        const sanitizedCityName = location.city.name.replace(/\s+/g, "-");
+        const sanitizedLocationName = location.name.replace(/\s+/g, "-");
+        return `
+          <url>
+              <loc>https://verificadas.cl/escorts/${sanitizedCityName}/ubicacion/${sanitizedLocationName}</loc>
+              <lastmod>${today}</lastmod>
+              <changefreq>Daily</changefreq>
+              <priority>0.9</priority>
+          </url>
+        `;
+      } else {
+        return null;
+      }
     })
+    .filter((route) => route !== null)
     .join("");
 }
 
@@ -270,11 +275,17 @@ async function generateRouteText() {
     const sanitizedCityName = city.name.replace(/\s+/g, "-");
     return `/escorts/${sanitizedCityName}`;
   });
-  const locationRoutes = locations.map((location) => {
-    const sanitizedCityName = location.city.name.replace(/\s+/g, "-");
-    const sanitizedLocationName = location.name.replace(/\s+/g, "-");
-    return `/escorts/${sanitizedCityName}/ubicacion/${sanitizedLocationName}`;
-  });
+  const locationRoutes = locations
+    .map((location) => {
+      if (location.city) {
+        const sanitizedCityName = location.city.name.replace(/\s+/g, "-");
+        const sanitizedLocationName = location.name.replace(/\s+/g, "-");
+        return `/escorts/${sanitizedCityName}/ubicacion/${sanitizedLocationName}`;
+      } else {
+        return null;
+      }
+    })
+    .filter((route) => route !== null);
   const categoryRoutes = cities.flatMap((city) =>
     categories.map((category) => {
       const sanitizedCityName = city.name.replace(/\s+/g, "-");
