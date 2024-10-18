@@ -169,7 +169,7 @@ router.put("/city", userService.authenticateAdmin, async (req, res) => {
 
 // PUT endpoint for updating a specific location name - Admin only
 router.put("/specificLocation", userService.authenticateAdmin, async (req, res) => {
-  const response = await adminService.updateSpecificLocationName(req);
+  const response = await adminService.updateSpecificLocation(req);
   res.status(response.status).send(response);
 });
 

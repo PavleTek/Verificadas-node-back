@@ -151,5 +151,6 @@ async function updateActiveStatusForAllUsers() {
   });
 }
 
-cron.schedule("01 00 * * *", updateActiveStatusForAllUsers);
-cron.schedule("15 1 * * *", sitemapService.generateSitemap);
+cron.schedule("00 1 * * *", updateActiveStatusForAllUsers);
+cron.schedule("15 3 * * *", sitemapService.generateSitemap);
+cron.schedule("15 3 * * *", sitemapService.generateRouteText);

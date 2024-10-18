@@ -677,15 +677,20 @@ const updateAllServices = async (services) => {
 
 // Specific Location logic part
 const createSpecificLocation = async (req) => {
-  const { name, metaTitle, metaDescription } = req.body;
+  const { name, metaTitle, metaDescription, city } = req.body;
+
   try {
+    const cityId = city?.id; // Optional chaining to avoid errors if city is not provided
+
     const specificLocation = await prisma.specificLocation.create({
       data: {
         name,
-        metaTitle: metaTitle,
-        metaDescription: metaDescription,
+        metaTitle,
+        metaDescription,
+        city: cityId ? { connect: { id: cityId } } : undefined, // Connect city if cityId exists
       },
     });
+
     return { status: 200, data: specificLocation };
   } catch (error) {
     console.error("Error creating specific location:", error);
@@ -693,10 +698,11 @@ const createSpecificLocation = async (req) => {
   }
 };
 
-const updateSpecificLocationName = async (req) => {
-  const { id, name, metaTitle, metaDescription } = req.body;
-
+const updateSpecificLocation = async (req) => {
+  const { id, name, metaTitle, metaDescription, city } = req.body; // Corrected variable name to cityId
+  console.log(req.body);
   try {
+    const cityId = city.id;
     const specificLocation = await prisma.specificLocation.update({
       where: {
         id: id,
@@ -705,11 +711,12 @@ const updateSpecificLocationName = async (req) => {
         name: name,
         metaTitle: metaTitle,
         metaDescription: metaDescription,
+        city: cityId ? { connect: { id: cityId } } : { disconnect: true }, // Update cityId dynamically
       },
     });
     return { status: 200, data: specificLocation };
   } catch (error) {
-    console.error("Error updating specific location name:", error);
+    console.error("Error updating specific location:", error);
     return { status: 500, data: error };
   }
 };
@@ -1274,7 +1281,7 @@ module.exports = {
   updateGirl,
   registerGirlUser,
   createSpecificLocation,
-  updateSpecificLocationName,
+  updateSpecificLocation,
   deleteSpecificLocation,
   createEthnicity,
   setUserWelcomeSentTrue,

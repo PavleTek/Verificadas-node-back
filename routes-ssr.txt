@@ -1,0 +1,6 @@
+/
+/escorts/Santiago
+/anunciate/Premium
+/anunciate/Regular
+/anunciate/Economica
+/escort-verificada/50

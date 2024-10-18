@@ -645,6 +645,9 @@ const getAllSpecificLocations = async () => {
       orderBy: {
         name: "asc",
       },
+      include: {
+        city: true, // Include related city data
+      },
     });
     return { status: 200, data: locations };
   } catch (error) {

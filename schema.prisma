@@ -13,6 +13,7 @@ model City {
   metaTitle         String?
   metaDescription   String? @db.Text
   girls             Girl[]
+  specificLocations SpecificLocation[]
 }
 
 model ClickStats {
@@ -98,7 +99,10 @@ model SpecificLocation {
   metaTitle         String?
   metaDescription   String? @db.Text
   girls             Girl[]
+  cityId            Int?    
+  city              City?   @relation(fields: [cityId], references: [id])
 }
+
 model Blog {
   id                 Int      @id @default(autoincrement())
   title              String
