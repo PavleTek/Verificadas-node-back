@@ -11,7 +11,7 @@ model City {
   id                Int    @id @default(autoincrement())
   name              String
   metaTitle         String?
-  metaDescription   String?
+  metaDescription   String? @db.Text
   girls             Girl[]
 }
 
@@ -68,7 +68,7 @@ model Girl {
   categories                Json
   requestProfilePicture     String?
   title                     String?
-  metaDescription           String?
+  metaDescription           String? @db.Text
   sessionPricesId           Int?              @unique
   sessionPrices             Prices?           @relation(fields: [sessionPricesId], references: [id])
   verificationId            Int?              @unique
@@ -79,7 +79,7 @@ model Ethnicity {
   id                Int    @id @default(autoincrement())
   name              String
   metaTitle         String?
-  metaDescription   String?
+  metaDescription   String? @db.Text
   girls             Girl[]
 }
 
@@ -87,7 +87,7 @@ model Nationality {
   id    Int    @id @default(autoincrement())
   name  String
   metaTitle         String?
-  metaDescription   String?
+  metaDescription   String? @db.Text
   girls Girl[]
 }
 
@@ -96,7 +96,7 @@ model SpecificLocation {
   name              String  @unique
   title             String?
   metaTitle         String?
-  metaDescription   String?
+  metaDescription   String? @db.Text
   girls             Girl[]
 }
 model Blog {
@@ -106,7 +106,7 @@ model Blog {
   category           String?
   shortDescription   String
   metaTitle          String?
-  metaDescription    String?
+  metaDescription    String? @db.Text
   createdAt          DateTime @default(now())
 }
 
@@ -128,7 +128,7 @@ model Service {
   name              String
   description       String
   metaTitle         String?
-  metaDescription   String?
+  metaDescription   String? @db.Text
   girls             Girl[] @relation("GirlServices")
   paidGirls         Girl[] @relation("GirlPaidServices")
 }
@@ -212,7 +212,7 @@ model SeoCategory {
   id              Int       @id @default(autoincrement())
   name            String    @unique
   metaTitle       String
-  metaDescription String
+  metaDescription String? @db.Text
 }
 
 model Banner {
