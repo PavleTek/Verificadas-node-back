@@ -308,4 +308,11 @@ router.delete("/category/:categoryId", userService.authenticateAdmin, async (req
   }
 });
 
+// Put Endpoint for generating sitemap functions
+router.put("/generateRoutes", userService.authenticateAdmin, async (req, res) => {
+  const response = await adminService.manuallyGenerateSitemap();
+  res.status(response.status).send(response);
+});
+
+
 module.exports = router;

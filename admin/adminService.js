@@ -1,6 +1,7 @@
 const prisma = require("../prisma.js");
 const bcrypt = require("bcrypt");
 const girlService = require("../girl/girlService.js");
+const sitemapService = require("../sitemapService.js");
 
 // City logic part
 const createCity = async (req) => {
@@ -1261,6 +1262,17 @@ async function deleteNotification(notificationId) {
   }
 }
 
+async function manuallyGenerateSitemap() {
+  try {
+    sitemapService.generateRouteText();
+    sitemapService.generateSitemap();
+    return { status: 200, data: "Good" };
+  } catch (error) {
+    console.error("Error generating sitemaps and routes");
+    return { status: 500, data: error };
+  }
+}
+
 module.exports = {
   createCity,
   updateCityName,
@@ -1305,4 +1317,5 @@ module.exports = {
   createCategorySeo,
   updateCategorySeo,
   deleteCategorySeoById,
+  manuallyGenerateSitemap,
 };
