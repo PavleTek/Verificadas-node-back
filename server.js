@@ -14,13 +14,13 @@ const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || [];
 
 
 const corsOptions = {
-  origin: '*', // allow any origin
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], // standard methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // allow sending JWT in header
-  // ⚠️ Do NOT include credentials
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors());
 
 app.use(express.json());
 app.use("/user-api", userController);
@@ -32,7 +32,7 @@ const hostName = "127.0.0.1";
 const port = process.env.PORT || 3000; // Fallback to 3000 if process.env.PORT is not defined
 initializeBanner()
   .then(() => {
-    app.listen(port, hostName, () => {
+    app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
     });
   })
