@@ -10,10 +10,19 @@ const { initializeBanner } = require("./admin/adminService");
 
 const app = express();
 
+const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || [];
+
 const corsOptions = {
-  origin: "*", // Replace with the actual URL of your Angular app
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true, // Enable credentials (cookies, authorization headers) if needed
+  origin: function (origin, callback) {
+    // Allow requests with no origin (e.g., curl, Postman) or from whitelisted origins
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
 };
 
 app.use(cors(corsOptions));

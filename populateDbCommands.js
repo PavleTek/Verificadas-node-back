@@ -166,7 +166,7 @@ async function deleteBanner() {
 }
 
 // deleteAllGirls();
-// createGirlAndAdminUser();
+createGirlAndAdminUser();
 // deleteBanner();
 // fixUser();
-fixGirl();
+// fixGirl();
