@@ -12,17 +12,12 @@ const app = express();
 
 const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || [];
 
+
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (e.g., curl, Postman) or from whitelisted origins
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
+  origin: '*', // allow any origin
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], // standard methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // allow sending JWT in header
+  // ⚠️ Do NOT include credentials
 };
 
 app.use(cors(corsOptions));
