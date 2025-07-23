@@ -311,9 +311,6 @@ async function generateRouteText() {
   }
 }
 
-generateRouteText();
-generateSitemap();
-
 module.exports = {
   generateSitemap,
   generateRouteText,

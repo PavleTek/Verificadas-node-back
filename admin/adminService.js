@@ -1263,14 +1263,14 @@ async function deleteNotification(notificationId) {
 }
 
 async function manuallyGenerateSitemap() {
-  try {
-    sitemapService.generateRouteText();
-    sitemapService.generateSitemap();
-    return { status: 200, data: "Good" };
-  } catch (error) {
-    console.error("Error generating sitemaps and routes");
-    return { status: 500, data: error };
-  }
+  // try {
+  //   sitemapService.generateRouteText();
+  //   sitemapService.generateSitemap();
+  //   return { status: 200, data: "Good" };
+  // } catch (error) {
+  //   console.error("Error generating sitemaps and routes");
+  //   return { status: 500, data: error };
+  // }
 }
 
 module.exports = {
